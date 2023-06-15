@@ -1,0 +1,13 @@
+<resources>
+    <!-- General -->
+    <string name="app_name">Eivom</string>
+
+    <!-- Scaffold Component -->
+    <string name="menu_button_content_description">Menu</string>
+    <string name="movie_list_screen_title">Movie list screen</string>
+    <string name="movie_list_screen_button_content_description">Movie list screen</string>
+
+    <!-- Screen Component -->
+    <string name="retry_button">Retry</string>
+    <string name="back_button">Back</string>
+</resources>
