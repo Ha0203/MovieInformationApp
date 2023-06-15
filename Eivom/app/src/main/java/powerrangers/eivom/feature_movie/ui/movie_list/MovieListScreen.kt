@@ -100,8 +100,8 @@ fun MovieListBody(
             .padding(16.dp),
         horizontalAlignment = CenterHorizontally
     ) {
-        itemsIndexed(movieListItems.data ?: emptyList()) { index, movie ->
-            if (index >= (movieListItems.data?.size ?: 0) - 1 && movieListItems !is Resource.Loading) {
+        itemsIndexed(movieListItems.data!!) { index, movie ->
+            if (index >= movieListItems.data!!.size - 1 && movieListItems !is Resource.Loading) {
                 viewModel.loadMoviePaginated()
             }
             MovieListEntry(

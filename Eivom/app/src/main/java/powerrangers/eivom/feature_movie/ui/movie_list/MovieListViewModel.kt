@@ -51,22 +51,31 @@ class MovieListViewModel @Inject constructor(
                 return@launch
             }
 
-            movieListItems.value.toLoading()
+            if (movieListItems.value.data == null) {
+                movieListItems.value = movieListItems.value.toLoading(data = emptyList())
+            }
+            else {
+                movieListItems.value = movieListItems.value.toLoading()
+            }
 
             try {
-                val result = movieDatabaseUseCase.getMovieList(page = currentPage)
                 endReached = currentPage >= DefaultValue.TMDB_API_TOTAL_PAGES
 
                 movieListItems.value = movieListItems.value.add(
                     movieDatabaseUseCase.convertMovieListResourceToMovieListItemsResource(
-                        movieList = result,
+                        movieList = movieDatabaseUseCase.getMovieList(page = currentPage),
                         movieImageWidth = movieImageWidth
                     )
                 )
 
                 currentPage++
             } catch (e: Exception) {
-                movieListItems.value.toError(message = "Load movie list error")
+                if (movieListItems.value.data == null) {
+                    movieListItems.value = movieListItems.value.toError(data = emptyList(), message = "Load movie list error")
+                }
+                else {
+                    movieListItems.value = movieListItems.value.toError(message = "Load movie list error")
+                }
             }
         }
     }
