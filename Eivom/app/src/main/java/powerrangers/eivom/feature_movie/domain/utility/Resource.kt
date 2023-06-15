@@ -6,13 +6,28 @@ sealed class Resource<T>(val data: T? = null, val message: String? = null) {
     class Loading<T>(data: T? = null) : Resource<T>(data)
 }
 
-fun <T> Resource<List<T>>.add(resource: Resource<List<T>>): Resource<List<T>> {
+object ResourceErrorMessage {
+    const val UNKNOWN = "Unknown error"
+
+    const val ADD_LIST = "Adding Resource<List> error"
+
+    const val CONVERT_MOVIELIST_TO_MOVIELISTITEMS = "Converting Resource<MovieList> to Resource<MovieListItems> error"
+    const val CONVERT_MOVIEINFORMATION_TO_MOVIEITEM = "Converting Resource<MovieInformation> to Resource<MovieItem> error"
+
+    const val GET_MOVIELIST = "Getting Resource<MOVIELIST> error"
+    const val GET_MOVIEINFORMATION = "Getting Resource<MOVIEINFORMATION> error"
+
+    const val MOVIELIST_END = "End of movie list error"
+    const val LOAD_MOVIELIST = "Loading movie list error"
+}
+
+fun <T> Resource<List<T>>.addList(resource: Resource<List<T>>): Resource<List<T>> {
     return try {
         val list = (this.data ?: emptyList()) + (resource.data ?: emptyList())
         Resource.Success(data = list)
     }
     catch (e: Exception) {
-        Resource.Error(data = this.data, message = "Adding resource error")
+        Resource.Error(data = this.data, message = ResourceErrorMessage.ADD_LIST)
     }
 }
 

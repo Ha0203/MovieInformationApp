@@ -12,12 +12,13 @@ import kotlinx.coroutines.launch
 import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 import powerrangers.eivom.feature_movie.domain.use_case.MovieDatabaseUseCase
 import powerrangers.eivom.feature_movie.domain.use_case.UserPreferencesUseCase
+import powerrangers.eivom.feature_movie.domain.utility.DefaultValue
 import powerrangers.eivom.feature_movie.domain.utility.Resource
-import powerrangers.eivom.feature_movie.domain.utility.add
+import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
+import powerrangers.eivom.feature_movie.domain.utility.addList
 import powerrangers.eivom.feature_movie.domain.utility.toError
 import powerrangers.eivom.feature_movie.domain.utility.toLoading
 import powerrangers.eivom.feature_movie.ui.utility.UserPreferences
-import powerrangers.eivom.feature_movie.domain.utility.DefaultValue
 import javax.inject.Inject
 
 @HiltViewModel
@@ -47,7 +48,7 @@ class MovieListViewModel @Inject constructor(
     fun loadMoviePaginated(movieImageWidth: Int = 500) {
         viewModelScope.launch {
             if (endReached) {
-                movieListItems.value.toError(message = "End of movie list error")
+                movieListItems.value.toError(message = ResourceErrorMessage.MOVIELIST_END)
                 return@launch
             }
 
@@ -61,9 +62,9 @@ class MovieListViewModel @Inject constructor(
             try {
                 endReached = currentPage >= DefaultValue.TMDB_API_TOTAL_PAGES
 
-                movieListItems.value = movieListItems.value.add(
+                movieListItems.value = movieListItems.value.addList(
                     movieDatabaseUseCase.convertMovieListResourceToMovieListItemsResource(
-                        movieList = movieDatabaseUseCase.getMovieList(page = currentPage),
+                        movieList = movieDatabaseUseCase.getMovieListResource(page = currentPage),
                         movieImageWidth = movieImageWidth
                     )
                 )
@@ -71,10 +72,10 @@ class MovieListViewModel @Inject constructor(
                 currentPage++
             } catch (e: Exception) {
                 if (movieListItems.value.data == null) {
-                    movieListItems.value = movieListItems.value.toError(data = emptyList(), message = "Load movie list error")
+                    movieListItems.value = movieListItems.value.toError(data = emptyList(), message = ResourceErrorMessage.LOAD_MOVIELIST)
                 }
                 else {
-                    movieListItems.value = movieListItems.value.toError(message = "Load movie list error")
+                    movieListItems.value = movieListItems.value.toError(message = ResourceErrorMessage.LOAD_MOVIELIST)
                 }
             }
         }

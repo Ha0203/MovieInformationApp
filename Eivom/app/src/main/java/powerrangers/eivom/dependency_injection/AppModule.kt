@@ -66,8 +66,8 @@ object AppModule {
             handleImageDominantColor = HandleImageDominantColor(),
             convertMovieListResourceToMovieListItemsResource = ConvertMovieListResourceToMovieListItemsResource(),
             convertMovieInformationResourceToMovieItemResource = ConvertMovieInformationResourceToMovieItemResource(),
-            getMovieList = GetMovieList(movieDatabaseRepository),
-            getMovieInformation = GetMovieInformation(movieDatabaseRepository),
+            getMovieListResource = GetMovieListResource(movieDatabaseRepository),
+            getMovieInformationResource = GetMovieInformationResource(movieDatabaseRepository),
             getMovieImageUrl = GetMovieImageUrl()
         )
 }

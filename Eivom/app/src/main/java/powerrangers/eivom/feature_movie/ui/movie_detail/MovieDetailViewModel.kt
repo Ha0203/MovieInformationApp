@@ -39,7 +39,7 @@ class MovieDetailViewModel @Inject constructor(
                 )
             movieInformation.value =
                 movieDatabaseUseCase.convertMovieInformationResourceToMovieItemResource(
-                    movieDatabaseUseCase.getMovieInformation(movieId = movieId),
+                    movieDatabaseUseCase.getMovieInformationResource(movieId = movieId),
                     landscapeWidth = 500,
                     posterWidth = 500
                 )

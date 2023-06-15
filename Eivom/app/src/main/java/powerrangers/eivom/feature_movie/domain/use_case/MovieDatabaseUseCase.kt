@@ -13,6 +13,7 @@ import powerrangers.eivom.feature_movie.domain.model.MovieItem
 import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 import powerrangers.eivom.feature_movie.domain.repository.MovieDatabaseRepository
 import powerrangers.eivom.feature_movie.domain.utility.Resource
+import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
 
 // If adding use case -> adding use case in app module too
 data class MovieDatabaseUseCase(
@@ -22,8 +23,8 @@ data class MovieDatabaseUseCase(
     val convertMovieInformationResourceToMovieItemResource: ConvertMovieInformationResourceToMovieItemResource,
 
     // Get use case
-    val getMovieList: GetMovieList,
-    val getMovieInformation: GetMovieInformation,
+    val getMovieListResource: GetMovieListResource,
+    val getMovieInformationResource: GetMovieInformationResource,
     val getMovieImageUrl: GetMovieImageUrl
 )
 
@@ -61,12 +62,12 @@ class ConvertMovieListResourceToMovieListItemsResource {
                     )
                 }
                 catch (e: Exception) {
-                    return Resource.Error(message = "Can't convert Resource<MovieList> to Resource<MovieListItems>")
+                    return Resource.Error(message = ResourceErrorMessage.CONVERT_MOVIELIST_TO_MOVIELISTITEMS)
                 }
             }
 
             else -> {
-                return Resource.Error(message = "Can't convert Resource<MovieList> to Resource<MovieListItems>")
+                return Resource.Error(message = ResourceErrorMessage.CONVERT_MOVIELIST_TO_MOVIELISTITEMS)
             }
         }
     }
@@ -119,19 +120,19 @@ class ConvertMovieInformationResourceToMovieItemResource {
                         )
                     )
                 } catch (e: Exception) {
-                    return Resource.Error(message = "Can't convert Resource<MovieInformation> to Resource<MovieItem>")
+                    return Resource.Error(message = ResourceErrorMessage.CONVERT_MOVIEINFORMATION_TO_MOVIEITEM)
                 }
             }
 
             else -> {
-                return Resource.Error(message = "Can't convert Resource<MovieInformation> to Resource<MovieItem>")
+                return Resource.Error(message = ResourceErrorMessage.CONVERT_MOVIEINFORMATION_TO_MOVIEITEM)
             }
         }
     }
 }
 
 // Get use case
-class GetMovieList(
+class GetMovieListResource(
     private val movieDatabaseRepository: MovieDatabaseRepository
 ) {
     suspend operator fun invoke(
@@ -146,12 +147,12 @@ class GetMovieList(
                 )
             )
         } catch (e: Exception) {
-            Resource.Error(message = "Can't get movie list")
+            Resource.Error(message = ResourceErrorMessage.GET_MOVIELIST)
         }
     }
 }
 
-class GetMovieInformation(
+class GetMovieInformationResource(
     private val movieDatabaseRepository: MovieDatabaseRepository
 ) {
     suspend operator fun invoke(
@@ -166,7 +167,7 @@ class GetMovieInformation(
                 )
             )
         } catch (e: Exception) {
-            Resource.Error(message = "Can't get movie information")
+            Resource.Error(message = ResourceErrorMessage.GET_MOVIEINFORMATION)
         }
     }
 }

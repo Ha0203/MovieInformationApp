@@ -48,6 +48,7 @@ import kotlinx.coroutines.launch
 import powerrangers.eivom.R
 import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 import powerrangers.eivom.feature_movie.domain.utility.Resource
+import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
 import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.TopBar
@@ -126,7 +127,7 @@ fun MovieListBody(
             }
             is Resource.Error -> {
                 RetrySection(
-                    error = movieListItems.message?: "Unknown error",
+                    error = movieListItems.message?: ResourceErrorMessage.UNKNOWN,
                     onRetry = {
                         viewModel.loadMoviePaginated()
                     }
