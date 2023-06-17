@@ -9,11 +9,13 @@ import powerrangers.eivom.feature_movie.data.network.response.BelongsToCollectio
 import powerrangers.eivom.feature_movie.data.network.response.MovieInformation
 import powerrangers.eivom.feature_movie.data.network.response.MovieList
 import powerrangers.eivom.feature_movie.data.utility.DataSourceRelation
+import powerrangers.eivom.feature_movie.data.utility.GenreNotFoundException
 import powerrangers.eivom.feature_movie.domain.model.MovieItem
 import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 import powerrangers.eivom.feature_movie.domain.repository.MovieDatabaseRepository
 import powerrangers.eivom.feature_movie.domain.utility.Resource
 import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
+import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
 
 // If adding use case -> adding use case in app module too
 data class MovieDatabaseUseCase(
@@ -43,7 +45,8 @@ class HandleImageDominantColor {
 class ConvertMovieListResourceToMovieListItemsResource {
     operator fun invoke(
         movieList: Resource<MovieList>,
-        movieImageWidth: Int
+        landscapeWidth: Int,
+        posterWidth: Int
     ): Resource<List<MovieListItem>> {
         when (movieList) {
             is Resource.Success -> {
@@ -51,18 +54,31 @@ class ConvertMovieListResourceToMovieListItemsResource {
                     Resource.Success(
                         data = movieList.data!!.results.map { movie ->
                             MovieListItem(
-                                movieId = movie.id,
-                                movieName = movie.title,
-                                imageUrl = GetMovieImageUrl()(
-                                    imageWidth = movieImageWidth,
+                                adult = movie.adult,
+                                landscapeImageUrl = GetMovieImageUrl()(
+                                    imageWidth = landscapeWidth,
+                                    imagePath = movie.backdrop_path
+                                ),
+                                genres = movie.genre_ids.map { genreId ->
+                                    TranslateCode.GENRE[genreId] ?: throw GenreNotFoundException("Genre not found error")
+                                },
+                                id = movie.id,
+                                originalLanguage = TranslateCode.ISO_639_1[movie.original_language],
+                                originalTitle = movie.original_title,
+                                overview = movie.overview,
+                                title = movie.title,
+                                posterUrl = GetMovieImageUrl()(
+                                    imageWidth = posterWidth,
                                     imagePath = movie.poster_path
-                                )
+                                ),
+                                voteAverage = movie.vote_average,
+                                voteCount = movie.vote_count
                             )
                         }
                     )
                 }
                 catch (e: Exception) {
-                    return Resource.Error(message = ResourceErrorMessage.CONVERT_MOVIELIST_TO_MOVIELISTITEMS)
+                    return Resource.Error(message = e.message ?: ResourceErrorMessage.CONVERT_MOVIELIST_TO_MOVIELISTITEMS)
                 }
             }
 

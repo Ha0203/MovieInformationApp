@@ -45,7 +45,7 @@ class MovieListViewModel @Inject constructor(
         loadMoviePaginated()
     }
 
-    fun loadMoviePaginated(movieImageWidth: Int = 500) {
+    fun loadMoviePaginated(landscapeWidth: Int = 500, posterWidth: Int = 500) {
         viewModelScope.launch {
             if (endReached) {
                 movieListItems.value.toError(message = ResourceErrorMessage.MOVIELIST_END)
@@ -65,17 +65,18 @@ class MovieListViewModel @Inject constructor(
                 movieListItems.value = movieListItems.value.addList(
                     movieDatabaseUseCase.convertMovieListResourceToMovieListItemsResource(
                         movieList = movieDatabaseUseCase.getMovieListResource(page = currentPage),
-                        movieImageWidth = movieImageWidth
+                        landscapeWidth = landscapeWidth,
+                        posterWidth = posterWidth
                     )
                 )
 
                 currentPage++
             } catch (e: Exception) {
                 if (movieListItems.value.data == null) {
-                    movieListItems.value = movieListItems.value.toError(data = emptyList(), message = ResourceErrorMessage.LOAD_MOVIELIST)
+                    movieListItems.value = movieListItems.value.toError(data = emptyList(), message = e.message ?: ResourceErrorMessage.LOAD_MOVIELIST)
                 }
                 else {
-                    movieListItems.value = movieListItems.value.toError(message = ResourceErrorMessage.LOAD_MOVIELIST)
+                    movieListItems.value = movieListItems.value.toError(message = e.message ?: ResourceErrorMessage.LOAD_MOVIELIST)
                 }
             }
         }

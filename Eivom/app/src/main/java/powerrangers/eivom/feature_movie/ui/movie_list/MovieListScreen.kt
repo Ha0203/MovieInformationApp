@@ -165,7 +165,7 @@ fun MovieListEntry(
             .height(350.dp)
             .width(250.dp)
             .clickable {
-                navigateToMovieDetailScreen(movie.movieId)
+                navigateToMovieDetailScreen(movie.id)
             }
     ) {
         Column(
@@ -175,7 +175,7 @@ fun MovieListEntry(
         ) {
             SubcomposeAsyncImage(
                 model = ImageRequest.Builder(context = LocalContext.current)
-                    .data(movie.imageUrl)
+                    .data(movie.posterUrl)
                     .crossfade(true)
                     .build(),
                 onSuccess = { image ->
@@ -183,7 +183,7 @@ fun MovieListEntry(
                         dominantColor = color
                     }
                 },
-                contentDescription = movie.movieName,
+                contentDescription = movie.title,
                 contentScale = ContentScale.Fit,
                 loading = {
                     CircularProgressIndicator(
@@ -194,7 +194,7 @@ fun MovieListEntry(
                 }
             )
             Text(
-                text = movie.movieName,
+                text = movie.title,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
