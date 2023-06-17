@@ -16,6 +16,7 @@ import powerrangers.eivom.feature_movie.domain.repository.MovieDatabaseRepositor
 import powerrangers.eivom.feature_movie.domain.utility.Resource
 import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
+import java.util.Locale
 
 // If adding use case -> adding use case in app module too
 data class MovieDatabaseUseCase(
@@ -54,25 +55,26 @@ class ConvertMovieListResourceToMovieListItemsResource {
                     Resource.Success(
                         data = movieList.data!!.results.map { movie ->
                             MovieListItem(
-                                adult = movie.adult,
+                                adult = movie.adult ?: true,
                                 landscapeImageUrl = GetMovieImageUrl()(
                                     imageWidth = landscapeWidth,
-                                    imagePath = movie.backdrop_path
+                                    imagePath = movie.backdrop_path ?: ""
                                 ),
                                 genres = movie.genre_ids.map { genreId ->
                                     TranslateCode.GENRE[genreId] ?: throw GenreNotFoundException("Genre not found error")
                                 },
-                                id = movie.id,
-                                originalLanguage = TranslateCode.ISO_639_1[movie.original_language],
-                                originalTitle = movie.original_title,
-                                overview = movie.overview,
-                                title = movie.title,
+                                id = movie.id ?: 0,
+                                originalLanguage = TranslateCode.ISO_639_1[movie.original_language] ?: "",
+                                originalTitle = movie.original_title ?: "",
+                                overview = movie.overview ?: "",
                                 posterUrl = GetMovieImageUrl()(
                                     imageWidth = posterWidth,
-                                    imagePath = movie.poster_path
+                                    imagePath = movie.poster_path ?: ""
                                 ),
-                                voteAverage = movie.vote_average,
-                                voteCount = movie.vote_count
+                                releaseDate = movie.release_date ?: "",
+                                title = movie.title ?: "",
+                                voteAverage = movie.vote_average ?: 0.0,
+                                voteCount = movie.vote_count ?: 0
                             )
                         }
                     )
@@ -100,7 +102,7 @@ class ConvertMovieInformationResourceToMovieItemResource {
                 return try {
                     Resource.Success(
                         data = MovieItem(
-                            adult = movieInformation.data?.adult ?: false,
+                            adult = movieInformation.data?.adult ?: true,
                             landscapeImageUrl = GetMovieImageUrl()(
                                 imageWidth = landscapeWidth,
                                 imagePath = movieInformation.data?.backdrop_path ?: ""
@@ -153,12 +155,14 @@ class GetMovieListResource(
 ) {
     suspend operator fun invoke(
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
+        region: String = Locale.getDefault().country,
         page: Int
     ): Resource<MovieList> {
         return try {
             Resource.Success(
                 data = movieDatabaseRepository.getMovieList(
                     apiKey = apiKey,
+                    region = region,
                     page = page
                 )
             )
@@ -173,13 +177,15 @@ class GetMovieInformationResource(
 ) {
     suspend operator fun invoke(
         movieId: Int,
-        apiKey: String = DataSourceRelation.TMDB_API_KEY
+        apiKey: String = DataSourceRelation.TMDB_API_KEY,
+        region: String = Locale.getDefault().country
     ): Resource<MovieInformation> {
         return try {
             Resource.Success(
                 data = movieDatabaseRepository.getMovieInformation(
                     movieId = movieId,
-                    apiKey = apiKey
+                    apiKey = apiKey,
+                    region = region
                 )
             )
         } catch (e: Exception) {

@@ -193,11 +193,13 @@ fun MovieListEntry(
                     )
                 }
             )
-            Text(
-                text = movie.title,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
+            if (movie.title != null) {
+                Text(
+                    text = movie.title,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }

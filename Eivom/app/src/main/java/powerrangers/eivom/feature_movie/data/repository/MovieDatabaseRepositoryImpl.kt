@@ -11,9 +11,9 @@ import javax.inject.Inject
 class MovieDatabaseRepositoryImpl @Inject constructor(
     private val movieDatabaseApi: MovieDatabaseApi
 ) : MovieDatabaseRepository {
-    override suspend fun getMovieList(apiKey: String, page: Int): MovieList =
-        movieDatabaseApi.getMovieList(apiKey = apiKey, page = page)
+    override suspend fun getMovieList(apiKey: String, region: String, page: Int): MovieList =
+        movieDatabaseApi.getMovieList(apiKey = apiKey, region = region, page = page)
 
-    override suspend fun getMovieInformation(movieId: Int, apiKey: String): MovieInformation =
-        movieDatabaseApi.getMovieInformation(movieId = movieId, apiKey = apiKey)
+    override suspend fun getMovieInformation(movieId: Int, apiKey: String, region: String): MovieInformation =
+        movieDatabaseApi.getMovieInformation(movieId = movieId, apiKey = apiKey, region = region)
 }

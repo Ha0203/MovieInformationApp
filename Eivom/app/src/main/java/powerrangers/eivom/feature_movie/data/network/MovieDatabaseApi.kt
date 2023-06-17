@@ -13,6 +13,7 @@ interface MovieDatabaseApi {
     @GET("discover/movie")
     suspend fun getMovieList(
         @Query("api_key") apiKey: String,
+        @Query("region") region: String,
         @Query("page") page: Int
     ): MovieList
 
@@ -20,6 +21,7 @@ interface MovieDatabaseApi {
     @GET("movie/{movie_id}")
     suspend fun getMovieInformation(
         @Path("movie_id") movieId: Int,
-        @Query("api_key") apiKey: String
+        @Query("api_key") apiKey: String,
+        @Query("region") region: String
     ): MovieInformation
 }
