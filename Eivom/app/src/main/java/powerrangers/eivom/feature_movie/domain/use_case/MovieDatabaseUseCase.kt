@@ -85,7 +85,7 @@ class ConvertMovieListResourceToMovieListItemsResource {
             }
 
             else -> {
-                return Resource.Error(message = ResourceErrorMessage.CONVERT_MOVIELIST_TO_MOVIELISTITEMS)
+                return Resource.Error(message = movieList.message ?: ResourceErrorMessage.CONVERT_MOVIELIST_TO_MOVIELISTITEMS)
             }
         }
     }
@@ -138,12 +138,12 @@ class ConvertMovieInformationResourceToMovieItemResource {
                         )
                     )
                 } catch (e: Exception) {
-                    return Resource.Error(message = ResourceErrorMessage.CONVERT_MOVIEINFORMATION_TO_MOVIEITEM)
+                    return Resource.Error(message = e.message ?: ResourceErrorMessage.CONVERT_MOVIEINFORMATION_TO_MOVIEITEM)
                 }
             }
 
             else -> {
-                return Resource.Error(message = ResourceErrorMessage.CONVERT_MOVIEINFORMATION_TO_MOVIEITEM)
+                return Resource.Error(message = movieInformation.message ?: ResourceErrorMessage.CONVERT_MOVIEINFORMATION_TO_MOVIEITEM)
             }
         }
     }
@@ -167,7 +167,7 @@ class GetMovieListResource(
                 )
             )
         } catch (e: Exception) {
-            Resource.Error(message = ResourceErrorMessage.GET_MOVIELIST)
+            Resource.Error(message = e.message ?: ResourceErrorMessage.GET_MOVIELIST)
         }
     }
 }
@@ -189,7 +189,7 @@ class GetMovieInformationResource(
                 )
             )
         } catch (e: Exception) {
-            Resource.Error(message = ResourceErrorMessage.GET_MOVIEINFORMATION)
+            Resource.Error(message = e.message ?: ResourceErrorMessage.GET_MOVIEINFORMATION)
         }
     }
 }
