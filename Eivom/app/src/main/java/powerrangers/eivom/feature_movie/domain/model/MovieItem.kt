@@ -18,6 +18,7 @@ data class MovieItem(
     val posterUrl: String,
     val productionCompanies: List<ProductionCompany>,
     val productionCountries: List<String>,
+    val regionReleaseDate: String,
 //    val releaseDate: List<ReleaseDates>,
     val revenue: Long,
     val length: Int,

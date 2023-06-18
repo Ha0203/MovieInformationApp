@@ -41,7 +41,8 @@ class MovieDetailViewModel @Inject constructor(
                 movieDatabaseUseCase.convertMovieInformationResourceToMovieItemResource(
                     movieDatabaseUseCase.getMovieInformationResource(movieId = movieId),
                     landscapeWidth = 500,
-                    posterWidth = 500
+                    posterWidth = 500,
+                    dateFormat = userPreferences.value.dateFormat
                 )
         }
     }

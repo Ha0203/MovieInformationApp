@@ -1,9 +1,7 @@
 package powerrangers.eivom.feature_movie.ui.movie_list
 
 import android.graphics.drawable.Drawable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,7 +24,7 @@ class MovieListViewModel @Inject constructor(
     private val userPreferencesUseCase: UserPreferencesUseCase,
     private val movieDatabaseUseCase: MovieDatabaseUseCase
 ) : ViewModel() {
-    var userPreferences: UserPreferences by mutableStateOf(UserPreferences())
+    var userPreferences = mutableStateOf(UserPreferences())
         private set
 
     private var currentPage = 1
@@ -37,7 +35,7 @@ class MovieListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            userPreferences = UserPreferences(
+            userPreferences.value = UserPreferences(
                 backgroundColor = userPreferencesUseCase.getBackgroundColor(),
                 dateFormat = userPreferencesUseCase.getDateFormat()
             )
@@ -66,7 +64,8 @@ class MovieListViewModel @Inject constructor(
                     movieDatabaseUseCase.convertMovieListResourceToMovieListItemsResource(
                         movieList = movieDatabaseUseCase.getMovieListResource(page = currentPage),
                         landscapeWidth = landscapeWidth,
-                        posterWidth = posterWidth
+                        posterWidth = posterWidth,
+                        dateFormat = userPreferences.value.dateFormat
                     )
                 )
 

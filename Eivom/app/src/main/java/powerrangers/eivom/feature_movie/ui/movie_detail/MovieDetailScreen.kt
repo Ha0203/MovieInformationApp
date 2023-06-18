@@ -175,6 +175,8 @@ fun MovieDetailBody(
                     Text(text = "Backdrop path: ${movie.data!!.collection.backdrop_path}")
                     Text(text = "Poster path: ${movie.data!!.collection.poster_path}")
                     Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = "Region release date: ${movie.data!!.regionReleaseDate}")
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(text = "--- Genres ---")
                     for (genre in movie.data!!.genres) {
                         Text(text = genre)

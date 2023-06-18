@@ -13,9 +13,12 @@ import powerrangers.eivom.feature_movie.data.utility.GenreNotFoundException
 import powerrangers.eivom.feature_movie.domain.model.MovieItem
 import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 import powerrangers.eivom.feature_movie.domain.repository.MovieDatabaseRepository
+import powerrangers.eivom.feature_movie.domain.utility.DefaultValue
 import powerrangers.eivom.feature_movie.domain.utility.Resource
 import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 // If adding use case -> adding use case in app module too
@@ -47,7 +50,8 @@ class ConvertMovieListResourceToMovieListItemsResource {
     operator fun invoke(
         movieList: Resource<MovieList>,
         landscapeWidth: Int,
-        posterWidth: Int
+        posterWidth: Int,
+        dateFormat: DateTimeFormatter
     ): Resource<List<MovieListItem>> {
         when (movieList) {
             is Resource.Success -> {
@@ -61,31 +65,45 @@ class ConvertMovieListResourceToMovieListItemsResource {
                                     imagePath = movie.backdrop_path ?: ""
                                 ),
                                 genres = movie.genre_ids.map { genreId ->
-                                    TranslateCode.GENRE[genreId] ?: throw GenreNotFoundException("Genre not found error")
+                                    TranslateCode.GENRE[genreId]
+                                        ?: throw GenreNotFoundException("Genre not found error")
                                 },
                                 id = movie.id ?: 0,
-                                originalLanguage = TranslateCode.ISO_639_1[movie.original_language] ?: "",
+                                originalLanguage = TranslateCode.ISO_639_1[movie.original_language]
+                                    ?: "",
                                 originalTitle = movie.original_title ?: "",
                                 overview = movie.overview ?: "",
                                 posterUrl = GetMovieImageUrl()(
                                     imageWidth = posterWidth,
                                     imagePath = movie.poster_path ?: ""
                                 ),
-                                releaseDate = movie.release_date ?: "",
+                                releaseDate = try {
+                                    LocalDate.parse(
+                                        movie.release_date,
+                                        DateTimeFormatter.ofPattern(DefaultValue.DATE_FORMAT)
+                                    ).format(dateFormat)
+                                } catch (e: Exception) {
+                                    ""
+                                },
                                 title = movie.title ?: "",
                                 voteAverage = movie.vote_average ?: 0.0,
                                 voteCount = movie.vote_count ?: 0
                             )
                         }
                     )
-                }
-                catch (e: Exception) {
-                    return Resource.Error(message = e.message ?: ResourceErrorMessage.CONVERT_MOVIELIST_TO_MOVIELISTITEMS)
+                } catch (e: Exception) {
+                    return Resource.Error(
+                        message = e.message
+                            ?: ResourceErrorMessage.CONVERT_MOVIELIST_TO_MOVIELISTITEMS
+                    )
                 }
             }
 
             else -> {
-                return Resource.Error(message = movieList.message ?: ResourceErrorMessage.CONVERT_MOVIELIST_TO_MOVIELISTITEMS)
+                return Resource.Error(
+                    message = movieList.message
+                        ?: ResourceErrorMessage.CONVERT_MOVIELIST_TO_MOVIELISTITEMS
+                )
             }
         }
     }
@@ -95,7 +113,8 @@ class ConvertMovieInformationResourceToMovieItemResource {
     operator fun invoke(
         movieInformation: Resource<MovieInformation>,
         landscapeWidth: Int,
-        posterWidth: Int
+        posterWidth: Int,
+        dateFormat: DateTimeFormatter
     ): Resource<MovieItem> {
         when (movieInformation) {
             is Resource.Success -> {
@@ -127,6 +146,14 @@ class ConvertMovieInformationResourceToMovieItemResource {
                             productionCountries = movieInformation.data?.production_countries?.map { country ->
                                 country.name
                             } ?: listOf(),
+                            regionReleaseDate = try {
+                                LocalDate.parse(
+                                    movieInformation.data!!.release_date,
+                                    DateTimeFormatter.ofPattern(DefaultValue.DATE_FORMAT)
+                                ).format(dateFormat)
+                            } catch (e: Exception) {
+                                ""
+                            },
                             revenue = movieInformation.data?.revenue ?: 0,
                             length = movieInformation.data?.runtime ?: 0,
                             spokenLanguages = movieInformation.data?.spoken_languages ?: listOf(),
@@ -138,12 +165,18 @@ class ConvertMovieInformationResourceToMovieItemResource {
                         )
                     )
                 } catch (e: Exception) {
-                    return Resource.Error(message = e.message ?: ResourceErrorMessage.CONVERT_MOVIEINFORMATION_TO_MOVIEITEM)
+                    return Resource.Error(
+                        message = e.message
+                            ?: ResourceErrorMessage.CONVERT_MOVIEINFORMATION_TO_MOVIEITEM
+                    )
                 }
             }
 
             else -> {
-                return Resource.Error(message = movieInformation.message ?: ResourceErrorMessage.CONVERT_MOVIEINFORMATION_TO_MOVIEITEM)
+                return Resource.Error(
+                    message = movieInformation.message
+                        ?: ResourceErrorMessage.CONVERT_MOVIEINFORMATION_TO_MOVIEITEM
+                )
             }
         }
     }
