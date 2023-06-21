@@ -2,6 +2,7 @@ package powerrangers.eivom.feature_movie.data.network
 
 import powerrangers.eivom.feature_movie.data.network.response.MovieInformation
 import powerrangers.eivom.feature_movie.data.network.response.MovieList
+import powerrangers.eivom.feature_movie.data.network.response.MovieVideo
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -24,4 +25,11 @@ interface MovieDatabaseApi {
         @Query("api_key") apiKey: String,
         @Query("region") region: String
     ): MovieInformation
+
+    @GET("movie/{movie_id}/videos")
+    suspend fun getMovieTrailer(
+        @Path("movie_id") movieId: Int,
+        @Query("api_key") apiKey: String,
+        @Query("region") region: String
+    ): MovieVideo
 }

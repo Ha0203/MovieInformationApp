@@ -19,14 +19,13 @@ data class MovieItem(
     val productionCompanies: List<ProductionCompany>,
     val productionCountries: List<String>,
     val regionReleaseDate: String,
-//    val releaseDate: List<ReleaseDates>,
     val revenue: Long,
     val length: Int,
     val spokenLanguages: List<SpokenLanguage>,
     val status: String,
     val tagline: String,
     val title: String,
-    // trailers
+    val videoUrls: List<String>,
     val voteAverage: Double,
     val voteCount: Int
 )

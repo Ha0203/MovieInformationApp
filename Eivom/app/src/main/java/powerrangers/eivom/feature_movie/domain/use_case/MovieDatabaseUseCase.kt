@@ -8,6 +8,7 @@ import androidx.palette.graphics.Palette
 import powerrangers.eivom.feature_movie.data.network.response.BelongsToCollection
 import powerrangers.eivom.feature_movie.data.network.response.MovieInformation
 import powerrangers.eivom.feature_movie.data.network.response.MovieList
+import powerrangers.eivom.feature_movie.data.network.response.MovieVideo
 import powerrangers.eivom.feature_movie.data.utility.DataSourceRelation
 import powerrangers.eivom.feature_movie.data.utility.GenreNotFoundException
 import powerrangers.eivom.feature_movie.domain.model.MovieItem
@@ -31,7 +32,9 @@ data class MovieDatabaseUseCase(
     // Get use case
     val getMovieListResource: GetMovieListResource,
     val getMovieInformationResource: GetMovieInformationResource,
-    val getMovieImageUrl: GetMovieImageUrl
+    val getMovieVideoResource: GetMovieVideoResource,
+    val getMovieImageUrl: GetMovieImageUrl,
+    val getYouTubeVideoUrl: GetYouTubeVideoUrl
 )
 
 // Handler use case
@@ -109,13 +112,28 @@ class ConvertMovieListResourceToMovieListItemsResource {
     }
 }
 
-class ConvertMovieInformationResourceToMovieItemResource {
-    operator fun invoke(
+class ConvertMovieInformationResourceToMovieItemResource(
+    private val movieDatabaseRepository: MovieDatabaseRepository
+) {
+    suspend operator fun invoke(
         movieInformation: Resource<MovieInformation>,
+        movieVideo: Resource<MovieVideo>? = null,
         landscapeWidth: Int,
         posterWidth: Int,
         dateFormat: DateTimeFormatter
     ): Resource<MovieItem> {
+        val videos = movieVideo ?: GetMovieVideoResource(movieDatabaseRepository)(
+            movieId = movieInformation.data!!.id,
+            apiKey = DataSourceRelation.TMDB_API_KEY,
+            region = Locale.getDefault().country
+        )
+        if (videos is Resource.Error) {
+            return Resource.Error(
+                message = videos.message
+                    ?: ResourceErrorMessage.GET_MOVIETRAILER
+            )
+        }
+
         when (movieInformation) {
             is Resource.Success -> {
                 return try {
@@ -131,7 +149,7 @@ class ConvertMovieInformationResourceToMovieItemResource {
                             budget = movieInformation.data?.budget ?: 0,
                             genres = movieInformation.data?.genres?.map { genre ->
                                 genre.name
-                            } ?: listOf(),
+                            } ?: emptyList(),
                             homepageUrl = movieInformation.data?.homepage ?: "",
                             id = movieInformation.data?.id ?: 0,
                             originalLanguage = movieInformation.data?.original_language ?: "",
@@ -142,10 +160,10 @@ class ConvertMovieInformationResourceToMovieItemResource {
                                 imagePath = movieInformation.data?.poster_path ?: ""
                             ),
                             productionCompanies = movieInformation.data?.production_companies
-                                ?: listOf(),
+                                ?: emptyList(),
                             productionCountries = movieInformation.data?.production_countries?.map { country ->
                                 country.name
-                            } ?: listOf(),
+                            } ?: emptyList(),
                             regionReleaseDate = try {
                                 LocalDate.parse(
                                     movieInformation.data!!.release_date,
@@ -156,10 +174,16 @@ class ConvertMovieInformationResourceToMovieItemResource {
                             },
                             revenue = movieInformation.data?.revenue ?: 0,
                             length = movieInformation.data?.runtime ?: 0,
-                            spokenLanguages = movieInformation.data?.spoken_languages ?: listOf(),
+                            spokenLanguages = movieInformation.data?.spoken_languages ?: emptyList(),
                             status = movieInformation.data?.status ?: "",
                             tagline = movieInformation.data?.tagline ?: "",
                             title = movieInformation.data?.title ?: "",
+                            videoUrls = videos.data?.results?.mapNotNull { video ->
+                                if (video.site == "YouTube")
+                                    GetYouTubeVideoUrl()(video.key)
+                                else
+                                    null
+                            } ?: emptyList(),
                             voteAverage = movieInformation.data?.vote_average ?: 0.0,
                             voteCount = movieInformation.data?.vote_count ?: 0
                         )
@@ -227,7 +251,34 @@ class GetMovieInformationResource(
     }
 }
 
+class GetMovieVideoResource(
+    private val movieDatabaseRepository: MovieDatabaseRepository
+) {
+    suspend operator fun invoke(
+        movieId: Int,
+        apiKey: String = DataSourceRelation.TMDB_API_KEY,
+        region: String = Locale.getDefault().country
+    ): Resource<MovieVideo> {
+        return try {
+            Resource.Success(
+                data = movieDatabaseRepository.getMovieTrailer(
+                    movieId = movieId,
+                    apiKey = apiKey,
+                    region = region
+                )
+            )
+        } catch (e: Exception) {
+            Resource.Error(message = e.message ?: ResourceErrorMessage.GET_MOVIETRAILER)
+        }
+    }
+}
+
 class GetMovieImageUrl {
     operator fun invoke(imageWidth: Int, imagePath: String): String =
         DataSourceRelation.MOVIE_DATABASE_IMAGE_URL + "w${imageWidth}${imagePath}"
+}
+
+class GetYouTubeVideoUrl {
+    operator fun invoke(key: String): String =
+        DataSourceRelation.YOUTUBE_VIDEO_URL + key
 }

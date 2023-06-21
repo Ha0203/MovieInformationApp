@@ -1,6 +1,6 @@
 package powerrangers.eivom.feature_movie.data.network.response
 
-data class ReleaseDateList(
+data class MovieVideo(
     val id: Int,
-    val results: List<ReleaseDates>
+    val results: List<Video>
 )
