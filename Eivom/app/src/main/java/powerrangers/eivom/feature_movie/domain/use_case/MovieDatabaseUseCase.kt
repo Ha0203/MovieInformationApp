@@ -14,6 +14,7 @@ import powerrangers.eivom.feature_movie.domain.model.Collection
 import powerrangers.eivom.feature_movie.domain.model.Company
 import powerrangers.eivom.feature_movie.domain.model.MovieItem
 import powerrangers.eivom.feature_movie.domain.model.MovieListItem
+import powerrangers.eivom.feature_movie.domain.model.Video
 import powerrangers.eivom.feature_movie.domain.repository.MovieDatabaseRepository
 import powerrangers.eivom.feature_movie.domain.utility.DefaultValue
 import powerrangers.eivom.feature_movie.domain.utility.Resource
@@ -238,7 +239,7 @@ class GetMovieItemResource(
                     } ?: emptyList(),
                     homepageUrl = information.data?.homepage ?: "",
                     id = information.data?.id ?: 0,
-                    originalLanguage = information.data?.original_language ?: "",
+                    originalLanguage = TranslateCode.ISO_639_1[information.data?.original_language ?: ""] ?: "",
                     originalTitle = information.data?.original_title ?: "",
                     overview = information.data?.overview ?: "",
                     posterUrl = getMovieImageUrl(
@@ -257,7 +258,7 @@ class GetMovieItemResource(
                                 ""
                             },
                             name = company.name,
-                            originCountry = TranslateCode.ISO_639_1[company.origin_country] ?: ""
+                            originCountry = company.origin_country ?: ""
                         )
                     } ?: emptyList(),
                     productionCountries = information.data?.production_countries?.map { country ->
@@ -279,9 +280,21 @@ class GetMovieItemResource(
                     status = information.data?.status ?: "",
                     tagline = information.data?.tagline ?: "",
                     title = information.data?.title ?: "",
-                    videoUrls = videos.data?.results?.mapNotNull { video ->
-                        if (video.site == "YouTube")
-                            getYouTubeVideoUrl(video.key)
+                    videos = videos.data?.results?.mapNotNull { video ->
+                        if (video.site == "YouTube") {
+                            Video(
+                                id = video.id,
+                                country = video.iso_3166_1 ?: "",
+                                language = TranslateCode.ISO_639_1[video.iso_639_1] ?: "",
+                                url = getYouTubeVideoUrl(video.key),
+                                name = video.name,
+                                official = video.official,
+                                publishedDateTime = video.published_at,
+                                site = video.site,
+                                size = video.size,
+                                type = video.type,
+                            )
+                        }
                         else
                             null
                     } ?: emptyList(),

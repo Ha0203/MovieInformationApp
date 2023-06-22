@@ -1,6 +1,6 @@
 package powerrangers.eivom.feature_movie.data.network.response
 
-data class Video(
+data class VideoInformation(
     val id: String,
     val iso_3166_1: String,
     val iso_639_1: String,

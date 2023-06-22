@@ -21,7 +21,7 @@ data class MovieItem(
     val status: String,
     val tagline: String,
     val title: String,
-    val videoUrls: List<String>,
+    val videos: List<Video>,
     val voteAverage: Double,
     val voteCount: Int
 )
