@@ -258,7 +258,7 @@ class GetMovieItemResource(
                                 ""
                             },
                             name = company.name,
-                            originCountry = company.origin_country ?: ""
+                            originCountry = TranslateCode.ISO_3166_1[company.origin_country] ?: ""
                         )
                     } ?: emptyList(),
                     productionCountries = information.data?.production_countries?.map { country ->
@@ -284,7 +284,7 @@ class GetMovieItemResource(
                         if (video.site == "YouTube") {
                             Video(
                                 id = video.id,
-                                country = video.iso_3166_1 ?: "",
+                                country = TranslateCode.ISO_3166_1[video.iso_3166_1] ?: "",
                                 language = TranslateCode.ISO_639_1[video.iso_639_1] ?: "",
                                 url = getYouTubeVideoUrl(video.key),
                                 name = video.name,
