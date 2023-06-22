@@ -2,6 +2,7 @@ package powerrangers.eivom.feature_movie.data.repository
 
 import dagger.hilt.android.scopes.ActivityScoped
 import powerrangers.eivom.feature_movie.data.network.MovieDatabaseApi
+import powerrangers.eivom.feature_movie.data.network.response.MovieImage
 import powerrangers.eivom.feature_movie.data.network.response.MovieInformation
 import powerrangers.eivom.feature_movie.data.network.response.MovieList
 import powerrangers.eivom.feature_movie.data.network.response.MovieVideo
@@ -26,10 +27,17 @@ class MovieDatabaseRepositoryImpl @Inject constructor(
     ): MovieInformation =
         movieDatabaseApi.getMovieInformation(movieId = movieId, apiKey = apiKey, region = region)
 
-    override suspend fun getMovieTrailer(
+    override suspend fun getMovieVideo(
         movieId: Int,
         apiKey: String,
         region: String
     ): MovieVideo =
-        movieDatabaseApi.getMovieTrailer(movieId = movieId, apiKey = apiKey, region = region)
+        movieDatabaseApi.getMovieVideo(movieId = movieId, apiKey = apiKey, region = region)
+
+    override suspend fun getMovieImage(
+        movieId: Int,
+        apiKey: String,
+        region: String
+    ): MovieImage =
+        movieDatabaseApi.getMovieImage(movieId = movieId, apiKey = apiKey, region = region)
 }

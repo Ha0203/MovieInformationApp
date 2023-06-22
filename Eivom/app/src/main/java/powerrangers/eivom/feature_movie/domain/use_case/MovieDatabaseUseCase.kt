@@ -5,6 +5,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.compose.ui.graphics.Color
 import androidx.palette.graphics.Palette
+import powerrangers.eivom.feature_movie.data.network.response.MovieImage
 import powerrangers.eivom.feature_movie.data.network.response.MovieInformation
 import powerrangers.eivom.feature_movie.data.network.response.MovieList
 import powerrangers.eivom.feature_movie.data.network.response.MovieVideo
@@ -198,7 +199,19 @@ class GetMovieItemResource(
         if (videos is Resource.Error) {
             return Resource.Error(
                 message = videos.message
-                    ?: ResourceErrorMessage.GET_MOVIETRAILER
+                    ?: ResourceErrorMessage.GET_MOVIEVIDEO
+            )
+        }
+
+        val images = getMovieImageResource(
+            movieId = movieId,
+            apiKey = apiKey,
+            region = region
+        )
+        if (images is Resource.Error) {
+            return Resource.Error(
+                message = videos.message
+                    ?: ResourceErrorMessage.GET_MOVIEIMAGE
             )
         }
 
@@ -213,6 +226,12 @@ class GetMovieItemResource(
                         imageWidth = landscapeWidth,
                         imagePath = information.data?.backdrop_path ?: ""
                     ),
+                    landscapeImageUrls = images.data?.backdrops?.map { backdrop ->
+                        getMovieImageUrl(
+                            imageWidth = landscapeWidth,
+                            imagePath = backdrop.file_path
+                        )
+                    } ?: emptyList(),
                     collection = Collection(
                         landscapeImageUrl = if (information.data?.belongs_to_collection?.backdrop_path != null) {
                             getMovieImageUrl(
@@ -246,6 +265,12 @@ class GetMovieItemResource(
                         imageWidth = posterWidth,
                         imagePath = information.data?.poster_path ?: ""
                     ),
+                    posterUrls = images.data?.posters?.map { poster ->
+                        getMovieImageUrl(
+                            imageWidth = posterWidth,
+                            imagePath = poster.file_path
+                        )
+                    } ?: emptyList(),
                     productionCompanies = information.data?.production_companies?.map { company ->
                         Company(
                             id = company.id,
@@ -274,6 +299,12 @@ class GetMovieItemResource(
                     },
                     revenue = information.data?.revenue ?: 0,
                     length = information.data?.runtime ?: 0,
+                    logoImageUrls = images.data?.logos?.map { logo ->
+                        getMovieImageUrl(
+                            imageWidth = posterWidth,
+                            imagePath = logo.file_path
+                        )
+                    } ?: emptyList(),
                     spokenLanguages = information.data?.spoken_languages?.map { language ->
                         language.english_name
                     } ?: emptyList(),
@@ -335,14 +366,32 @@ class GetMovieItemResource(
     ): Resource<MovieVideo> {
         return try {
             Resource.Success(
-                data = movieDatabaseRepository.getMovieTrailer(
+                data = movieDatabaseRepository.getMovieVideo(
                     movieId = movieId,
                     apiKey = apiKey,
                     region = region
                 )
             )
         } catch (e: Exception) {
-            Resource.Error(message = e.message ?: ResourceErrorMessage.GET_MOVIETRAILER)
+            Resource.Error(message = e.message ?: ResourceErrorMessage.GET_MOVIEVIDEO)
+        }
+    }
+
+    private suspend fun getMovieImageResource(
+        movieId: Int,
+        apiKey: String = DataSourceRelation.TMDB_API_KEY,
+        region: String = Locale.getDefault().country
+    ): Resource<MovieImage> {
+        return try {
+            Resource.Success(
+                data = movieDatabaseRepository.getMovieImage(
+                    movieId = movieId,
+                    apiKey = apiKey,
+                    region = region
+                )
+            )
+        } catch (e: Exception) {
+            Resource.Error(message = e.message ?: ResourceErrorMessage.GET_MOVIEIMAGE)
         }
     }
 }

@@ -40,7 +40,8 @@ object ResourceErrorMessage {
 
     const val GET_MOVIELIST = "Getting Resource<MOVIELIST> error"
     const val GET_MOVIEINFORMATION = "Getting Resource<MOVIEINFORMATION> error"
-    const val GET_MOVIETRAILER = "Getting Resource<MOVIETRAILER> error"
+    const val GET_MOVIEVIDEO = "Getting Resource<MOVIEVIDEO> error"
+    const val GET_MOVIEIMAGE = "Getting Resource<MOVIEIMAGE> error"
 
     const val MOVIELIST_END = "End of movie list error"
     const val LOAD_MOVIELIST = "Loading movie list error"

@@ -1,5 +1,6 @@
 package powerrangers.eivom.feature_movie.data.network
 
+import powerrangers.eivom.feature_movie.data.network.response.MovieImage
 import powerrangers.eivom.feature_movie.data.network.response.MovieInformation
 import powerrangers.eivom.feature_movie.data.network.response.MovieList
 import powerrangers.eivom.feature_movie.data.network.response.MovieVideo
@@ -27,9 +28,16 @@ interface MovieDatabaseApi {
     ): MovieInformation
 
     @GET("movie/{movie_id}/videos")
-    suspend fun getMovieTrailer(
+    suspend fun getMovieVideo(
         @Path("movie_id") movieId: Int,
         @Query("api_key") apiKey: String,
         @Query("region") region: String
     ): MovieVideo
+
+    @GET("movie/{movie_id}/images")
+    suspend fun getMovieImage(
+        @Path("movie_id") movieId: Int,
+        @Query("api_key") apiKey: String,
+        @Query("region") region: String
+    ): MovieImage
 }
