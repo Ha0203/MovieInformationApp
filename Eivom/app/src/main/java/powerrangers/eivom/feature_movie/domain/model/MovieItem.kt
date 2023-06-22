@@ -1,5 +1,8 @@
 package powerrangers.eivom.feature_movie.domain.model
 
+import powerrangers.eivom.feature_movie.data.utility.LocalMovieItem
+import powerrangers.eivom.feature_movie.data.utility.toMovieItem
+
 data class MovieItem(
     val adult: Boolean,
     val landscapeImageUrl: String,
@@ -28,3 +31,29 @@ data class MovieItem(
     val voteAverage: Double,
     val voteCount: Int
 )
+
+fun MovieItem.toLocalMovieItem(): LocalMovieItem{
+    return LocalMovieItem(
+        adult = this.adult,
+        landscapeImageUrl = this.landscapeImageUrl,
+        budget = this.budget,
+        genres = this.genres,
+        homepageUrl = this.homepageUrl,
+        id = this.id,
+        originalLanguage = this.originalLanguage,
+        originalTitle = this.originalTitle,
+        overview = this.overview,
+        posterUrl = this.posterUrl,
+        productionCompanies = emptyList(),
+        productionCountries = this.productionCountries,
+        regionReleaseDate = this.regionReleaseDate,
+        revenue = this.revenue,
+        length = this.length,
+        spokenLanguages = this.spokenLanguages,
+        status = this.status,
+        tagline = this.tagline,
+        title = this.title,
+        voteAverage = this.voteAverage,
+        voteCount = this.voteCount
+    )
+}

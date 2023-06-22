@@ -1,14 +1,17 @@
 package powerrangers.eivom.dependency_injection
 
+import android.app.Application
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.room.Room
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import powerrangers.eivom.feature_movie.data.database.LocalMovieDatabase
 import powerrangers.eivom.feature_movie.data.network.MovieDatabaseApi
 import powerrangers.eivom.feature_movie.data.repository.MovieDatabaseRepositoryImpl
 import powerrangers.eivom.feature_movie.data.repository.UserPreferencesRepositoryImpl
@@ -67,4 +70,14 @@ object AppModule {
             getMovieListItemsResource = GetMovieListItemsResource(movieDatabaseRepository),
             getMovieItemResource = GetMovieItemResource(movieDatabaseRepository)
         )
+
+    @Provides
+    @Singleton
+    fun provideLocalMovieDatabase(app: Application): LocalMovieDatabase {
+        return Room.databaseBuilder(
+            app,
+            LocalMovieDatabase::class.java,
+            DataSourceRelation.LOCAL_MOVIE_ITEM_NAME
+        ).build()
+    }
 }
