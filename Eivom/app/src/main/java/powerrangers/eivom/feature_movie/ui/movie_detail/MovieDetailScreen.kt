@@ -172,8 +172,8 @@ fun MovieDetailBody(
                     Text(text = "--- Collection ---")
                     Text(text = "ID: ${movie.data!!.collection.id}")
                     Text(text = "Name: ${movie.data!!.collection.name}")
-                    Text(text = "Backdrop path: ${movie.data!!.collection.backdrop_path}")
-                    Text(text = "Poster path: ${movie.data!!.collection.poster_path}")
+                    Text(text = "Backdrop path: ${movie.data!!.collection.landscapeImageUrl}")
+                    Text(text = "Poster path: ${movie.data!!.collection.posterUrl}")
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(text = "Region release date: ${movie.data!!.regionReleaseDate}")
                     Spacer(modifier = Modifier.height(8.dp))
@@ -186,8 +186,8 @@ fun MovieDetailBody(
                     for (company in movie.data!!.productionCompanies) {
                         Text(text = "ID: ${company.id}")
                         Text(text = "Name: ${company.name}")
-                        Text(text = "Logo path: ${company.logo_path}")
-                        Text(text = "Origin country: ${company.origin_country}")
+                        Text(text = "Logo path: ${company.logoImageUrl}")
+                        Text(text = "Origin country: ${company.originCountry}")
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                     Text(text = "--- Production Countries ---")
@@ -197,7 +197,7 @@ fun MovieDetailBody(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(text = "--- Spoken Languages ---")
                     for (language in movie.data!!.spokenLanguages) {
-                        Text(text = "${language.name} - ${language.english_name} - ${language.iso_639_1}")
+                        Text(text = language)
                     }
                 }
             }

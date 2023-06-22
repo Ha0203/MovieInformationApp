@@ -5,12 +5,13 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.compose.ui.graphics.Color
 import androidx.palette.graphics.Palette
-import powerrangers.eivom.feature_movie.data.network.response.BelongsToCollection
 import powerrangers.eivom.feature_movie.data.network.response.MovieInformation
 import powerrangers.eivom.feature_movie.data.network.response.MovieList
 import powerrangers.eivom.feature_movie.data.network.response.MovieVideo
 import powerrangers.eivom.feature_movie.data.utility.DataSourceRelation
 import powerrangers.eivom.feature_movie.data.utility.GenreNotFoundException
+import powerrangers.eivom.feature_movie.domain.model.Collection
+import powerrangers.eivom.feature_movie.domain.model.Company
 import powerrangers.eivom.feature_movie.domain.model.MovieItem
 import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 import powerrangers.eivom.feature_movie.domain.repository.MovieDatabaseRepository
@@ -27,12 +28,10 @@ data class MovieDatabaseUseCase(
     // Handler use case
     val handleImageDominantColor: HandleImageDominantColor,
     val convertMovieListResourceToMovieListItemsResource: ConvertMovieListResourceToMovieListItemsResource,
-    val convertMovieInformationResourceToMovieItemResource: ConvertMovieInformationResourceToMovieItemResource,
 
     // Get use case
     val getMovieListResource: GetMovieListResource,
-    val getMovieInformationResource: GetMovieInformationResource,
-    val getMovieVideoResource: GetMovieVideoResource,
+    val getMovieItemResource: GetMovieItemResource,
     val getMovieImageUrl: GetMovieImageUrl,
     val getYouTubeVideoUrl: GetYouTubeVideoUrl
 )
@@ -112,100 +111,6 @@ class ConvertMovieListResourceToMovieListItemsResource {
     }
 }
 
-class ConvertMovieInformationResourceToMovieItemResource(
-    private val movieDatabaseRepository: MovieDatabaseRepository
-) {
-    suspend operator fun invoke(
-        movieInformation: Resource<MovieInformation>,
-        movieVideo: Resource<MovieVideo>? = null,
-        landscapeWidth: Int,
-        posterWidth: Int,
-        dateFormat: DateTimeFormatter
-    ): Resource<MovieItem> {
-        val videos = movieVideo ?: GetMovieVideoResource(movieDatabaseRepository)(
-            movieId = movieInformation.data!!.id,
-            apiKey = DataSourceRelation.TMDB_API_KEY,
-            region = Locale.getDefault().country
-        )
-        if (videos is Resource.Error) {
-            return Resource.Error(
-                message = videos.message
-                    ?: ResourceErrorMessage.GET_MOVIETRAILER
-            )
-        }
-
-        when (movieInformation) {
-            is Resource.Success -> {
-                return try {
-                    Resource.Success(
-                        data = MovieItem(
-                            adult = movieInformation.data?.adult ?: true,
-                            landscapeImageUrl = GetMovieImageUrl()(
-                                imageWidth = landscapeWidth,
-                                imagePath = movieInformation.data?.backdrop_path ?: ""
-                            ),
-                            collection = movieInformation.data?.belongs_to_collection
-                                ?: BelongsToCollection("", 0, "", ""),
-                            budget = movieInformation.data?.budget ?: 0,
-                            genres = movieInformation.data?.genres?.map { genre ->
-                                genre.name
-                            } ?: emptyList(),
-                            homepageUrl = movieInformation.data?.homepage ?: "",
-                            id = movieInformation.data?.id ?: 0,
-                            originalLanguage = movieInformation.data?.original_language ?: "",
-                            originalTitle = movieInformation.data?.original_title ?: "",
-                            overview = movieInformation.data?.overview ?: "",
-                            posterUrl = GetMovieImageUrl()(
-                                imageWidth = posterWidth,
-                                imagePath = movieInformation.data?.poster_path ?: ""
-                            ),
-                            productionCompanies = movieInformation.data?.production_companies
-                                ?: emptyList(),
-                            productionCountries = movieInformation.data?.production_countries?.map { country ->
-                                country.name
-                            } ?: emptyList(),
-                            regionReleaseDate = try {
-                                LocalDate.parse(
-                                    movieInformation.data!!.release_date,
-                                    DateTimeFormatter.ofPattern(DefaultValue.DATE_FORMAT)
-                                ).format(dateFormat)
-                            } catch (e: Exception) {
-                                ""
-                            },
-                            revenue = movieInformation.data?.revenue ?: 0,
-                            length = movieInformation.data?.runtime ?: 0,
-                            spokenLanguages = movieInformation.data?.spoken_languages ?: emptyList(),
-                            status = movieInformation.data?.status ?: "",
-                            tagline = movieInformation.data?.tagline ?: "",
-                            title = movieInformation.data?.title ?: "",
-                            videoUrls = videos.data?.results?.mapNotNull { video ->
-                                if (video.site == "YouTube")
-                                    GetYouTubeVideoUrl()(video.key)
-                                else
-                                    null
-                            } ?: emptyList(),
-                            voteAverage = movieInformation.data?.vote_average ?: 0.0,
-                            voteCount = movieInformation.data?.vote_count ?: 0
-                        )
-                    )
-                } catch (e: Exception) {
-                    return Resource.Error(
-                        message = e.message
-                            ?: ResourceErrorMessage.CONVERT_MOVIEINFORMATION_TO_MOVIEITEM
-                    )
-                }
-            }
-
-            else -> {
-                return Resource.Error(
-                    message = movieInformation.message
-                        ?: ResourceErrorMessage.CONVERT_MOVIEINFORMATION_TO_MOVIEITEM
-                )
-            }
-        }
-    }
-}
-
 // Get use case
 class GetMovieListResource(
     private val movieDatabaseRepository: MovieDatabaseRepository
@@ -229,10 +134,138 @@ class GetMovieListResource(
     }
 }
 
-class GetMovieInformationResource(
+class GetMovieItemResource(
     private val movieDatabaseRepository: MovieDatabaseRepository
 ) {
     suspend operator fun invoke(
+        movieId: Int,
+        apiKey: String = DataSourceRelation.TMDB_API_KEY,
+        region: String = Locale.getDefault().country,
+        landscapeWidth: Int,
+        posterWidth: Int,
+        dateFormat: DateTimeFormatter
+    ): Resource<MovieItem> {
+        val information = getMovieInformationResource(
+            movieId = movieId,
+            apiKey = apiKey,
+            region = region
+        )
+        if (information is Resource.Error) {
+            return Resource.Error(
+                message = information.message
+                    ?: ResourceErrorMessage.GET_MOVIEINFORMATION
+            )
+        }
+
+        val videos = getMovieVideoResource(
+            movieId = movieId,
+            apiKey = apiKey,
+            region = region
+        )
+        if (videos is Resource.Error) {
+            return Resource.Error(
+                message = videos.message
+                    ?: ResourceErrorMessage.GET_MOVIETRAILER
+            )
+        }
+
+        val getMovieImageUrl = GetMovieImageUrl()
+        val getYouTubeVideoUrl = GetYouTubeVideoUrl()
+
+        return try {
+            Resource.Success(
+                data = MovieItem(
+                    adult = information.data?.adult ?: true,
+                    landscapeImageUrl = getMovieImageUrl(
+                        imageWidth = landscapeWidth,
+                        imagePath = information.data?.backdrop_path ?: ""
+                    ),
+                    collection = Collection(
+                        landscapeImageUrl = if (information.data?.belongs_to_collection?.backdrop_path != null) {
+                            getMovieImageUrl(
+                                imageWidth = landscapeWidth,
+                                imagePath = information.data.belongs_to_collection.backdrop_path
+                            )
+                        } else {
+                            ""
+                        },
+                        id = information.data?.belongs_to_collection?.id ?: 0,
+                        name = information.data?.belongs_to_collection?.name ?: "",
+                        posterUrl = if (information.data?.belongs_to_collection?.poster_path != null) {
+                            getMovieImageUrl(
+                                imageWidth = posterWidth,
+                                imagePath = information.data.belongs_to_collection.poster_path
+                            )
+                        } else {
+                            ""
+                        },
+                    ),
+                    budget = information.data?.budget ?: 0,
+                    genres = information.data?.genres?.map { genre ->
+                        genre.name
+                    } ?: emptyList(),
+                    homepageUrl = information.data?.homepage ?: "",
+                    id = information.data?.id ?: 0,
+                    originalLanguage = information.data?.original_language ?: "",
+                    originalTitle = information.data?.original_title ?: "",
+                    overview = information.data?.overview ?: "",
+                    posterUrl = getMovieImageUrl(
+                        imageWidth = posterWidth,
+                        imagePath = information.data?.poster_path ?: ""
+                    ),
+                    productionCompanies = information.data?.production_companies?.map { company ->
+                        Company(
+                            id = company.id,
+                            logoImageUrl = try {
+                                getMovieImageUrl(
+                                    imageWidth = posterWidth,
+                                    imagePath = company.logo_path
+                                )
+                            } catch (e: Exception) {
+                                ""
+                            },
+                            name = company.name,
+                            originCountry = TranslateCode.ISO_639_1[company.origin_country] ?: ""
+                        )
+                    } ?: emptyList(),
+                    productionCountries = information.data?.production_countries?.map { country ->
+                        country.name
+                    } ?: emptyList(),
+                    regionReleaseDate = try {
+                        LocalDate.parse(
+                            information.data!!.release_date,
+                            DateTimeFormatter.ofPattern(DefaultValue.DATE_FORMAT)
+                        ).format(dateFormat)
+                    } catch (e: Exception) {
+                        ""
+                    },
+                    revenue = information.data?.revenue ?: 0,
+                    length = information.data?.runtime ?: 0,
+                    spokenLanguages = information.data?.spoken_languages?.map { language ->
+                        language.english_name
+                    } ?: emptyList(),
+                    status = information.data?.status ?: "",
+                    tagline = information.data?.tagline ?: "",
+                    title = information.data?.title ?: "",
+                    videoUrls = videos.data?.results?.mapNotNull { video ->
+                        if (video.site == "YouTube")
+                            getYouTubeVideoUrl(video.key)
+                        else
+                            null
+                    } ?: emptyList(),
+                    voteAverage = information.data?.vote_average ?: 0.0,
+                    voteCount = information.data?.vote_count ?: 0
+                )
+            )
+        } catch (e: Exception) {
+            return Resource.Error(
+                message = e.message
+                    ?: ResourceErrorMessage.CONVERT_MOVIEINFORMATION_TO_MOVIEITEM
+            )
+        }
+    }
+
+    private suspend fun getMovieInformationResource(
         movieId: Int,
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
         region: String = Locale.getDefault().country
@@ -249,12 +282,8 @@ class GetMovieInformationResource(
             Resource.Error(message = e.message ?: ResourceErrorMessage.GET_MOVIEINFORMATION)
         }
     }
-}
 
-class GetMovieVideoResource(
-    private val movieDatabaseRepository: MovieDatabaseRepository
-) {
-    suspend operator fun invoke(
+    private suspend fun getMovieVideoResource(
         movieId: Int,
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
         region: String = Locale.getDefault().country

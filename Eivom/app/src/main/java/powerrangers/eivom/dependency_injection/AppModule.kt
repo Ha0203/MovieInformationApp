@@ -65,10 +65,8 @@ object AppModule {
         MovieDatabaseUseCase(
             handleImageDominantColor = HandleImageDominantColor(),
             convertMovieListResourceToMovieListItemsResource = ConvertMovieListResourceToMovieListItemsResource(),
-            convertMovieInformationResourceToMovieItemResource = ConvertMovieInformationResourceToMovieItemResource(movieDatabaseRepository),
             getMovieListResource = GetMovieListResource(movieDatabaseRepository),
-            getMovieInformationResource = GetMovieInformationResource(movieDatabaseRepository),
-            getMovieVideoResource = GetMovieVideoResource(movieDatabaseRepository),
+            getMovieItemResource = GetMovieItemResource(movieDatabaseRepository),
             getMovieImageUrl = GetMovieImageUrl(),
             getYouTubeVideoUrl = GetYouTubeVideoUrl()
         )

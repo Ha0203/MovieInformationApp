@@ -38,8 +38,8 @@ class MovieDetailViewModel @Inject constructor(
                     dateFormat = userPreferencesUseCase.getDateFormat()
                 )
             movieInformation.value =
-                movieDatabaseUseCase.convertMovieInformationResourceToMovieItemResource(
-                    movieDatabaseUseCase.getMovieInformationResource(movieId = movieId),
+                movieDatabaseUseCase.getMovieItemResource(
+                    movieId = movieId,
                     landscapeWidth = 500,
                     posterWidth = 500,
                     dateFormat = userPreferences.value.dateFormat
