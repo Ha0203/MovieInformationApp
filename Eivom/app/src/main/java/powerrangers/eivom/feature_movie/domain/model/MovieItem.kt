@@ -1,7 +1,6 @@
 package powerrangers.eivom.feature_movie.domain.model
 
 import powerrangers.eivom.feature_movie.data.utility.LocalMovieItem
-import powerrangers.eivom.feature_movie.data.utility.toMovieItem
 
 data class MovieItem(
     val adult: Boolean,

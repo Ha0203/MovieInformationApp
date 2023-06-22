@@ -1,8 +1,5 @@
 package powerrangers.eivom.feature_movie.domain.model
 
-import powerrangers.eivom.feature_movie.data.utility.LocalMovieItem
-import powerrangers.eivom.feature_movie.data.utility.toMovieListItem
-
 data class MovieListItem(
     val adult: Boolean,
     val landscapeImageUrl: String,
