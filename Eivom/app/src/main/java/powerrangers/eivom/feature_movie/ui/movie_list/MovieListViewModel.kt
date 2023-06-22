@@ -61,8 +61,8 @@ class MovieListViewModel @Inject constructor(
                 endReached = currentPage >= DefaultValue.TMDB_API_TOTAL_PAGES
 
                 movieListItems.value = movieListItems.value.addList(
-                    movieDatabaseUseCase.convertMovieListResourceToMovieListItemsResource(
-                        movieList = movieDatabaseUseCase.getMovieListResource(page = currentPage),
+                    movieDatabaseUseCase.getMovieListItemsResource(
+                        page = currentPage,
                         landscapeWidth = landscapeWidth,
                         posterWidth = posterWidth,
                         dateFormat = userPreferences.value.dateFormat

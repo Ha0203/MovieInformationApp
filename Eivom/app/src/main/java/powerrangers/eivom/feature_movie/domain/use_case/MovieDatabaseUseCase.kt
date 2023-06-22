@@ -27,13 +27,10 @@ import java.util.Locale
 data class MovieDatabaseUseCase(
     // Handler use case
     val handleImageDominantColor: HandleImageDominantColor,
-    val convertMovieListResourceToMovieListItemsResource: ConvertMovieListResourceToMovieListItemsResource,
 
     // Get use case
-    val getMovieListResource: GetMovieListResource,
-    val getMovieItemResource: GetMovieItemResource,
-    val getMovieImageUrl: GetMovieImageUrl,
-    val getYouTubeVideoUrl: GetYouTubeVideoUrl
+    val getMovieListItemsResource: GetMovieListItemsResource,
+    val getMovieItemResource: GetMovieItemResource
 )
 
 // Handler use case
@@ -48,74 +45,109 @@ class HandleImageDominantColor {
     }
 }
 
-class ConvertMovieListResourceToMovieListItemsResource {
-    operator fun invoke(
-        movieList: Resource<MovieList>,
+// Get use case
+class GetMovieListItemsResource(
+    private val movieDatabaseRepository: MovieDatabaseRepository
+) {
+    suspend operator fun invoke(
+        apiKey: String = DataSourceRelation.TMDB_API_KEY,
+        region: String = Locale.getDefault().country,
+        page: Int,
         landscapeWidth: Int,
         posterWidth: Int,
         dateFormat: DateTimeFormatter
     ): Resource<List<MovieListItem>> {
-        when (movieList) {
-            is Resource.Success -> {
-                return try {
-                    Resource.Success(
-                        data = movieList.data!!.results.map { movie ->
-                            MovieListItem(
-                                adult = movie.adult ?: true,
-                                landscapeImageUrl = GetMovieImageUrl()(
-                                    imageWidth = landscapeWidth,
-                                    imagePath = movie.backdrop_path ?: ""
-                                ),
-                                genres = movie.genre_ids.map { genreId ->
-                                    TranslateCode.GENRE[genreId]
-                                        ?: throw GenreNotFoundException("Genre not found error")
-                                },
-                                id = movie.id ?: 0,
-                                originalLanguage = TranslateCode.ISO_639_1[movie.original_language]
-                                    ?: "",
-                                originalTitle = movie.original_title ?: "",
-                                overview = movie.overview ?: "",
-                                posterUrl = GetMovieImageUrl()(
-                                    imageWidth = posterWidth,
-                                    imagePath = movie.poster_path ?: ""
-                                ),
-                                releaseDate = try {
-                                    LocalDate.parse(
-                                        movie.release_date,
-                                        DateTimeFormatter.ofPattern(DefaultValue.DATE_FORMAT)
-                                    ).format(dateFormat)
-                                } catch (e: Exception) {
-                                    ""
-                                },
-                                title = movie.title ?: "",
-                                voteAverage = movie.vote_average ?: 0.0,
-                                voteCount = movie.vote_count ?: 0
+        val movieList = getMovieListResource(
+            apiKey = apiKey,
+            region = region,
+            page = page
+        )
+        if (movieList is Resource.Error) {
+            return Resource.Error(
+                message = movieList.message
+                    ?: ResourceErrorMessage.GET_MOVIELIST
+            )
+        }
+
+        val getMovieImageUrl = GetMovieImageUrl()
+
+        return try {
+            Resource.Success(
+                data = movieList.data!!.results.map { movie ->
+                    MovieListItem(
+                        adult = try {
+                            movie.adult
+                        } catch (e: Exception) {
+                            true
+                        },
+                        landscapeImageUrl = try {
+                            getMovieImageUrl(
+                                imageWidth = landscapeWidth,
+                                imagePath = movie.backdrop_path
                             )
+                        } catch (e: Exception) {
+                            ""
+                        },
+                        genres = movie.genre_ids.map { genreId ->
+                            TranslateCode.GENRE[genreId]
+                                ?: throw GenreNotFoundException("Genre not found error")
+                        },
+                        id = movie.id,
+                        originalLanguage = TranslateCode.ISO_639_1[movie.original_language]
+                            ?: "",
+                        originalTitle = try {
+                            movie.original_title
+                        } catch (e: Exception) {
+                            ""
+                        },
+                        overview = try {
+                            movie.overview
+                        } catch (e: Exception) {
+                            ""
+                        },
+                        posterUrl = try {
+                            getMovieImageUrl(
+                                imageWidth = posterWidth,
+                                imagePath = movie.poster_path
+                            )
+                        } catch (e: Exception) {
+                            ""
+                        },
+                        releaseDate = try {
+                            LocalDate.parse(
+                                movie.release_date,
+                                DateTimeFormatter.ofPattern(DefaultValue.DATE_FORMAT)
+                            ).format(dateFormat)
+                        } catch (e: Exception) {
+                            ""
+                        },
+                        title = try {
+                            movie.title
+                        } catch (e: Exception) {
+                            ""
+                        },
+                        voteAverage = try {
+                            movie.vote_average
+                        } catch (e: Exception) {
+                            0.0
+                        },
+                        voteCount = try {
+                            movie.vote_count
+                        } catch (e: Exception) {
+                            0
                         }
                     )
-                } catch (e: Exception) {
-                    return Resource.Error(
-                        message = e.message
-                            ?: ResourceErrorMessage.CONVERT_MOVIELIST_TO_MOVIELISTITEMS
-                    )
                 }
-            }
-
-            else -> {
-                return Resource.Error(
-                    message = movieList.message
-                        ?: ResourceErrorMessage.CONVERT_MOVIELIST_TO_MOVIELISTITEMS
-                )
-            }
+            )
+        } catch (e: Exception) {
+            return Resource.Error(
+                message = e.message
+                    ?: ResourceErrorMessage.CONVERT_MOVIELIST_TO_MOVIELISTITEMS
+            )
         }
     }
-}
 
-// Get use case
-class GetMovieListResource(
-    private val movieDatabaseRepository: MovieDatabaseRepository
-) {
-    suspend operator fun invoke(
+    private suspend fun getMovieListResource(
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
         region: String = Locale.getDefault().country,
         page: Int
@@ -302,12 +334,12 @@ class GetMovieItemResource(
     }
 }
 
-class GetMovieImageUrl {
+private class GetMovieImageUrl {
     operator fun invoke(imageWidth: Int, imagePath: String): String =
         DataSourceRelation.MOVIE_DATABASE_IMAGE_URL + "w${imageWidth}${imagePath}"
 }
 
-class GetYouTubeVideoUrl {
+private class GetYouTubeVideoUrl {
     operator fun invoke(key: String): String =
         DataSourceRelation.YOUTUBE_VIDEO_URL + key
 }
