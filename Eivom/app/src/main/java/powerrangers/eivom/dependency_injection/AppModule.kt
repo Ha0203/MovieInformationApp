@@ -12,10 +12,13 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import powerrangers.eivom.feature_movie.data.database.LocalMovieDatabase
+import powerrangers.eivom.feature_movie.data.database.LocalMovieItemDao
 import powerrangers.eivom.feature_movie.data.network.MovieDatabaseApi
+import powerrangers.eivom.feature_movie.data.repository.LocalMovieDatabaseRepositoryImpl
 import powerrangers.eivom.feature_movie.data.repository.MovieDatabaseRepositoryImpl
 import powerrangers.eivom.feature_movie.data.repository.UserPreferencesRepositoryImpl
 import powerrangers.eivom.feature_movie.data.utility.DataSourceRelation
+import powerrangers.eivom.feature_movie.domain.repository.LocalMovieDatabaseRepository
 import powerrangers.eivom.feature_movie.domain.repository.MovieDatabaseRepository
 import powerrangers.eivom.feature_movie.domain.repository.UserPreferencesRepository
 import powerrangers.eivom.feature_movie.domain.use_case.*
@@ -80,4 +83,14 @@ object AppModule {
             DataSourceRelation.LOCAL_MOVIE_ITEM_NAME
         ).build()
     }
+
+    @Provides
+    @Singleton
+    fun provideLocalMovieItemDao(localMovieDatabase: LocalMovieDatabase): LocalMovieItemDao =
+        localMovieDatabase.localMovieItemDao
+
+    @Provides
+    @Singleton
+    fun provideLocalMovieDatabaseRepository(localMovieItemDao: LocalMovieItemDao): LocalMovieDatabaseRepository =
+        LocalMovieDatabaseRepositoryImpl(localMovieItemDao)
 }
