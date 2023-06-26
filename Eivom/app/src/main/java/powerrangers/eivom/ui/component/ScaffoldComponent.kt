@@ -10,9 +10,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import powerrangers.eivom.R
 import powerrangers.eivom.navigation.Route
@@ -26,10 +28,22 @@ fun TopBar(
 ) {
     TopAppBar(
         title = {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.h5
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = modifier.fillMaxWidth()
+
             )
+            {
+                Text(
+                    text = title,
+                    
+//                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.h5,
+                    //modifier = modifier.fillMaxWidth()
+                ) 
+                Spacer(modifier = Modifier.width(30.dp))
+            }
+
         },
         modifier = modifier,
         navigationIcon = {
