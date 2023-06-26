@@ -45,4 +45,7 @@ object ResourceErrorMessage {
 
     const val MOVIELIST_END = "End of movie list error"
     const val LOAD_MOVIELIST = "Loading movie list error"
+
+    const val GET_LOCALMOVIELIST = "Getting Resource<LOCALMOVIELIST> error"
+    const val GET_LOCALMOVIEITEM = "Getting Resource<LOCALMOVIEITEM> error"
 }

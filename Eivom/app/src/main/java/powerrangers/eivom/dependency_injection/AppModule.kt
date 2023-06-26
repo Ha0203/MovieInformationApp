@@ -67,11 +67,11 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideMovieDatabaseUseCase(movieDatabaseRepository: MovieDatabaseRepository): MovieDatabaseUseCase =
+    fun provideMovieDatabaseUseCase(movieDatabaseRepository: MovieDatabaseRepository, localMovieDatabaseRepository: LocalMovieDatabaseRepository): MovieDatabaseUseCase =
         MovieDatabaseUseCase(
             handleImageDominantColor = HandleImageDominantColor(),
-            getMovieListItemsResource = GetMovieListItemsResource(movieDatabaseRepository),
-            getMovieItemResource = GetMovieItemResource(movieDatabaseRepository)
+            getMovieListItemsResource = GetMovieListItemsResource(movieDatabaseRepository, localMovieDatabaseRepository),
+            getMovieItemResource = GetMovieItemResource(movieDatabaseRepository, localMovieDatabaseRepository)
         )
 
     @Provides
