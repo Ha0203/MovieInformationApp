@@ -5,17 +5,20 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.compose.ui.graphics.Color
 import androidx.palette.graphics.Palette
+import kotlinx.coroutines.flow.first
 import powerrangers.eivom.feature_movie.data.network.response.MovieImage
 import powerrangers.eivom.feature_movie.data.network.response.MovieInformation
 import powerrangers.eivom.feature_movie.data.network.response.MovieList
 import powerrangers.eivom.feature_movie.data.network.response.MovieVideo
 import powerrangers.eivom.feature_movie.data.utility.DataSourceRelation
 import powerrangers.eivom.feature_movie.data.utility.GenreNotFoundException
+import powerrangers.eivom.feature_movie.data.utility.LocalMovieItem
 import powerrangers.eivom.feature_movie.domain.model.Collection
 import powerrangers.eivom.feature_movie.domain.model.Company
 import powerrangers.eivom.feature_movie.domain.model.MovieItem
 import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 import powerrangers.eivom.feature_movie.domain.model.Video
+import powerrangers.eivom.feature_movie.domain.repository.LocalMovieDatabaseRepository
 import powerrangers.eivom.feature_movie.domain.repository.MovieDatabaseRepository
 import powerrangers.eivom.feature_movie.domain.utility.DefaultValue
 import powerrangers.eivom.feature_movie.domain.utility.Resource
@@ -49,7 +52,8 @@ class HandleImageDominantColor {
 
 // Get use case
 class GetMovieListItemsResource(
-    private val movieDatabaseRepository: MovieDatabaseRepository
+    private val movieDatabaseRepository: MovieDatabaseRepository,
+    private val localMovieDatabaseRepository: LocalMovieDatabaseRepository
 ) {
     suspend operator fun invoke(
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
@@ -166,10 +170,21 @@ class GetMovieListItemsResource(
             Resource.Error(message = e.message ?: ResourceErrorMessage.GET_MOVIELIST)
         }
     }
+
+    private suspend fun getLocalMovieListItem():Resource<List<LocalMovieItem>> {
+        return try {
+            Resource.Success(
+                data = localMovieDatabaseRepository.getLocalMovieListItems().first()
+            )
+        } catch (e: Exception) {
+            Resource.Error(message = e.message ?: ResourceErrorMessage.GET_LOCALMOVIELIST)
+        }
+    }
 }
 
 class GetMovieItemResource(
-    private val movieDatabaseRepository: MovieDatabaseRepository
+    private val movieDatabaseRepository: MovieDatabaseRepository,
+    private val localMovieDatabaseRepository: LocalMovieDatabaseRepository
 ) {
     suspend operator fun invoke(
         movieId: Int,
@@ -356,6 +371,16 @@ class GetMovieItemResource(
             )
         } catch (e: Exception) {
             Resource.Error(message = e.message ?: ResourceErrorMessage.GET_MOVIEINFORMATION)
+        }
+    }
+
+    private suspend fun getLocalMovieItem(movieId: Int): Resource<LocalMovieItem> {
+        return try {
+            Resource.Success(
+                data = localMovieDatabaseRepository.getLocalMovieItem(movieId).first()
+            )
+        } catch (e: Exception) {
+            Resource.Error(message = e.message ?: ResourceErrorMessage.GET_LOCALMOVIEITEM)
         }
     }
 
