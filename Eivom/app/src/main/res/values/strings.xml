@@ -10,4 +10,8 @@
     <!-- Screen Component -->
     <string name="retry_button">Retry</string>
     <string name="back_button">Back</string>
+
+    <string name="filter_button">Filter</string>
+    <string name="sort_button">Sort</string>
+    <string name="search_button">Search</string>
 </resources>
