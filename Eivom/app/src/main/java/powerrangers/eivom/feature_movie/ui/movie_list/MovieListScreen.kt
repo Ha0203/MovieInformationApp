@@ -177,7 +177,7 @@ fun MovieListBody(
                     ) + fadeOut(),
                 ) {
                     // Content of the filter screen
-                    Text(text = "Filter", color = Color.White)
+                    Text(text = "Filter", color = Color.Black)
                 }
             }
 
