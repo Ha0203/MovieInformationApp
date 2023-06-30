@@ -56,6 +56,7 @@ class GetMovieListItemsResource(
     private val localMovieDatabaseRepository: LocalMovieDatabaseRepository
 ) {
     suspend operator fun invoke(
+        movieMap: Resource<Map<Int, LocalMovieItem>>? = null,
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
         region: String = Locale.getDefault().country,
         page: Int,
@@ -75,15 +76,23 @@ class GetMovieListItemsResource(
             )
         }
 
+        val localMovieMap = movieMap ?: getLocalMovieListItemsAsMap()
+        if (localMovieMap is Resource.Error) {
+            return Resource.Error(
+                message = localMovieMap.message
+                    ?: ResourceErrorMessage.GET_LOCALMOVIEMAP
+            )
+        }
+
         val getMovieImageUrl = GetMovieImageUrl()
 
         return try {
             Resource.Success(
                 data = movieList.data!!.results.map { movie ->
                     MovieListItem(
-                        favorite = false,
-                        watched = false,
-                        sponsored = false,
+                        favorite = localMovieMap.data?.get(movie.id)?.favorite ?: false,
+                        watched = localMovieMap.data?.get(movie.id)?.watched ?: false,
+                        sponsored = localMovieMap.data?.get(movie.id)?.sponsored ?: false,
                         adult = try {
                             movie.adult
                         } catch (e: Exception) {
@@ -174,13 +183,23 @@ class GetMovieListItemsResource(
         }
     }
 
-    private suspend fun getLocalMovieListItem():Resource<List<LocalMovieItem>> {
+    private suspend fun getLocalMovieListItems():Resource<List<LocalMovieItem>> {
         return try {
             Resource.Success(
                 data = localMovieDatabaseRepository.getLocalMovieListItems().first()
             )
         } catch (e: Exception) {
             Resource.Error(message = e.message ?: ResourceErrorMessage.GET_LOCALMOVIELIST)
+        }
+    }
+
+    private suspend fun getLocalMovieListItemsAsMap():Resource<Map<Int,LocalMovieItem>> {
+        return try {
+            Resource.Success(
+                data = localMovieDatabaseRepository.getLocalMovieListItemsAsMap().first()
+            )
+        } catch (e: Exception) {
+            Resource.Error(message = e.message ?: ResourceErrorMessage.GET_LOCALMOVIEMAP)
         }
     }
 }
@@ -190,6 +209,9 @@ class GetMovieItemResource(
     private val localMovieDatabaseRepository: LocalMovieDatabaseRepository
 ) {
     suspend operator fun invoke(
+        isFavorite: Boolean = false,
+        isWatched: Boolean = false,
+        isSponsored: Boolean = false,
         movieId: Int,
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
         region: String = Locale.getDefault().country,
@@ -239,9 +261,9 @@ class GetMovieItemResource(
         return try {
             Resource.Success(
                 data = MovieItem(
-                    favorite = false,
-                    watched = false,
-                    sponsored = false,
+                    favorite = isFavorite,
+                    watched = isWatched,
+                    sponsored = isSponsored,
                     adult = information.data?.adult ?: true,
                     landscapeImageUrl = getMovieImageUrl(
                         imageWidth = landscapeWidth,

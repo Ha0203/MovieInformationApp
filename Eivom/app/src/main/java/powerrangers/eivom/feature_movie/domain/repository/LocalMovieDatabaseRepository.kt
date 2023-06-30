@@ -13,4 +13,6 @@ interface LocalMovieDatabaseRepository {
     fun getLocalMovieListItems(): Flow<List<LocalMovieItem>>
 
     fun getLocalMovieItem(movieId:Int): Flow<LocalMovieItem>
+
+    fun getLocalMovieListItemsAsMap(): Flow<Map<Int, LocalMovieItem>>
 }
