@@ -5,7 +5,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -43,9 +42,7 @@ import androidx.compose.material.MaterialTheme.shapes
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Filter
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sort
@@ -56,7 +53,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -70,7 +66,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -126,14 +121,8 @@ fun MovieListBody(
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
     val movieListItems by remember { viewModel.movieListItems }
-    val isFilterVisible = remember { mutableStateOf(false) }
-    val isSearchVisible = remember { mutableStateOf(false) }
-    val rowWidth = remember { mutableStateOf(200.dp) }
-
-    val animatedWidth: Dp by animateDpAsState(
-        targetValue = rowWidth.value,
-        animationSpec = spring(stiffness = Spring.StiffnessMedium)
-    )
+    val isFilterVisible by remember { viewModel.isFilterVisible }
+    val isSearchVisible by remember { viewModel.isSearchVisible }
 
     Row(
         modifier = Modifier
@@ -157,16 +146,16 @@ fun MovieListBody(
                         )
                     )
             ) {
-                IconButton(onClick = { isFilterVisible.value = !isFilterVisible.value }) {
+                IconButton(onClick = { viewModel.reverseIsFilter() }) {
                     Icon(
                         imageVector = Icons.Filled.Filter,
                         contentDescription = stringResource(id = R.string.filter_button),
                         tint = MaterialTheme.colors.primary
                     )
-                    //Create diaglog
+                    //Create dialog
                 }
                 AnimatedVisibility(
-                    visible = isFilterVisible.value,
+                    visible = isFilterVisible,
                     enter = slideInVertically(
                         initialOffsetY = { -it },
                         animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
@@ -190,7 +179,7 @@ fun MovieListBody(
                 )
             }
 
-            IconButton(onClick = { isSearchVisible.value = !isSearchVisible.value }) {
+            IconButton(onClick = { viewModel.reverseIsSearch() }) {
                 Icon(
                     imageVector = Icons.Filled.Search,
                     contentDescription = stringResource(id = R.string.search_button),
@@ -211,7 +200,7 @@ fun MovieListBody(
                 )
         ) {
             AnimatedVisibility(
-                visible = isSearchVisible.value,
+                visible = isSearchVisible,
                 enter = slideInHorizontally(
                     initialOffsetX = { -it },
                     animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)

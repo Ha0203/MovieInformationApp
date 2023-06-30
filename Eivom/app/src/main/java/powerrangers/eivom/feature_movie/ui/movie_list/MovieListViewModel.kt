@@ -2,6 +2,7 @@ package powerrangers.eivom.feature_movie.ui.movie_list
 
 import android.graphics.drawable.Drawable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -31,6 +32,12 @@ class MovieListViewModel @Inject constructor(
     private var endReached = false
 
     var movieListItems = mutableStateOf<Resource<List<MovieListItem>>>(Resource.Loading(data = emptyList()))
+        private set
+
+    //State of tool
+    var isFilterVisible = mutableStateOf(false)
+        private set
+    var isSearchVisible = mutableStateOf(false)
         private set
 
     init {
@@ -83,5 +90,13 @@ class MovieListViewModel @Inject constructor(
 
     fun handleMovieDominantColor(drawable: Drawable, onFinish: (Color) -> Unit) {
         movieDatabaseUseCase.handleImageDominantColor(drawable = drawable, onFinish = onFinish)
+    }
+
+    fun reverseIsFilter() {
+        isFilterVisible.value = !isFilterVisible.value
+    }
+
+    fun reverseIsSearch() {
+        isSearchVisible.value = !isSearchVisible.value
     }
 }
