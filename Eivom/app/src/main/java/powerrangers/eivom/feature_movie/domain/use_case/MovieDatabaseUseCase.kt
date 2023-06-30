@@ -81,6 +81,9 @@ class GetMovieListItemsResource(
             Resource.Success(
                 data = movieList.data!!.results.map { movie ->
                     MovieListItem(
+                        favorite = false,
+                        watched = false,
+                        sponsored = false,
                         adult = try {
                             movie.adult
                         } catch (e: Exception) {
@@ -236,6 +239,9 @@ class GetMovieItemResource(
         return try {
             Resource.Success(
                 data = MovieItem(
+                    favorite = false,
+                    watched = false,
+                    sponsored = false,
                     adult = information.data?.adult ?: true,
                     landscapeImageUrl = getMovieImageUrl(
                         imageWidth = landscapeWidth,
