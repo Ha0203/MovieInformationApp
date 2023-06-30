@@ -48,4 +48,5 @@ object ResourceErrorMessage {
 
     const val GET_LOCALMOVIELIST = "Getting Resource<LOCALMOVIELIST> error"
     const val GET_LOCALMOVIEITEM = "Getting Resource<LOCALMOVIEITEM> error"
+    const val GET_LOCALMOVIEMAP = "Getting Resource<LOCALMOVIEMAP> error"
 }

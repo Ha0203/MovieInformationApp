@@ -28,4 +28,7 @@ class LocalMovieDatabaseRepositoryImpl @Inject constructor(
 
     override fun getLocalMovieListItems(): Flow<List<LocalMovieItem>> =
         localMovieItemDao.getAllItems()
+
+    override fun getLocalMovieListItemsAsMap(): Flow<Map<Int, LocalMovieItem>> =
+        localMovieItemDao.getAllItemsAsMap()
 }
