@@ -6,8 +6,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,9 +20,19 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BackHand
+import androidx.compose.material.icons.filled.Backup
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.TransitEnterexit
+import androidx.compose.material.icons.outlined.Cancel
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.CloseFullscreen
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,6 +43,8 @@ import androidx.compose.ui.unit.sp
 import powerrangers.eivom.R
 import powerrangers.eivom.navigation.Route
 import powerrangers.eivom.ui.utility.MenuItem
+import kotlin.system.exitProcess
+
 
 @Composable
 fun TopBar(
@@ -46,7 +61,7 @@ fun TopBar(
             {
                 Text(
                     text = title,
-                    textAlign = TextAlign.Left,
+                    textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.h1,
                     color = MaterialTheme.colors.primary,
                     //modifier = modifier.fillMaxWidth()
@@ -71,26 +86,36 @@ fun TopBar(
 
 @Composable
 fun DrawerHeader(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    closeButtonOnClick: () -> Unit = {}
 ) {
-    Box(
+    Row(
         modifier = modifier
-//            .fillMaxWidth()
+            .fillMaxWidth()
             .padding(16.dp)
-            .background(Color.Transparent),
-        contentAlignment = TopStart
+            .background(color = Color.Transparent),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = stringResource(id = R.string.app_name),
-            style = MaterialTheme.typography.h2,
+        Text(
+            text = stringResource(id = R.string.app_name),
+            style = MaterialTheme.typography.h1,
             fontSize = 40.sp,
             color = MaterialTheme.colors.primary,
         )
-//        IconButton(onClick = { /*TODO*/ }) {
-//            Icon(
-//
-//            )
+        Spacer(modifier = Modifier.weight(1f))
+        IconButton(onClick = closeButtonOnClick
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Cancel,
+                contentDescription = null,
+                tint = MaterialTheme.colors.primary
+            )
+        }
+
     }
+
 }
+
 
 @Composable
 fun DrawerBody(
