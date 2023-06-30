@@ -40,6 +40,9 @@ class MovieListViewModel @Inject constructor(
     var isSearchVisible = mutableStateOf(false)
         private set
 
+    var isSortVisible = mutableStateOf(false)
+        private set
+
     init {
         viewModelScope.launch {
             userPreferences.value = UserPreferences(
@@ -98,5 +101,9 @@ class MovieListViewModel @Inject constructor(
 
     fun reverseIsSearch() {
         isSearchVisible.value = !isSearchVisible.value
+    }
+
+    fun reverseIsSort() {
+        isSortVisible.value = !isSortVisible.value
     }
 }

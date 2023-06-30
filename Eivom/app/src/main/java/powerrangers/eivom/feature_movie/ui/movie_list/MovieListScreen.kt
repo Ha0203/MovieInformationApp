@@ -33,6 +33,7 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
@@ -49,6 +50,7 @@ import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -123,6 +125,7 @@ fun MovieListBody(
     val movieListItems by remember { viewModel.movieListItems }
     val isFilterVisible by remember { viewModel.isFilterVisible }
     val isSearchVisible by remember { viewModel.isSearchVisible }
+    val isSortVisible by remember { viewModel.isSortVisible }
 
     Row(
         modifier = Modifier
@@ -134,18 +137,6 @@ fun MovieListBody(
                 .background(MaterialTheme.colors.background)
                 .fillMaxHeight()
         ){
-            Column(
-                //verticalArrangement = Arrangement.Top
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = CenterHorizontally,
-                modifier = Modifier
-                    .animateContentSize (
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioNoBouncy,
-                            stiffness = Spring.StiffnessLow
-                        )
-                    )
-            ) {
                 IconButton(onClick = { viewModel.reverseIsFilter() }) {
                     Icon(
                         imageVector = Icons.Filled.Filter,
@@ -154,29 +145,34 @@ fun MovieListBody(
                     )
                     //Create dialog
                 }
-                AnimatedVisibility(
-                    visible = isFilterVisible,
-                    enter = slideInVertically(
-                        initialOffsetY = { -it },
-                        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
-                    ) + fadeIn(),
-                    exit = slideOutVertically(
-                        targetOffsetY = { -it },
-                        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
-                    ) + fadeOut(),
-                ) {
-                    // Content of the filter screen
-                    Text(text = "Filter", color = Color.Black)
+                if (isFilterVisible){
+                    FilterButton(funcToCall = {}, onDismiss = {})
                 }
-            }
+//                AnimatedVisibility(
+//                    visible = isFilterVisible,
+//                    enter = slideInVertically(
+//                        initialOffsetY = { -it },
+//                        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+//                    ) + fadeIn(),
+//                    exit = slideOutVertically(
+//                        targetOffsetY = { -it },
+//                        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+//                    ) + fadeOut(),
+//                ) {
+//                    // Content of the filter screen
+//                    Text(text = "Filter", color = MaterialTheme.colors.primary)
+//                }
 
 
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = { viewModel.reverseIsSort() }) {
                 Icon(
                     imageVector = Icons.Filled.Sort,
                     contentDescription = stringResource(id = R.string.sort_button),
                     tint = MaterialTheme.colors.primary,
                 )
+            }
+            if (isSortVisible){
+                SortButton(funcToCall = {}, onDismiss = {})
             }
 
             IconButton(onClick = { viewModel.reverseIsSearch() }) {
@@ -387,7 +383,110 @@ fun RetrySection(
 }
 
 @Composable
-fun FilterButton()
+fun FilterButton(
+    funcToCall: () -> Unit,
+    modifier: Modifier = Modifier,
+    onDismiss: () -> Unit
+)
 {
+    val showDialog = remember { mutableStateOf(true)}
+    val textList = remember { mutableStateListOf("Action", "Science Fiction", "Horror") }
 
+    if (showDialog.value)
+    {
+        AlertDialog(
+            onDismissRequest = {
+//             Dismiss the dialog when the user clicks outside the dialog or on the back
+//             button. If you want to disable that functionality, simply use an empty
+//             onCloseRequest
+                showDialog.value = false
+            },
+            title = { Text(text = "Select Filter") },
+            text = {
+                Column {
+                    textList.forEach { text ->
+                        Text(
+                            text = text,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDialog.value = false
+                    }
+                ) {
+                    Text(text = "Confirm")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        // Handle Cancel button action
+                        showDialog.value = false
+                        onDismiss()
+                    }
+                ) {
+                    Text(text = "Cancel")
+                }
+            }
+
+        )
+    }
+}
+@Composable
+fun SortButton(
+    funcToCall: () -> Unit,
+    modifier: Modifier = Modifier,
+    onDismiss: () -> Unit
+)
+{
+    val showDialog = remember { mutableStateOf(true)}
+    val textList = remember { mutableStateListOf("Name", "Latest Date", "Star") }
+
+    if (showDialog.value)
+    {
+        AlertDialog(
+            onDismissRequest = {
+//             Dismiss the dialog when the user clicks outside the dialog or on the back
+//             button. If you want to disable that functionality, simply use an empty
+//             onCloseRequest
+                showDialog.value = false
+            },
+            title = { Text(text = "Select Sort") },
+            text = {
+                Column {
+                    textList.forEach { text ->
+                        Text(
+                            text = text,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+                }
+           },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDialog.value = false
+                    }
+                ) {
+                    Text(text = "Confirm")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        // Handle Cancel button action
+                        showDialog.value = false
+                        onDismiss()
+                    }
+                ) {
+                    Text(text = "Cancel")
+                }
+            }
+
+        )
+    }
 }
