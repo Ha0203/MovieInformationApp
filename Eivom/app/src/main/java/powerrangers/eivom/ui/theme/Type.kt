@@ -8,31 +8,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import powerrangers.eivom.R
 
-val Lobster = FontFamily(
-    Font(R.font.lobster_regular)
+val Walkway = FontFamily(
+    Font(R.font.walkway_bold)
 )
-val Margot= FontFamily(
-    Font(R.font.margot)
-)
-val Devil = FontFamily(
-    Font(R.font.devilsummonerexpand)
-)
-
 // Set of Material typography styles to start with
 val Typography = Typography(
-    h1 = TextStyle(
-        fontFamily = Devil,
-        fontSize = 60.sp,
-        fontWeight = FontWeight.Normal,
-        letterSpacing = 1.sp,
-    ),
     body1 = TextStyle(
-        fontFamily = Margot,
+        fontFamily = Walkway,
         fontWeight = FontWeight.Normal,
-        fontSize = 14.sp
+        fontSize = 16.sp
+    ),
+     h1 = TextStyle(
+        fontFamily = Walkway,
+        fontSize = 30.sp,
+         fontWeight = FontWeight.Bold
     ),
     h2 = TextStyle (
-        fontFamily =  Lobster,
+        fontFamily =  Walkway,
         fontSize = 20.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 0.5.sp

@@ -1,9 +1,6 @@
 package powerrangers.eivom.feature_movie.domain.model
 
 data class MovieListItem(
-    val favorite: Boolean,
-    val watched: Boolean,
-    val sponsored: Boolean,
     val adult: Boolean,
     val landscapeImageUrl: String,
     val genres: List<String>,

@@ -11,9 +11,6 @@ import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 @Entity(tableName = DataSourceRelation.LOCAL_MOVIE_ITEM_NAME)
 @TypeConverters(StringListConverter::class)
 data class LocalMovieItem(
-    val favorite: Boolean,
-    val watched: Boolean,
-    val sponsored: Boolean,
     val adult: Boolean,
     val landscapeImageUrl: String,
     val budget: Long,
@@ -39,9 +36,6 @@ data class LocalMovieItem(
 
 fun LocalMovieItem.toMovieItem(): MovieItem {
     return MovieItem(
-        favorite = this.favorite,
-        watched = this.watched,
-        sponsored = this.sponsored,
         adult = this.adult,
         landscapeImageUrl = this.landscapeImageUrl,
         landscapeImageUrls = emptyList(),
@@ -78,9 +72,6 @@ fun LocalMovieItem.toMovieItem(): MovieItem {
 
 fun LocalMovieItem.toMovieListItem(): MovieListItem {
     return MovieListItem(
-        favorite = this.favorite,
-        watched = this.watched,
-        sponsored = this.sponsored,
         adult = this.adult,
         landscapeImageUrl = this.landscapeImageUrl,
         genres = this.genres,
