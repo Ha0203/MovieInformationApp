@@ -225,11 +225,11 @@ fun MovieListBody(
                 OutlinedTextField(
                     value = "",
                     singleLine = true,
-                    shape = shapes.large,
+                    shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .size(width = 200.dp, height = 50.dp)
-                        .padding(start = 10.dp, end = 10.dp)
+                        .padding(start = 10.dp, end = 12.dp)
                     ,
                     onValueChange = { /*To Do*/ },
                     label = { Text(stringResource(R.string.search_label)) },
