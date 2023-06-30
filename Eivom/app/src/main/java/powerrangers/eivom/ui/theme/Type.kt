@@ -8,29 +8,35 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import powerrangers.eivom.R
 
-val Walkway = FontFamily(
-    Font(R.font.walkway_bold)
+val Lobster = FontFamily(
+    Font(R.font.lobster_regular)
 )
+val Margot= FontFamily(
+    Font(R.font.margot)
+)
+val Devil = FontFamily(
+    Font(R.font.devilsummonerexpand)
+)
+
 // Set of Material typography styles to start with
 val Typography = Typography(
-    body1 = TextStyle(
-        fontFamily = Walkway,
+    h1 = TextStyle(
+        fontFamily = Devil,
+        fontSize = 60.sp,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp
+        letterSpacing = 1.sp,
     ),
-     h1 = TextStyle(
-        fontFamily = Walkway,
-        fontSize = 30.sp,
-         fontWeight = FontWeight.Bold
+    body1 = TextStyle(
+        fontFamily = Margot,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp
     ),
     h2 = TextStyle (
-        fontFamily =  Walkway,
+        fontFamily =  Lobster,
         fontSize = 20.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 0.5.sp
     )
-
-
     /* Other default text styles to override
     button = TextStyle(
         fontFamily = FontFamily.Default,

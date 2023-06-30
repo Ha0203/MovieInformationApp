@@ -142,7 +142,7 @@ fun MovieListBody(
         //Text(text = "Menu")
         Column(
             modifier = Modifier
-                .background(MaterialTheme.colors.primary)
+                .background(MaterialTheme.colors.background)
                 .fillMaxHeight()
         ){
             Column(
@@ -161,7 +161,7 @@ fun MovieListBody(
                     Icon(
                         imageVector = Icons.Filled.Filter,
                         contentDescription = stringResource(id = R.string.filter_button),
-                        tint = Color.White
+                        tint = MaterialTheme.colors.primary
                     )
                     //Create diaglog
                 }
@@ -186,7 +186,7 @@ fun MovieListBody(
                 Icon(
                     imageVector = Icons.Filled.Sort,
                     contentDescription = stringResource(id = R.string.sort_button),
-                    tint = Color.White,
+                    tint = MaterialTheme.colors.primary,
                 )
             }
 
@@ -194,7 +194,7 @@ fun MovieListBody(
                 Icon(
                     imageVector = Icons.Filled.Search,
                     contentDescription = stringResource(id = R.string.search_button),
-                    tint = Color.White
+                    tint = MaterialTheme.colors.primary
                 )
             }
         }
@@ -291,7 +291,7 @@ fun MovieListBody(
                 ) {
                     when (movieListItems) {
                         is Resource.Loading -> {
-                            CircularProgressIndicator(color = MaterialTheme.colors.primary)
+                            CircularProgressIndicator(color = MaterialTheme.colors.secondary)
                         }
                         is Resource.Error -> {
                             RetrySection(

@@ -10,13 +10,14 @@ private val DarkColorPalette = darkColors(
     primary = Purple700,
     primaryVariant = Purple700,
     secondary = Purple1000,
-    background = Black
+    background = BlackTheme,
 )
 
 private val LightColorPalette = lightColors(
     primary = Purple300,
+    secondary = Purple200,
     primaryVariant = Purple700,
-    secondary = Purple1000
+    background = White,
 
     /* Other default colors to override
     background = Color.White,
@@ -27,7 +28,6 @@ private val LightColorPalette = lightColors(
     onSurface = Color.Black,Theme
     */
 )
-
 @Composable
 fun EivomTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val colors = if (darkTheme) {
@@ -35,7 +35,6 @@ fun EivomTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable 
     } else {
         LightColorPalette
     }
-
     MaterialTheme(
         colors = colors,
         typography = Typography,
