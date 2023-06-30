@@ -1,6 +1,19 @@
 package powerrangers.eivom.feature_movie.ui.movie_list
 
 import android.graphics.drawable.Drawable
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,19 +26,26 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.MaterialTheme.shapes
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Filter
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sort
@@ -36,6 +56,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -47,7 +68,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -61,6 +84,7 @@ import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
 import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.TopBar
+
 
 @Composable
 fun MovieListScreen(
@@ -102,14 +126,18 @@ fun MovieListBody(
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
     val movieListItems by remember { viewModel.movieListItems }
-//    LazyVerticalGrid(
-//        columns = GridCells.Fixed(2),
-//        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
-//        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
-//        modifier = modifier
-//    )
+    val isFilterVisible = remember { mutableStateOf(false) }
+    val isSearchVisible = remember { mutableStateOf(false) }
+    val rowWidth = remember { mutableStateOf(200.dp) }
+
+    val animatedWidth: Dp by animateDpAsState(
+        targetValue = rowWidth.value,
+        animationSpec = spring(stiffness = Spring.StiffnessMedium)
+    )
+    
     Row(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
     ) {
         //Text(text = "Menu")
         Column(
@@ -117,23 +145,52 @@ fun MovieListBody(
                 .background(MaterialTheme.colors.primary)
                 .fillMaxHeight()
         ){
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(
-                    imageVector = Icons.Filled.Filter,
-                    contentDescription = stringResource(id = R.string.filter_button),
-                    tint = Color.White
-                )
+            Column(
+                //verticalArrangement = Arrangement.Top
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = CenterHorizontally,
+                modifier = Modifier
+                    .animateContentSize (
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioNoBouncy,
+                            stiffness = Spring.StiffnessLow
+                        )
+                    )
+            ) {
+                IconButton(onClick = { isFilterVisible.value = !isFilterVisible.value }) {
+                    Icon(
+                        imageVector = Icons.Filled.Filter,
+                        contentDescription = stringResource(id = R.string.filter_button),
+                        tint = Color.White
+                    )
+                    //Create diaglog
+                }
+                AnimatedVisibility(
+                    visible = isFilterVisible.value,
+                    enter = slideInVertically(
+                        initialOffsetY = { -it },
+                        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+                    ) + fadeIn(),
+                    exit = slideOutVertically(
+                        targetOffsetY = { -it },
+                        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+                    ) + fadeOut(),
+                ) {
+                    // Content of the filter screen
+                    Text(text = "Filter", color = Color.White)
+                }
             }
+
 
             IconButton(onClick = { /*TODO*/ }) {
                 Icon(
                     imageVector = Icons.Filled.Sort,
                     contentDescription = stringResource(id = R.string.sort_button),
-                    tint = Color.White
+                    tint = Color.White,
                 )
             }
 
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = { isSearchVisible.value = !isSearchVisible.value }) {
                 Icon(
                     imageVector = Icons.Filled.Search,
                     contentDescription = stringResource(id = R.string.search_button),
@@ -142,57 +199,115 @@ fun MovieListBody(
             }
         }
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = modifier
-                .background(MaterialTheme.colors.background)
-                .fillMaxSize()
-                .padding(
-                    top = 5.dp,
-                    start = 10.dp,
-                    end = 10.dp
-                ),
-
-            //horizontalAlignment = CenterHorizontally
-        ) {
-            itemsIndexed(movieListItems.data!!) { index, movie ->
-                if (index >= movieListItems.data!!.size - 1 && movieListItems !is Resource.Loading) {
-                    viewModel.loadMoviePaginated()
-                }
-                MovieListEntry(
-                    modifier = modifier,
-                    navigateToMovieDetailScreen = navigateToMovieDetailScreen,
-                    movie = movie,
-                    handleMovieDominantColor = { drawable, onFinish ->
-                        viewModel.handleMovieDominantColor(drawable = drawable, onFinish = onFinish)
-                    }
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = CenterHorizontally,
+            modifier = Modifier
+                .animateContentSize(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
                 )
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
-        }
-        Box(
-            contentAlignment = Center,
-            modifier = Modifier.fillMaxSize()
         ) {
-            when (movieListItems) {
-                is Resource.Loading -> {
-                    CircularProgressIndicator(color = MaterialTheme.colors.primary)
-                }
-                is Resource.Error -> {
-                    RetrySection(
-                        error = movieListItems.message?: ResourceErrorMessage.UNKNOWN,
-                        onRetry = {
+            AnimatedVisibility(
+                visible = isSearchVisible.value,
+                enter = slideInHorizontally(
+                    initialOffsetX = { -it },
+                    animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+                ) + fadeIn(),
+                exit = slideOutHorizontally(
+                    targetOffsetX = { -it },
+                    animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+                ) + fadeOut(),
+            ) {
+                // Content of the filter screen
+                OutlinedTextField(
+                    value = "",
+                    singleLine = true,
+                    shape = shapes.large,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .size(width = 200.dp, height = 50.dp)
+                        .padding(start = 10.dp, end = 10.dp)
+                    ,
+                    onValueChange = { /*To Do*/ },
+                    label = { Text(stringResource(R.string.search_label)) },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = { /*To Do*/ }
+                    )
+                )
+            }
+            //Box(){}
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .animateContentSize(
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioNoBouncy,
+                            stiffness = Spring.StiffnessLow
+                        )
+                    )
+                    .padding(top = 10.dp)
+            ){
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = modifier
+                        .background(MaterialTheme.colors.background)
+                        .fillMaxSize()
+                        .padding(
+                            top = 5.dp,
+                            start = 10.dp,
+                            end = 10.dp
+                        ),
+
+                    //horizontalAlignment = CenterHorizontally
+                ) {
+                    itemsIndexed(movieListItems.data!!) { index, movie ->
+                        if (index >= movieListItems.data!!.size - 1 && movieListItems !is Resource.Loading) {
                             viewModel.loadMoviePaginated()
                         }
-                    )
-                }
-                else -> {}
-            }
-        }
+                        MovieListEntry(
+                            modifier = modifier,
+                            navigateToMovieDetailScreen = navigateToMovieDetailScreen,
+                            movie = movie,
+                            handleMovieDominantColor = { drawable, onFinish ->
+                                viewModel.handleMovieDominantColor(drawable = drawable, onFinish = onFinish)
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
 
+                }
+
+                Box(
+                    contentAlignment = Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    when (movieListItems) {
+                        is Resource.Loading -> {
+                            CircularProgressIndicator(color = MaterialTheme.colors.primary)
+                        }
+                        is Resource.Error -> {
+                            RetrySection(
+                                error = movieListItems.message?: ResourceErrorMessage.UNKNOWN,
+                                onRetry = {
+                                    viewModel.loadMoviePaginated()
+                                }
+                            )
+                        }
+                        else -> {}
+                    }
+                }
+
+            }
+
+        }
     }
 
 }
