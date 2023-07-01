@@ -218,7 +218,7 @@ fun MovieListBody(
                 OutlinedTextField(
                     value = viewModel.userSearch,
                     singleLine = true,
-                    shape = shapes.large,
+                    shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .size(width = 200.dp, height = 55.dp)
