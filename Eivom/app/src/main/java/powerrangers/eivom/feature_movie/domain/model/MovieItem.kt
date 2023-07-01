@@ -1,7 +1,6 @@
 package powerrangers.eivom.feature_movie.domain.model
 
 import powerrangers.eivom.feature_movie.data.utility.LocalMovieItem
-import powerrangers.eivom.feature_movie.data.utility.toMovieItem
 
 data class MovieItem(
     val favorite: Boolean,
@@ -41,7 +40,6 @@ fun MovieItem.toLocalMovieItem(): LocalMovieItem{
         watched = this.watched,
         sponsored = this.sponsored,
         adult = this.adult,
-        landscapeImageUrl = this.landscapeImageUrl,
         budget = this.budget,
         genres = this.genres,
         homepageUrl = this.homepageUrl,
@@ -49,8 +47,9 @@ fun MovieItem.toLocalMovieItem(): LocalMovieItem{
         originalLanguage = this.originalLanguage,
         originalTitle = this.originalTitle,
         overview = this.overview,
-        posterUrl = this.posterUrl,
-        productionCompanies = emptyList(),
+        productionCompanies = this.productionCompanies.map { company ->
+            company.name
+        },
         productionCountries = this.productionCountries,
         regionReleaseDate = this.regionReleaseDate,
         revenue = this.revenue,

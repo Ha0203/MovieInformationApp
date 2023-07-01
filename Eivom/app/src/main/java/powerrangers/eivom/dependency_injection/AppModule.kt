@@ -69,9 +69,8 @@ object AppModule {
     @Singleton
     fun provideMovieDatabaseUseCase(movieDatabaseRepository: MovieDatabaseRepository, localMovieDatabaseRepository: LocalMovieDatabaseRepository): MovieDatabaseUseCase =
         MovieDatabaseUseCase(
-            handleImageDominantColor = HandleImageDominantColor(),
-            getMovieListItemsResource = GetMovieListItemsResource(movieDatabaseRepository, localMovieDatabaseRepository),
-            getMovieItemResource = GetMovieItemResource(movieDatabaseRepository, localMovieDatabaseRepository)
+            movieDatabaseRepository = movieDatabaseRepository,
+            localMovieDatabaseRepository = localMovieDatabaseRepository
         )
 
     @Provides
@@ -81,7 +80,9 @@ object AppModule {
             app,
             LocalMovieDatabase::class.java,
             DataSourceRelation.LOCAL_MOVIE_ITEM_NAME
-        ).build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides

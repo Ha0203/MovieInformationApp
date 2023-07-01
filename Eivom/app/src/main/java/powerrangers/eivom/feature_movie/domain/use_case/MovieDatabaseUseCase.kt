@@ -3,6 +3,7 @@ package powerrangers.eivom.feature_movie.domain.use_case
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.palette.graphics.Palette
 import kotlinx.coroutines.flow.first
@@ -10,6 +11,7 @@ import powerrangers.eivom.feature_movie.data.network.response.MovieImage
 import powerrangers.eivom.feature_movie.data.network.response.MovieInformation
 import powerrangers.eivom.feature_movie.data.network.response.MovieList
 import powerrangers.eivom.feature_movie.data.network.response.MovieVideo
+import powerrangers.eivom.feature_movie.data.utility.AddingLocalMovieItemException
 import powerrangers.eivom.feature_movie.data.utility.DataSourceRelation
 import powerrangers.eivom.feature_movie.data.utility.GenreNotFoundException
 import powerrangers.eivom.feature_movie.data.utility.LocalMovieItem
@@ -18,6 +20,7 @@ import powerrangers.eivom.feature_movie.domain.model.Company
 import powerrangers.eivom.feature_movie.domain.model.MovieItem
 import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 import powerrangers.eivom.feature_movie.domain.model.Video
+import powerrangers.eivom.feature_movie.domain.model.toLocalMovieItem
 import powerrangers.eivom.feature_movie.domain.repository.LocalMovieDatabaseRepository
 import powerrangers.eivom.feature_movie.domain.repository.MovieDatabaseRepository
 import powerrangers.eivom.feature_movie.domain.utility.DefaultValue
@@ -29,18 +32,13 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 // If adding use case -> adding use case in app module too
-data class MovieDatabaseUseCase(
-    // Handler use case
-    val handleImageDominantColor: HandleImageDominantColor,
+class MovieDatabaseUseCase(
+    private val movieDatabaseRepository: MovieDatabaseRepository,
+    private val localMovieDatabaseRepository: LocalMovieDatabaseRepository
+) {
+    private var localMovieMap: Resource<MutableMap<Int, LocalMovieItem>>? = null
 
-    // Get use case
-    val getMovieListItemsResource: GetMovieListItemsResource,
-    val getMovieItemResource: GetMovieItemResource
-)
-
-// Handler use case
-class HandleImageDominantColor {
-    operator fun invoke(drawable: Drawable, onFinish: (Color) -> Unit) {
+    fun handleImageDominantColor(drawable: Drawable, onFinish: (Color) -> Unit) {
         val bmp = (drawable as BitmapDrawable).bitmap.copy(Bitmap.Config.ARGB_8888, true)
         Palette.from(bmp).generate { palette ->
             palette?.dominantSwatch?.rgb?.let { colorValue ->
@@ -48,15 +46,8 @@ class HandleImageDominantColor {
             }
         }
     }
-}
 
-// Get use case
-class GetMovieListItemsResource(
-    private val movieDatabaseRepository: MovieDatabaseRepository,
-    private val localMovieDatabaseRepository: LocalMovieDatabaseRepository
-) {
-    suspend operator fun invoke(
-        movieMap: Resource<Map<Int, LocalMovieItem>>? = null,
+    suspend fun getMovieListItemsResource(
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
         region: String = Locale.getDefault().country,
         page: Int,
@@ -76,23 +67,23 @@ class GetMovieListItemsResource(
             )
         }
 
-        val localMovieMap = movieMap ?: getLocalMovieListItemsAsMap()
+        if (localMovieMap == null) {
+            localMovieMap = getLocalMovieListItemsAsMap()
+        }
         if (localMovieMap is Resource.Error) {
             return Resource.Error(
-                message = localMovieMap.message
+                message = (localMovieMap as Resource.Error).message
                     ?: ResourceErrorMessage.GET_LOCALMOVIEMAP
             )
         }
-
-        val getMovieImageUrl = GetMovieImageUrl()
 
         return try {
             Resource.Success(
                 data = movieList.data!!.results.map { movie ->
                     MovieListItem(
-                        favorite = localMovieMap.data?.get(movie.id)?.favorite ?: false,
-                        watched = localMovieMap.data?.get(movie.id)?.watched ?: false,
-                        sponsored = localMovieMap.data?.get(movie.id)?.sponsored ?: false,
+                        favorite = localMovieMap?.data?.get(movie.id)?.favorite ?: false,
+                        watched = localMovieMap?.data?.get(movie.id)?.watched ?: false,
+                        sponsored = localMovieMap?.data?.get(movie.id)?.sponsored ?: false,
                         adult = try {
                             movie.adult
                         } catch (e: Exception) {
@@ -165,53 +156,7 @@ class GetMovieListItemsResource(
         }
     }
 
-    private suspend fun getMovieListResource(
-        apiKey: String = DataSourceRelation.TMDB_API_KEY,
-        region: String = Locale.getDefault().country,
-        page: Int
-    ): Resource<MovieList> {
-        return try {
-            Resource.Success(
-                data = movieDatabaseRepository.getMovieList(
-                    apiKey = apiKey,
-                    region = region,
-                    page = page
-                )
-            )
-        } catch (e: Exception) {
-            Resource.Error(message = e.message ?: ResourceErrorMessage.GET_MOVIELIST)
-        }
-    }
-
-    private suspend fun getLocalMovieListItems():Resource<List<LocalMovieItem>> {
-        return try {
-            Resource.Success(
-                data = localMovieDatabaseRepository.getLocalMovieListItems().first()
-            )
-        } catch (e: Exception) {
-            Resource.Error(message = e.message ?: ResourceErrorMessage.GET_LOCALMOVIELIST)
-        }
-    }
-
-    private suspend fun getLocalMovieListItemsAsMap():Resource<Map<Int,LocalMovieItem>> {
-        return try {
-            Resource.Success(
-                data = localMovieDatabaseRepository.getLocalMovieListItemsAsMap().first()
-            )
-        } catch (e: Exception) {
-            Resource.Error(message = e.message ?: ResourceErrorMessage.GET_LOCALMOVIEMAP)
-        }
-    }
-}
-
-class GetMovieItemResource(
-    private val movieDatabaseRepository: MovieDatabaseRepository,
-    private val localMovieDatabaseRepository: LocalMovieDatabaseRepository
-) {
-    suspend operator fun invoke(
-        isFavorite: Boolean = false,
-        isWatched: Boolean = false,
-        isSponsored: Boolean = false,
+    suspend fun getMovieItemResource(
         movieId: Int,
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
         region: String = Locale.getDefault().country,
@@ -255,15 +200,22 @@ class GetMovieItemResource(
             )
         }
 
-        val getMovieImageUrl = GetMovieImageUrl()
-        val getYouTubeVideoUrl = GetYouTubeVideoUrl()
+        if (localMovieMap == null) {
+            localMovieMap = getLocalMovieListItemsAsMap()
+        }
+        if (localMovieMap is Resource.Error) {
+            return Resource.Error(
+                message = (localMovieMap as Resource.Error).message
+                    ?: ResourceErrorMessage.GET_LOCALMOVIEMAP
+            )
+        }
 
         return try {
             Resource.Success(
                 data = MovieItem(
-                    favorite = isFavorite,
-                    watched = isWatched,
-                    sponsored = isSponsored,
+                    favorite = localMovieMap?.data?.get(information.data?.id)?.favorite ?: false,
+                    watched = localMovieMap?.data?.get(information.data?.id)?.watched ?: false,
+                    sponsored = localMovieMap?.data?.get(information.data?.id)?.sponsored ?: false,
                     adult = information.data?.adult ?: true,
                     landscapeImageUrl = getMovieImageUrl(
                         imageWidth = landscapeWidth,
@@ -301,7 +253,8 @@ class GetMovieItemResource(
                     } ?: emptyList(),
                     homepageUrl = information.data?.homepage ?: "",
                     id = information.data?.id ?: 0,
-                    originalLanguage = TranslateCode.ISO_639_1[information.data?.original_language ?: ""] ?: "",
+                    originalLanguage = TranslateCode.ISO_639_1[information.data?.original_language
+                        ?: ""] ?: "",
                     originalTitle = information.data?.original_title ?: "",
                     overview = information.data?.overview ?: "",
                     posterUrl = getMovieImageUrl(
@@ -368,8 +321,7 @@ class GetMovieItemResource(
                                 size = video.size,
                                 type = video.type,
                             )
-                        }
-                        else
+                        } else
                             null
                     } ?: emptyList(),
                     voteAverage = information.data?.vote_average ?: 0.0,
@@ -381,6 +333,176 @@ class GetMovieItemResource(
                 message = e.message
                     ?: ResourceErrorMessage.CONVERT_MOVIEINFORMATION_TO_MOVIEITEM
             )
+        }
+    }
+
+    suspend fun addFavoriteMovie(
+        movieListItem: MovieListItem,
+        apiKey: String = DataSourceRelation.TMDB_API_KEY,
+        region: String = Locale.getDefault().country
+    ) {
+        try {
+            val information = getMovieInformationResource(
+                movieId = movieListItem.id,
+                apiKey = apiKey,
+                region = region
+            )
+            if (information is Resource.Error) {
+                throw AddingLocalMovieItemException(
+                    message = information.message
+                        ?: ResourceErrorMessage.GET_MOVIEINFORMATION
+                )
+            }
+
+            val localMovieItem = LocalMovieItem(
+                favorite = true,
+                watched = movieListItem.watched,
+                sponsored = movieListItem.sponsored,
+                adult = movieListItem.adult,
+                budget = information.data?.budget ?: 0,
+                genres = movieListItem.genres,
+                homepageUrl = information.data?.homepage ?: "",
+                id = movieListItem.id,
+                originalLanguage = movieListItem.originalLanguage,
+                originalTitle = movieListItem.originalTitle,
+                overview = movieListItem.overview,
+                productionCompanies = information.data?.production_companies?.map { company ->
+                    company.name
+                } ?: emptyList(),
+                productionCountries = information.data?.production_countries?.map { country ->
+                    country.name
+                } ?: emptyList(),
+                regionReleaseDate = movieListItem.releaseDate,
+                revenue = information.data?.revenue ?: 0,
+                length = information.data?.runtime ?: 0,
+                spokenLanguages = information.data?.spoken_languages?.map { language ->
+                    language.english_name
+                } ?: emptyList(),
+                status = information.data?.status ?: "",
+                tagline = information.data?.tagline ?: "",
+                title = movieListItem.title,
+                voteAverage = movieListItem.voteAverage,
+                voteCount = movieListItem.voteCount
+            )
+
+            localMovieDatabaseRepository.insertLocalMovieItem(localMovieItem)
+            localMovieMap?.data?.put(localMovieItem.id, localMovieItem)
+        } catch (e: Exception) {
+            Log.d("ADD", e.message ?: e.toString())
+        }
+    }
+
+    suspend fun addFavoriteMovie(movieItem: MovieItem) {
+        try {
+            val localMovieItem = movieItem.copy(favorite = true).toLocalMovieItem()
+            localMovieDatabaseRepository.insertLocalMovieItem(localMovieItem)
+            localMovieMap?.data?.put(localMovieItem.id, localMovieItem)
+        } catch (e: Exception) {
+            Log.d("ADD", e.message ?: e.toString())
+        }
+    }
+
+    suspend fun deleteFavoriteMovie(
+        movieListItem: MovieListItem,
+        apiKey: String = DataSourceRelation.TMDB_API_KEY,
+        region: String = Locale.getDefault().country
+    ) {
+        try {
+            val information = getMovieInformationResource(
+                movieId = movieListItem.id,
+                apiKey = apiKey,
+                region = region
+            )
+            if (information is Resource.Error) {
+                throw AddingLocalMovieItemException(
+                    message = information.message
+                        ?: ResourceErrorMessage.GET_MOVIEINFORMATION
+                )
+            }
+
+            localMovieDatabaseRepository.deleteLocalMovieItem(
+                LocalMovieItem(
+                    favorite = movieListItem.favorite,
+                    watched = movieListItem.watched,
+                    sponsored = movieListItem.sponsored,
+                    adult = movieListItem.adult,
+                    budget = information.data?.budget ?: 0,
+                    genres = movieListItem.genres,
+                    homepageUrl = information.data?.homepage ?: "",
+                    id = movieListItem.id,
+                    originalLanguage = movieListItem.originalLanguage,
+                    originalTitle = movieListItem.originalTitle,
+                    overview = movieListItem.overview,
+                    productionCompanies = information.data?.production_companies?.map { company ->
+                        company.name
+                    } ?: emptyList(),
+                    productionCountries = information.data?.production_countries?.map { country ->
+                        country.name
+                    } ?: emptyList(),
+                    regionReleaseDate = movieListItem.releaseDate,
+                    revenue = information.data?.revenue ?: 0,
+                    length = information.data?.runtime ?: 0,
+                    spokenLanguages = information.data?.spoken_languages?.map { language ->
+                        language.english_name
+                    } ?: emptyList(),
+                    status = information.data?.status ?: "",
+                    tagline = information.data?.tagline ?: "",
+                    title = movieListItem.title,
+                    voteAverage = movieListItem.voteAverage,
+                    voteCount = movieListItem.voteCount
+                )
+            )
+
+            localMovieMap?.data?.remove(movieListItem.id)
+        } catch (e: Exception) {
+            Log.d("DEL", e.message ?: e.toString())
+        }
+    }
+
+    suspend fun deleteFavoriteMovie(movieItem: MovieItem) {
+        try {
+            localMovieDatabaseRepository.deleteLocalMovieItem(movieItem.toLocalMovieItem())
+            localMovieMap?.data?.remove(movieItem.id)
+        } catch (e: Exception) {
+            Log.d("DEL", e.message ?: e.toString())
+        }
+    }
+
+    private suspend fun getMovieListResource(
+        apiKey: String = DataSourceRelation.TMDB_API_KEY,
+        region: String = Locale.getDefault().country,
+        page: Int
+    ): Resource<MovieList> {
+        return try {
+            Resource.Success(
+                data = movieDatabaseRepository.getMovieList(
+                    apiKey = apiKey,
+                    region = region,
+                    page = page
+                )
+            )
+        } catch (e: Exception) {
+            Resource.Error(message = e.message ?: ResourceErrorMessage.GET_MOVIELIST)
+        }
+    }
+
+    private suspend fun getLocalMovieListItems(): Resource<List<LocalMovieItem>> {
+        return try {
+            Resource.Success(
+                data = localMovieDatabaseRepository.getLocalMovieListItems().first()
+            )
+        } catch (e: Exception) {
+            Resource.Error(message = e.message ?: ResourceErrorMessage.GET_LOCALMOVIELIST)
+        }
+    }
+
+    private suspend fun getLocalMovieListItemsAsMap(): Resource<MutableMap<Int, LocalMovieItem>> {
+        return try {
+            Resource.Success(
+                data = localMovieDatabaseRepository.getLocalMovieListItemsAsMap().first().toMutableMap()
+            )
+        } catch (e: Exception) {
+            Resource.Error(message = e.message ?: ResourceErrorMessage.GET_LOCALMOVIEMAP)
         }
     }
 
@@ -447,14 +569,10 @@ class GetMovieItemResource(
             Resource.Error(message = e.message ?: ResourceErrorMessage.GET_MOVIEIMAGE)
         }
     }
-}
 
-private class GetMovieImageUrl {
-    operator fun invoke(imageWidth: Int, imagePath: String): String =
+    private fun getMovieImageUrl(imageWidth: Int, imagePath: String): String =
         DataSourceRelation.MOVIE_DATABASE_IMAGE_URL + "w${imageWidth}${imagePath}"
-}
 
-private class GetYouTubeVideoUrl {
-    operator fun invoke(key: String): String =
+    private fun getYouTubeVideoUrl(key: String): String =
         DataSourceRelation.YOUTUBE_VIDEO_URL + key
 }
