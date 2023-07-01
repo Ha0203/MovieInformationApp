@@ -39,6 +39,7 @@ class MovieDatabaseUseCase(
 ) {
     private var localMovieMap: Resource<MutableMap<Int, LocalMovieItem>>? = null
 
+    // Handler
     fun handleImageDominantColor(drawable: Drawable, onFinish: (Color) -> Unit) {
         val bmp = (drawable as BitmapDrawable).bitmap.copy(Bitmap.Config.ARGB_8888, true)
         Palette.from(bmp).generate { palette ->
@@ -47,7 +48,11 @@ class MovieDatabaseUseCase(
             }
         }
     }
+    fun isFavoriteMovie(movieId: Int): Boolean = localMovieMap?.data?.get(movieId)?.favorite ?: false
+    fun isWatchedMovie(movieId: Int): Boolean = localMovieMap?.data?.get(movieId)?.watched ?: false
+    fun isSponsoredMovie(movieId: Int): Boolean = localMovieMap?.data?.get(movieId)?.sponsored ?: false
 
+    // Get movie
     suspend fun getMovieListItemsResource(
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
         region: String = Locale.getDefault().country,
@@ -365,6 +370,7 @@ class MovieDatabaseUseCase(
         }
     }
 
+    // Add movie
     suspend fun addFavoriteMovie(
         movieListItem: MovieListItem,
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
@@ -431,6 +437,7 @@ class MovieDatabaseUseCase(
         }
     }
 
+    // Delete movie
     suspend fun deleteFavoriteMovie(
         movieListItem: MovieListItem,
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
