@@ -1,8 +1,10 @@
 package powerrangers.eivom.feature_movie.ui.movie_list
 
 import android.graphics.drawable.Drawable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -41,6 +43,9 @@ class MovieListViewModel @Inject constructor(
         private set
 
     var isSortVisible = mutableStateOf(false)
+        private set
+
+    var userSearch by mutableStateOf("")
         private set
 
     init {
@@ -105,5 +110,13 @@ class MovieListViewModel @Inject constructor(
 
     fun reverseIsSort() {
         isSortVisible.value = !isSortVisible.value
+    }
+
+//    fun getUserSearch(): String{
+//        return userSearch
+//    }
+
+    fun updateUserSearch(userWord: String){
+        userSearch = userWord
     }
 }

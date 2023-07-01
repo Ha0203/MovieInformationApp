@@ -43,6 +43,7 @@ import androidx.compose.material.MaterialTheme.shapes
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Filter
 import androidx.compose.material.icons.filled.Search
@@ -63,9 +64,13 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -126,6 +131,8 @@ fun MovieListBody(
     val isFilterVisible by remember { viewModel.isFilterVisible }
     val isSearchVisible by remember { viewModel.isSearchVisible }
     val isSortVisible by remember { viewModel.isSortVisible }
+    //val textSizeState = remember { mutableStateOf(15.sp)}
+    //val userSearch by remember { viewModel.userSearch }
 
     Row(
         modifier = Modifier
@@ -205,19 +212,48 @@ fun MovieListBody(
                     targetOffsetX = { -it },
                     animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
                 ) + fadeOut(),
+                modifier = Modifier.background(MaterialTheme.colors.surface)
             ) {
                 // Content of the filter screen
                 OutlinedTextField(
-                    value = "",
+                    value = viewModel.userSearch,
                     singleLine = true,
                     shape = shapes.large,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .size(width = 200.dp, height = 50.dp)
-                        .padding(start = 10.dp, end = 10.dp)
+                        .size(width = 200.dp, height = 55.dp)
+                        .padding(horizontal = 10.dp)
+                        //.padding(start = 10.dp, end = 10.dp, top = 5.dp,)
                     ,
-                    onValueChange = { /*To Do*/ },
+                    colors = TextFieldDefaults.textFieldColors(
+                        textColor = Color.Black,
+                    ),
+                    onValueChange = { viewModel.updateUserSearch(it) },
                     label = { Text(stringResource(R.string.search_label)) },
+                    placeholder = {
+                        Text(
+                            text = "Search",
+                            style = TextStyle(
+                                fontSize = 12.sp, // Adjust the font size as desired
+                                color = Color.Gray
+                            )
+                        )
+                      },
+                    trailingIcon =  {
+                        Icon(
+                            imageVector = Icons.Filled.Search,
+                            contentDescription = stringResource(id = R.string.search_icon_outlineText),
+                            tint = MaterialTheme.colors.primary,
+                            modifier = Modifier.clickable { /*To Do*/ } //Click Search Button
+                        )
+                    },
+                    textStyle = TextStyle(
+//                        fontSize = textSizeState.value,
+//                        textAlign = TextAlign.Start
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold, // Adjust the font weight as needed
+                        textAlign = TextAlign.Start
+                    ),
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done
                     ),

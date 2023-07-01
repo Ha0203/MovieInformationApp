@@ -15,5 +15,6 @@
     <string name="filter_button">Filter</string>
     <string name="sort_button">Sort</string>
     <string name="search_button">Search</string>
+    <string name="search_icon_outlineText">Search_Outline_Text</string>
 
 </resources>
