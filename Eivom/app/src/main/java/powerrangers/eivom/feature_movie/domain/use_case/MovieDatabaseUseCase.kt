@@ -15,6 +15,7 @@ import powerrangers.eivom.feature_movie.data.utility.AddingLocalMovieItemExcepti
 import powerrangers.eivom.feature_movie.data.utility.DataSourceRelation
 import powerrangers.eivom.feature_movie.data.utility.GenreNotFoundException
 import powerrangers.eivom.feature_movie.data.utility.LocalMovieItem
+import powerrangers.eivom.feature_movie.data.utility.toMovieItem
 import powerrangers.eivom.feature_movie.domain.model.Collection
 import powerrangers.eivom.feature_movie.domain.model.Company
 import powerrangers.eivom.feature_movie.domain.model.MovieItem
@@ -170,10 +171,17 @@ class MovieDatabaseUseCase(
             region = region
         )
         if (information is Resource.Error) {
-            return Resource.Error(
-                message = information.message
-                    ?: ResourceErrorMessage.GET_MOVIEINFORMATION
-            )
+            return try {
+                Resource.Success(
+                    data = getLocalMovieItem(movieId).data?.toMovieItem()!!
+                )
+            }
+            catch (e: Exception) {
+                return Resource.Error(
+                    message = e.message
+                        ?: ResourceErrorMessage.GET_MOVIEINFORMATION
+                )
+            }
         }
 
         val videos = getMovieVideoResource(
@@ -182,10 +190,17 @@ class MovieDatabaseUseCase(
             region = region
         )
         if (videos is Resource.Error) {
-            return Resource.Error(
-                message = videos.message
-                    ?: ResourceErrorMessage.GET_MOVIEVIDEO
-            )
+            return try {
+                Resource.Success(
+                    data = getLocalMovieItem(movieId).data?.toMovieItem()!!
+                )
+            }
+            catch (e: Exception) {
+                return Resource.Error(
+                    message = e.message
+                        ?: ResourceErrorMessage.GET_MOVIEVIDEO
+                )
+            }
         }
 
         val images = getMovieImageResource(
@@ -194,10 +209,17 @@ class MovieDatabaseUseCase(
             region = region
         )
         if (images is Resource.Error) {
-            return Resource.Error(
-                message = videos.message
-                    ?: ResourceErrorMessage.GET_MOVIEIMAGE
-            )
+            return try {
+                Resource.Success(
+                    data = getLocalMovieItem(movieId).data?.toMovieItem()!!
+                )
+            }
+            catch (e: Exception) {
+                return Resource.Error(
+                    message = e.message
+                        ?: ResourceErrorMessage.GET_MOVIEIMAGE
+                )
+            }
         }
 
         if (localMovieMap == null) {
@@ -329,10 +351,17 @@ class MovieDatabaseUseCase(
                 )
             )
         } catch (e: Exception) {
-            return Resource.Error(
-                message = e.message
-                    ?: ResourceErrorMessage.CONVERT_MOVIEINFORMATION_TO_MOVIEITEM
-            )
+            return try {
+                Resource.Success(
+                    data = getLocalMovieItem(movieId).data?.toMovieItem()!!
+                )
+            }
+            catch (e: Exception) {
+                return Resource.Error(
+                    message = e.message
+                        ?: ResourceErrorMessage.CONVERT_MOVIEINFORMATION_TO_MOVIEITEM
+                )
+            }
         }
     }
 
