@@ -153,24 +153,16 @@ fun MovieListBody(
                     //Create dialog
                 }
                 if (isFilterVisible){
-                    FilterButton(funcToCall = {}, onDismiss = {})
+                    FilterButton(
+                        funcToCall = {
+                            viewModel.reverseIsFilter()
+                        },
+                        onDismiss = {
+                            viewModel.reverseIsFilter()
+                        }
+                    )
                 }
-//                AnimatedVisibility(
-//                    visible = isFilterVisible,
-//                    enter = slideInVertically(
-//                        initialOffsetY = { -it },
-//                        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
-//                    ) + fadeIn(),
-//                    exit = slideOutVertically(
-//                        targetOffsetY = { -it },
-//                        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
-//                    ) + fadeOut(),
-//                ) {
-//                    // Content of the filter screen
-//                    Text(text = "Filter", color = MaterialTheme.colors.primary)
-//                }
-
-
+//
             IconButton(onClick = { viewModel.reverseIsSort() }) {
                 Icon(
                     imageVector = Icons.Filled.Sort,
@@ -179,7 +171,14 @@ fun MovieListBody(
                 )
             }
             if (isSortVisible){
-                SortButton(funcToCall = {}, onDismiss = {})
+                SortButton(
+                    funcToCall = {
+                        viewModel.reverseIsSort()
+                     },
+                    onDismiss = {
+                        viewModel.reverseIsSort()
+                    }
+                )
             }
 
             IconButton(onClick = { viewModel.reverseIsSearch() }) {
