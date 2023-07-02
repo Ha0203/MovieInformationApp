@@ -17,4 +17,7 @@
     <string name="search_button">Search</string>
     <string name="search_icon_outlineText">Search_Outline_Text</string>
 
+    <string name="favorite_movie_description">Favorite</string>
+    <string name="unfavorite_movie_description">UnFavorite</string>
+
 </resources>

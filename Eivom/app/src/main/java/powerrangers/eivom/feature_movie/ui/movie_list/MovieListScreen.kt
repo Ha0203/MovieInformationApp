@@ -10,9 +10,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,12 +37,12 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.MaterialTheme.shapes
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Filter
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sort
@@ -64,11 +62,9 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -127,6 +123,7 @@ fun MovieListBody(
     navigateToMovieDetailScreen: (Int) -> Unit,
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
+    val coroutineScope = rememberCoroutineScope()
     val movieListItems by remember { viewModel.movieListItems }
     val isFilterVisible by remember { viewModel.isFilterVisible }
     val isSearchVisible by remember { viewModel.isSearchVisible }
@@ -153,24 +150,15 @@ fun MovieListBody(
                     //Create dialog
                 }
                 if (isFilterVisible){
-                    FilterButton(funcToCall = {}, onDismiss = {})
+                    FilterButton(
+                        funcToCall = {
+                            viewModel.reverseIsFilter()
+                        }
+                    ) {
+                        viewModel.reverseIsFilter()
+                    }
                 }
-//                AnimatedVisibility(
-//                    visible = isFilterVisible,
-//                    enter = slideInVertically(
-//                        initialOffsetY = { -it },
-//                        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
-//                    ) + fadeIn(),
-//                    exit = slideOutVertically(
-//                        targetOffsetY = { -it },
-//                        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
-//                    ) + fadeOut(),
-//                ) {
-//                    // Content of the filter screen
-//                    Text(text = "Filter", color = MaterialTheme.colors.primary)
-//                }
-
-
+//
             IconButton(onClick = { viewModel.reverseIsSort() }) {
                 Icon(
                     imageVector = Icons.Filled.Sort,
@@ -179,7 +167,13 @@ fun MovieListBody(
                 )
             }
             if (isSortVisible){
-                SortButton(funcToCall = {}, onDismiss = {})
+                SortButton(
+                    funcToCall = {
+                        viewModel.reverseIsSort()
+                     }
+                ) {
+                    viewModel.reverseIsSort()
+                }
             }
 
             IconButton(onClick = { viewModel.reverseIsSearch() }) {
@@ -262,7 +256,6 @@ fun MovieListBody(
                     )
                 )
             }
-            //Box(){}
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -273,7 +266,7 @@ fun MovieListBody(
                         )
                     )
                     .padding(top = 10.dp)
-            ){
+            ) {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -298,8 +291,22 @@ fun MovieListBody(
                             navigateToMovieDetailScreen = navigateToMovieDetailScreen,
                             movie = movie,
                             handleMovieDominantColor = { drawable, onFinish ->
-                                viewModel.handleMovieDominantColor(drawable = drawable, onFinish = onFinish)
-                            }
+                                viewModel.handleMovieDominantColor(
+                                    drawable = drawable,
+                                    onFinish = onFinish
+                                )
+                            },
+                            addFavoriteMovie = {
+                                coroutineScope.launch {
+                                    viewModel.addFavoriteMovie(it)
+                                }
+                            },
+                            deleteFavoriteMovie = {
+                                coroutineScope.launch {
+                                    viewModel.deleteFavoriteMovie(it)
+                                }
+                            },
+                            isFavoriteMovie = {viewModel.isFavoriteMovie(it)}
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                     }
@@ -314,20 +321,21 @@ fun MovieListBody(
                         is Resource.Loading -> {
                             CircularProgressIndicator(color = MaterialTheme.colors.secondary)
                         }
+
                         is Resource.Error -> {
                             RetrySection(
-                                error = movieListItems.message?: ResourceErrorMessage.UNKNOWN,
+                                error = movieListItems.message ?: ResourceErrorMessage.UNKNOWN,
                                 onRetry = {
                                     viewModel.loadMoviePaginated()
                                 }
                             )
                         }
+
                         else -> {}
                     }
                 }
 
             }
-
         }
     }
 
@@ -338,11 +346,17 @@ fun MovieListEntry(
     modifier: Modifier = Modifier,
     movie: MovieListItem,
     navigateToMovieDetailScreen: (Int) -> Unit,
-    handleMovieDominantColor: (Drawable, (Color) -> Unit) -> Unit
+    handleMovieDominantColor: (Drawable, (Color) -> Unit) -> Unit,
+    addFavoriteMovie: (MovieListItem) -> Unit,
+    deleteFavoriteMovie: (MovieListItem) -> Unit,
+    isFavoriteMovie: (Int) -> Boolean
 ) {
     val defaultDominantColor = MaterialTheme.colors.surface
     var dominantColor by remember {
         mutableStateOf(defaultDominantColor)
+    }
+    var isFavorite by remember {
+        mutableStateOf(isFavoriteMovie(movie.id))
     }
 
     Box(
@@ -357,7 +371,7 @@ fun MovieListEntry(
                     )
                 )
             )
-            .height(300.dp)
+            .height(350.dp)
             .width(250.dp)
             .clickable {
                 navigateToMovieDetailScreen(movie.id)
@@ -397,7 +411,50 @@ fun MovieListEntry(
                         top = 16.dp
                     )
             )
+            FavoriteMovieButton(
+                isFavorite = isFavorite,
+                onFavoriteToggle = {isChecked ->
+                    if (isFavorite){
+                        deleteFavoriteMovie(movie)
+                    } else {
+                        addFavoriteMovie(movie)
+                    }
+                    isFavorite = isChecked
+                },
+                checkedColor = Color.Red,
+                uncheckedColor = MaterialTheme.colors.onSurface
+            )
         }
+    }
+}
+
+@Composable
+fun FavoriteMovieButton(
+    isFavorite: Boolean,
+    onFavoriteToggle: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    checkedColor: Color = MaterialTheme.colors.primary,
+    uncheckedColor: Color = MaterialTheme.colors.onSurface
+) {
+    val favoriteIcon = if (isFavorite) {
+        Icons.Filled.Favorite
+    } else {
+        Icons.Default.Favorite
+    }
+
+    IconButton(
+        onClick = { onFavoriteToggle(!isFavorite) },
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = favoriteIcon,
+            contentDescription = if (isFavorite) {
+                stringResource(R.string.favorite_movie_description)
+            } else {
+                stringResource(R.string.unfavorite_movie_description)
+            },
+            tint = if (isFavorite) checkedColor else uncheckedColor
+        )
     }
 }
 
@@ -421,7 +478,6 @@ fun RetrySection(
 @Composable
 fun FilterButton(
     funcToCall: () -> Unit,
-    modifier: Modifier = Modifier,
     onDismiss: () -> Unit
 )
 {
@@ -432,9 +488,6 @@ fun FilterButton(
     {
         AlertDialog(
             onDismissRequest = {
-//             Dismiss the dialog when the user clicks outside the dialog or on the back
-//             button. If you want to disable that functionality, simply use an empty
-//             onCloseRequest
                 showDialog.value = false
             },
             title = { Text(text = "Select Filter") },
@@ -452,6 +505,7 @@ fun FilterButton(
                 Button(
                     onClick = {
                         showDialog.value = false
+                        funcToCall()
                     }
                 ) {
                     Text(text = "Confirm")
@@ -475,7 +529,6 @@ fun FilterButton(
 @Composable
 fun SortButton(
     funcToCall: () -> Unit,
-    modifier: Modifier = Modifier,
     onDismiss: () -> Unit
 )
 {
@@ -486,9 +539,6 @@ fun SortButton(
     {
         AlertDialog(
             onDismissRequest = {
-//             Dismiss the dialog when the user clicks outside the dialog or on the back
-//             button. If you want to disable that functionality, simply use an empty
-//             onCloseRequest
                 showDialog.value = false
             },
             title = { Text(text = "Select Sort") },
@@ -506,6 +556,7 @@ fun SortButton(
                 Button(
                     onClick = {
                         showDialog.value = false
+                        funcToCall()
                     }
                 ) {
                     Text(text = "Confirm")
