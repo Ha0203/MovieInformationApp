@@ -33,8 +33,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
-import androidx.compose.material.Checkbox
-import androidx.compose.material.CheckboxDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -84,7 +82,6 @@ import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
 import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.TopBar
-
 
 
 @Composable
@@ -156,11 +153,10 @@ fun MovieListBody(
                     FilterButton(
                         funcToCall = {
                             viewModel.reverseIsFilter()
-                        },
-                        onDismiss = {
-                            viewModel.reverseIsFilter()
                         }
-                    )
+                    ) {
+                        viewModel.reverseIsFilter()
+                    }
                 }
 //
             IconButton(onClick = { viewModel.reverseIsSort() }) {
@@ -174,11 +170,10 @@ fun MovieListBody(
                 SortButton(
                     funcToCall = {
                         viewModel.reverseIsSort()
-                     },
-                    onDismiss = {
-                        viewModel.reverseIsSort()
-                    }
-                )
+                     }
+                ) {
+                    viewModel.reverseIsSort()
+                }
             }
 
             IconButton(onClick = { viewModel.reverseIsSearch() }) {
@@ -483,7 +478,6 @@ fun RetrySection(
 @Composable
 fun FilterButton(
     funcToCall: () -> Unit,
-    modifier: Modifier = Modifier,
     onDismiss: () -> Unit
 )
 {
@@ -535,7 +529,6 @@ fun FilterButton(
 @Composable
 fun SortButton(
     funcToCall: () -> Unit,
-    modifier: Modifier = Modifier,
     onDismiss: () -> Unit
 )
 {
@@ -546,9 +539,6 @@ fun SortButton(
     {
         AlertDialog(
             onDismissRequest = {
-//             Dismiss the dialog when the user clicks outside the dialog or on the back
-//             button. If you want to disable that functionality, simply use an empty
-//             onCloseRequest
                 showDialog.value = false
             },
             title = { Text(text = "Select Sort") },
