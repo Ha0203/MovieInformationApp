@@ -111,12 +111,19 @@ class MovieListViewModel @Inject constructor(
     fun reverseIsSort() {
         isSortVisible.value = !isSortVisible.value
     }
-
-//    fun getUserSearch(): String{
-//        return userSearch
-//    }
-
     fun updateUserSearch(userWord: String){
         userSearch = userWord
+    }
+
+    fun isFavoriteMovie(movieId: Int): Boolean = movieDatabaseUseCase.isFavoriteMovie(movieId)
+    fun isWatchedMovie(movieId: Int): Boolean = movieDatabaseUseCase.isWatchedMovie(movieId)
+    fun isSponsoredMovie(movieId: Int): Boolean = movieDatabaseUseCase.isSponsoredMovie(movieId)
+
+    suspend fun addFavoriteMovie(movieListItem: MovieListItem) {
+        movieDatabaseUseCase.addFavoriteMovie(movieListItem)
+    }
+
+    suspend fun deleteFavoriteMovie(movieListItem: MovieListItem) {
+        movieDatabaseUseCase.deleteFavoriteMovie(movieListItem)
     }
 }

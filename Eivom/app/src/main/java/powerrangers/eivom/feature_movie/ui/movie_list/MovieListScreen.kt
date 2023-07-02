@@ -35,6 +35,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
+import androidx.compose.material.Checkbox
+import androidx.compose.material.CheckboxDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -127,6 +129,7 @@ fun MovieListBody(
     navigateToMovieDetailScreen: (Int) -> Unit,
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
+    val coroutineScope = rememberCoroutineScope()
     val movieListItems by remember { viewModel.movieListItems }
     val isFilterVisible by remember { viewModel.isFilterVisible }
     val isSearchVisible by remember { viewModel.isSearchVisible }
@@ -261,7 +264,6 @@ fun MovieListBody(
                     )
                 )
             }
-            //Box(){}
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -272,7 +274,7 @@ fun MovieListBody(
                         )
                     )
                     .padding(top = 10.dp)
-            ){
+            ) {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -297,8 +299,22 @@ fun MovieListBody(
                             navigateToMovieDetailScreen = navigateToMovieDetailScreen,
                             movie = movie,
                             handleMovieDominantColor = { drawable, onFinish ->
-                                viewModel.handleMovieDominantColor(drawable = drawable, onFinish = onFinish)
-                            }
+                                viewModel.handleMovieDominantColor(
+                                    drawable = drawable,
+                                    onFinish = onFinish
+                                )
+                            },
+                            addFavoriteMovie = {
+                                coroutineScope.launch {
+                                    viewModel.addFavoriteMovie(it)
+                                }
+                            },
+                            deleteFavoriteMovie = {
+                                coroutineScope.launch {
+                                    viewModel.deleteFavoriteMovie(it)
+                                }
+                            },
+                            isFavoriteMovie = {viewModel.isFavoriteMovie(it)}
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                     }
@@ -313,20 +329,21 @@ fun MovieListBody(
                         is Resource.Loading -> {
                             CircularProgressIndicator(color = MaterialTheme.colors.secondary)
                         }
+
                         is Resource.Error -> {
                             RetrySection(
-                                error = movieListItems.message?: ResourceErrorMessage.UNKNOWN,
+                                error = movieListItems.message ?: ResourceErrorMessage.UNKNOWN,
                                 onRetry = {
                                     viewModel.loadMoviePaginated()
                                 }
                             )
                         }
+
                         else -> {}
                     }
                 }
 
             }
-
         }
     }
 
@@ -337,11 +354,17 @@ fun MovieListEntry(
     modifier: Modifier = Modifier,
     movie: MovieListItem,
     navigateToMovieDetailScreen: (Int) -> Unit,
-    handleMovieDominantColor: (Drawable, (Color) -> Unit) -> Unit
+    handleMovieDominantColor: (Drawable, (Color) -> Unit) -> Unit,
+    addFavoriteMovie: (MovieListItem) -> Unit,
+    deleteFavoriteMovie: (MovieListItem) -> Unit,
+    isFavoriteMovie: (Int) -> Boolean
 ) {
     val defaultDominantColor = MaterialTheme.colors.surface
     var dominantColor by remember {
         mutableStateOf(defaultDominantColor)
+    }
+    var isFavorite by remember {
+        mutableStateOf(isFavoriteMovie(movie.id))
     }
 
     Box(
@@ -395,6 +418,18 @@ fun MovieListEntry(
                     .padding(
                         top = 16.dp
                     )
+            )
+            Checkbox(
+                checked = isFavorite ,
+                onCheckedChange = {checked ->
+                    if (isFavorite){
+                        deleteFavoriteMovie(movie)
+                    } else {
+                        addFavoriteMovie(movie)
+                    }
+                    isFavorite = checked
+                },
+                colors = CheckboxDefaults.colors(checkedColor = Color.Red)
             )
         }
     }
