@@ -10,9 +10,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,12 +39,12 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.MaterialTheme.shapes
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Filter
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sort
@@ -66,11 +64,9 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -88,6 +84,7 @@ import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
 import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.TopBar
+
 
 
 @Composable
@@ -379,7 +376,7 @@ fun MovieListEntry(
                     )
                 )
             )
-            .height(300.dp)
+            .height(350.dp)
             .width(250.dp)
             .clickable {
                 navigateToMovieDetailScreen(movie.id)
@@ -419,19 +416,50 @@ fun MovieListEntry(
                         top = 16.dp
                     )
             )
-            Checkbox(
-                checked = isFavorite ,
-                onCheckedChange = {checked ->
+            FavoriteMovieButton(
+                isFavorite = isFavorite,
+                onFavoriteToggle = {isChecked ->
                     if (isFavorite){
                         deleteFavoriteMovie(movie)
                     } else {
                         addFavoriteMovie(movie)
                     }
-                    isFavorite = checked
+                    isFavorite = isChecked
                 },
-                colors = CheckboxDefaults.colors(checkedColor = Color.Red)
+                checkedColor = Color.Red,
+                uncheckedColor = MaterialTheme.colors.onSurface
             )
         }
+    }
+}
+
+@Composable
+fun FavoriteMovieButton(
+    isFavorite: Boolean,
+    onFavoriteToggle: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    checkedColor: Color = MaterialTheme.colors.primary,
+    uncheckedColor: Color = MaterialTheme.colors.onSurface
+) {
+    val favoriteIcon = if (isFavorite) {
+        Icons.Filled.Favorite
+    } else {
+        Icons.Default.Favorite
+    }
+
+    IconButton(
+        onClick = { onFavoriteToggle(!isFavorite) },
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = favoriteIcon,
+            contentDescription = if (isFavorite) {
+                stringResource(R.string.favorite_movie_description)
+            } else {
+                stringResource(R.string.unfavorite_movie_description)
+            },
+            tint = if (isFavorite) checkedColor else uncheckedColor
+        )
     }
 }
 
@@ -466,9 +494,6 @@ fun FilterButton(
     {
         AlertDialog(
             onDismissRequest = {
-//             Dismiss the dialog when the user clicks outside the dialog or on the back
-//             button. If you want to disable that functionality, simply use an empty
-//             onCloseRequest
                 showDialog.value = false
             },
             title = { Text(text = "Select Filter") },
