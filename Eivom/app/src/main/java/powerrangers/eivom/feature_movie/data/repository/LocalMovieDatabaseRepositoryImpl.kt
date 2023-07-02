@@ -2,6 +2,7 @@ package powerrangers.eivom.feature_movie.data.repository
 
 import dagger.hilt.android.scopes.ActivityScoped
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import powerrangers.eivom.feature_movie.data.database.LocalMovieItemDao
 import powerrangers.eivom.feature_movie.data.utility.LocalMovieItem
 import powerrangers.eivom.feature_movie.domain.repository.LocalMovieDatabaseRepository
@@ -19,8 +20,8 @@ class LocalMovieDatabaseRepositoryImpl @Inject constructor(
         localMovieItemDao.update(localMovieItem)
     }
 
-    override suspend fun deleteLocalMovieItem(localMovieItem: LocalMovieItem) {
-        localMovieItemDao.delete(localMovieItem)
+    override suspend fun deleteLocalMovieItemById(id: Int) {
+        localMovieItemDao.deleteById(id)
     }
 
     override fun getLocalMovieItem(movieId: Int): Flow<LocalMovieItem> =
@@ -30,5 +31,7 @@ class LocalMovieDatabaseRepositoryImpl @Inject constructor(
         localMovieItemDao.getAllItems()
 
     override fun getLocalMovieListItemsAsMap(): Flow<Map<Int, LocalMovieItem>> =
-        localMovieItemDao.getAllItemsAsMap()
+        localMovieItemDao.getAllItems().map { list ->
+            list.associateBy { item -> item.id }
+        }
 }

@@ -48,9 +48,13 @@ class MovieDatabaseUseCase(
             }
         }
     }
-    fun isFavoriteMovie(movieId: Int): Boolean = localMovieMap?.data?.get(movieId)?.favorite ?: false
+
+    fun isFavoriteMovie(movieId: Int): Boolean =
+        localMovieMap?.data?.get(movieId)?.favorite ?: false
+
     fun isWatchedMovie(movieId: Int): Boolean = localMovieMap?.data?.get(movieId)?.watched ?: false
-    fun isSponsoredMovie(movieId: Int): Boolean = localMovieMap?.data?.get(movieId)?.sponsored ?: false
+    fun isSponsoredMovie(movieId: Int): Boolean =
+        localMovieMap?.data?.get(movieId)?.sponsored ?: false
 
     // Get movie
     suspend fun getMovieListItemsResource(
@@ -180,8 +184,7 @@ class MovieDatabaseUseCase(
                 Resource.Success(
                     data = getLocalMovieItem(movieId).data?.toMovieItem()!!
                 )
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 return Resource.Error(
                     message = e.message
                         ?: ResourceErrorMessage.GET_MOVIEINFORMATION
@@ -199,8 +202,7 @@ class MovieDatabaseUseCase(
                 Resource.Success(
                     data = getLocalMovieItem(movieId).data?.toMovieItem()!!
                 )
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 return Resource.Error(
                     message = e.message
                         ?: ResourceErrorMessage.GET_MOVIEVIDEO
@@ -218,8 +220,7 @@ class MovieDatabaseUseCase(
                 Resource.Success(
                     data = getLocalMovieItem(movieId).data?.toMovieItem()!!
                 )
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 return Resource.Error(
                     message = e.message
                         ?: ResourceErrorMessage.GET_MOVIEIMAGE
@@ -360,8 +361,7 @@ class MovieDatabaseUseCase(
                 Resource.Success(
                     data = getLocalMovieItem(movieId).data?.toMovieItem()!!
                 )
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 return Resource.Error(
                     message = e.message
                         ?: ResourceErrorMessage.CONVERT_MOVIEINFORMATION_TO_MOVIEITEM
@@ -439,65 +439,21 @@ class MovieDatabaseUseCase(
 
     // Delete movie
     suspend fun deleteFavoriteMovie(
-        movieListItem: MovieListItem,
-        apiKey: String = DataSourceRelation.TMDB_API_KEY,
-        region: String = Locale.getDefault().country
+        movieListItem: MovieListItem
     ) {
         try {
-            val information = getMovieInformationResource(
-                movieId = movieListItem.id,
-                apiKey = apiKey,
-                region = region
-            )
-            if (information is Resource.Error) {
-                throw AddingLocalMovieItemException(
-                    message = information.message
-                        ?: ResourceErrorMessage.GET_MOVIEINFORMATION
-                )
-            }
-
-            localMovieDatabaseRepository.deleteLocalMovieItem(
-                LocalMovieItem(
-                    favorite = movieListItem.favorite,
-                    watched = movieListItem.watched,
-                    sponsored = movieListItem.sponsored,
-                    adult = movieListItem.adult,
-                    budget = information.data?.budget ?: 0,
-                    genres = movieListItem.genres,
-                    homepageUrl = information.data?.homepage ?: "",
-                    id = movieListItem.id,
-                    originalLanguage = movieListItem.originalLanguage,
-                    originalTitle = movieListItem.originalTitle,
-                    overview = movieListItem.overview,
-                    productionCompanies = information.data?.production_companies?.map { company ->
-                        company.name
-                    } ?: emptyList(),
-                    productionCountries = information.data?.production_countries?.map { country ->
-                        country.name
-                    } ?: emptyList(),
-                    regionReleaseDate = movieListItem.releaseDate,
-                    revenue = information.data?.revenue ?: 0,
-                    length = information.data?.runtime ?: 0,
-                    spokenLanguages = information.data?.spoken_languages?.map { language ->
-                        language.english_name
-                    } ?: emptyList(),
-                    status = information.data?.status ?: "",
-                    tagline = information.data?.tagline ?: "",
-                    title = movieListItem.title,
-                    voteAverage = movieListItem.voteAverage,
-                    voteCount = movieListItem.voteCount
-                )
-            )
-
+            localMovieDatabaseRepository.deleteLocalMovieItemById(movieListItem.id)
             localMovieMap?.data?.remove(movieListItem.id)
         } catch (e: Exception) {
             Log.d("DEL", e.message ?: e.toString())
         }
     }
 
-    suspend fun deleteFavoriteMovie(movieItem: MovieItem) {
+    suspend fun deleteFavoriteMovie(
+        movieItem: MovieItem
+    ) {
         try {
-            localMovieDatabaseRepository.deleteLocalMovieItem(movieItem.toLocalMovieItem())
+            localMovieDatabaseRepository.deleteLocalMovieItemById(movieItem.id)
             localMovieMap?.data?.remove(movieItem.id)
         } catch (e: Exception) {
             Log.d("DEL", e.message ?: e.toString())
@@ -535,7 +491,8 @@ class MovieDatabaseUseCase(
     private suspend fun getLocalMovieListItemsAsMap(): Resource<MutableMap<Int, LocalMovieItem>> {
         return try {
             Resource.Success(
-                data = localMovieDatabaseRepository.getLocalMovieListItemsAsMap().first().toMutableMap()
+                data = localMovieDatabaseRepository.getLocalMovieListItemsAsMap().first()
+                    .toMutableMap()
             )
         } catch (e: Exception) {
             Resource.Error(message = e.message ?: ResourceErrorMessage.GET_LOCALMOVIEMAP)

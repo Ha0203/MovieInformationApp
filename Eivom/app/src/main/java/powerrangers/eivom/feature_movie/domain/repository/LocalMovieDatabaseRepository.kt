@@ -8,7 +8,7 @@ interface LocalMovieDatabaseRepository {
 
     suspend fun updateLocalMovieItem(localMovieItem: LocalMovieItem)
 
-    suspend fun deleteLocalMovieItem(localMovieItem: LocalMovieItem)
+    suspend fun deleteLocalMovieItemById(id: Int)
 
     fun getLocalMovieListItems(): Flow<List<LocalMovieItem>>
 
