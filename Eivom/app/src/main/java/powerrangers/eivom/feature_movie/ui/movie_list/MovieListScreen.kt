@@ -511,6 +511,7 @@ fun FilterButton(
                 Button(
                     onClick = {
                         showDialog.value = false
+                        funcToCall()
                     }
                 ) {
                     Text(text = "Confirm")
@@ -565,6 +566,7 @@ fun SortButton(
                 Button(
                     onClick = {
                         showDialog.value = false
+                        funcToCall()
                     }
                 ) {
                     Text(text = "Confirm")
