@@ -3,7 +3,6 @@ package powerrangers.eivom.feature_movie.ui.movie_list
 import android.graphics.drawable.Drawable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
@@ -119,11 +118,11 @@ class MovieListViewModel @Inject constructor(
     fun isWatchedMovie(movieId: Int): Boolean = movieDatabaseUseCase.isWatchedMovie(movieId)
     fun isSponsoredMovie(movieId: Int): Boolean = movieDatabaseUseCase.isSponsoredMovie(movieId)
 
-    suspend fun addFavoriteMovie(movieListItem: MovieListItem) {
-        movieDatabaseUseCase.addFavoriteMovie(movieListItem)
+    suspend fun addFavoriteMovie(movieListItem: MovieListItem): Boolean {
+        return movieDatabaseUseCase.addFavoriteMovie(movieListItem)
     }
 
-    suspend fun deleteFavoriteMovie(movieListItem: MovieListItem) {
-        movieDatabaseUseCase.deleteFavoriteMovie(movieListItem)
+    suspend fun deleteFavoriteMovie(movieId: Int): Boolean {
+        return movieDatabaseUseCase.deleteFavoriteMovie(movieId)
     }
 }

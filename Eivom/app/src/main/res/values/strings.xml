@@ -8,14 +8,19 @@
     <string name="movie_list_screen_button_content_description">Movie list screen</string>
 
     <!-- Screen Component -->
+    <string name="error_label">Error</string>
+    <string name="add_favorite_movie_failure">Adding favorite movie failure</string>
+    <string name="delete_favorite_movie_failure">Deleting favorite movie failure</string>
+
     <string name="retry_button">Retry</string>
+    <string name="cancel_button">Cancel</string>
     <string name="back_button">Back</string>
     <string name="search_label">Enter your movie</string>
 
     <string name="filter_button">Filter</string>
     <string name="sort_button">Sort</string>
     <string name="search_button">Search</string>
-    <string name="search_icon_outlineText">Search_Outline_Text</string>
+    <string name="search_icon_outlineText">Search Outline Text</string>
 
     <string name="favorite_movie_description">Favorite</string>
     <string name="unfavorite_movie_description">UnFavorite</string>

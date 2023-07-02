@@ -74,6 +74,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import powerrangers.eivom.R
 import powerrangers.eivom.feature_movie.domain.model.MovieListItem
@@ -140,24 +141,24 @@ fun MovieListBody(
             modifier = Modifier
                 .background(MaterialTheme.colors.background)
                 .fillMaxHeight()
-        ){
-                IconButton(onClick = { viewModel.reverseIsFilter() }) {
-                    Icon(
-                        imageVector = Icons.Filled.Filter,
-                        contentDescription = stringResource(id = R.string.filter_button),
-                        tint = MaterialTheme.colors.primary
-                    )
-                    //Create dialog
-                }
-                if (isFilterVisible){
-                    FilterButton(
-                        funcToCall = {
-                            viewModel.reverseIsFilter()
-                        }
-                    ) {
+        ) {
+            IconButton(onClick = { viewModel.reverseIsFilter() }) {
+                Icon(
+                    imageVector = Icons.Filled.Filter,
+                    contentDescription = stringResource(id = R.string.filter_button),
+                    tint = MaterialTheme.colors.primary
+                )
+                //Create dialog
+            }
+            if (isFilterVisible) {
+                FilterButton(
+                    funcToCall = {
                         viewModel.reverseIsFilter()
                     }
+                ) {
+                    viewModel.reverseIsFilter()
                 }
+            }
 //
             IconButton(onClick = { viewModel.reverseIsSort() }) {
                 Icon(
@@ -166,11 +167,11 @@ fun MovieListBody(
                     tint = MaterialTheme.colors.primary,
                 )
             }
-            if (isSortVisible){
+            if (isSortVisible) {
                 SortButton(
                     funcToCall = {
                         viewModel.reverseIsSort()
-                     }
+                    }
                 ) {
                     viewModel.reverseIsSort()
                 }
@@ -217,7 +218,7 @@ fun MovieListBody(
                         .fillMaxWidth()
                         .size(width = 200.dp, height = 55.dp)
                         .padding(horizontal = 10.dp)
-                        //.padding(start = 10.dp, end = 10.dp, top = 5.dp,)
+                    //.padding(start = 10.dp, end = 10.dp, top = 5.dp,)
                     ,
                     colors = TextFieldDefaults.textFieldColors(
                         textColor = Color.Black,
@@ -232,8 +233,8 @@ fun MovieListBody(
                                 color = Color.Gray
                             )
                         )
-                      },
-                    trailingIcon =  {
+                    },
+                    trailingIcon = {
                         Icon(
                             imageVector = Icons.Filled.Search,
                             contentDescription = stringResource(id = R.string.search_icon_outlineText),
@@ -297,16 +298,18 @@ fun MovieListBody(
                                 )
                             },
                             addFavoriteMovie = {
-                                coroutineScope.launch {
+                                val isSuccess = coroutineScope.async {
                                     viewModel.addFavoriteMovie(it)
                                 }
+                                isSuccess.await()
                             },
                             deleteFavoriteMovie = {
-                                coroutineScope.launch {
-                                    viewModel.deleteFavoriteMovie(it)
+                                val isSuccess = coroutineScope.async {
+                                    viewModel.deleteFavoriteMovie(it.id)
                                 }
+                                isSuccess.await()
                             },
-                            isFavoriteMovie = {viewModel.isFavoriteMovie(it)}
+                            isFavoriteMovie = { viewModel.isFavoriteMovie(it) }
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                     }
@@ -347,8 +350,8 @@ fun MovieListEntry(
     movie: MovieListItem,
     navigateToMovieDetailScreen: (Int) -> Unit,
     handleMovieDominantColor: (Drawable, (Color) -> Unit) -> Unit,
-    addFavoriteMovie: (MovieListItem) -> Unit,
-    deleteFavoriteMovie: (MovieListItem) -> Unit,
+    addFavoriteMovie: suspend (MovieListItem) -> Boolean,
+    deleteFavoriteMovie: suspend (MovieListItem) -> Boolean,
     isFavoriteMovie: (Int) -> Boolean
 ) {
     val defaultDominantColor = MaterialTheme.colors.surface
@@ -357,6 +360,17 @@ fun MovieListEntry(
     }
     var isFavorite by remember {
         mutableStateOf(isFavoriteMovie(movie.id))
+    }
+    val coroutineScope = rememberCoroutineScope()
+    val showErrorDialog = remember { mutableStateOf(false) }
+    val errorDescription = remember { mutableStateOf("") }
+
+    if (showErrorDialog.value) {
+        ErrorDialog(
+            error = errorDescription.value,
+            funcToCall = { showErrorDialog.value = false },
+            onDismiss = { showErrorDialog.value = false }
+        )
     }
 
     Box(
@@ -413,13 +427,22 @@ fun MovieListEntry(
             )
             FavoriteMovieButton(
                 isFavorite = isFavorite,
-                onFavoriteToggle = {isChecked ->
-                    if (isFavorite){
-                        deleteFavoriteMovie(movie)
-                    } else {
-                        addFavoriteMovie(movie)
+                onFavoriteToggle = { isChecked ->
+                    coroutineScope.launch {
+                        val isSuccess = if (isFavorite) {
+                            errorDescription.value = "Fail to delete"
+                            deleteFavoriteMovie(movie)
+                        } else {
+                            errorDescription.value = "Fail to add"
+                            addFavoriteMovie(movie)
+                        }
+                        if (isSuccess) {
+                            isFavorite = isChecked
+                        }
+                        else {
+                            showErrorDialog.value = true
+                        }
                     }
-                    isFavorite = isChecked
                 },
                 checkedColor = Color.Red,
                 uncheckedColor = MaterialTheme.colors.onSurface
@@ -479,15 +502,14 @@ fun RetrySection(
 fun FilterButton(
     funcToCall: () -> Unit,
     onDismiss: () -> Unit
-)
-{
-    val showDialog = remember { mutableStateOf(true)}
+) {
+    val showDialog = remember { mutableStateOf(true) }
     val textList = remember { mutableStateListOf("Action", "Science Fiction", "Horror") }
 
-    if (showDialog.value)
-    {
+    if (showDialog.value) {
         AlertDialog(
             onDismissRequest = {
+                onDismiss()
                 showDialog.value = false
             },
             title = { Text(text = "Select Filter") },
@@ -504,8 +526,8 @@ fun FilterButton(
             confirmButton = {
                 Button(
                     onClick = {
-                        showDialog.value = false
                         funcToCall()
+                        showDialog.value = false
                     }
                 ) {
                     Text(text = "Confirm")
@@ -515,8 +537,8 @@ fun FilterButton(
                 Button(
                     onClick = {
                         // Handle Cancel button action
-                        showDialog.value = false
                         onDismiss()
+                        showDialog.value = false
                     }
                 ) {
                     Text(text = "Cancel")
@@ -526,19 +548,19 @@ fun FilterButton(
         )
     }
 }
+
 @Composable
 fun SortButton(
     funcToCall: () -> Unit,
     onDismiss: () -> Unit
-)
-{
-    val showDialog = remember { mutableStateOf(true)}
+) {
+    val showDialog = remember { mutableStateOf(true) }
     val textList = remember { mutableStateListOf("Name", "Latest Date", "Star") }
 
-    if (showDialog.value)
-    {
+    if (showDialog.value) {
         AlertDialog(
             onDismissRequest = {
+                onDismiss()
                 showDialog.value = false
             },
             title = { Text(text = "Select Sort") },
@@ -551,12 +573,12 @@ fun SortButton(
                         )
                     }
                 }
-           },
+            },
             confirmButton = {
                 Button(
                     onClick = {
-                        showDialog.value = false
                         funcToCall()
+                        showDialog.value = false
                     }
                 ) {
                     Text(text = "Confirm")
@@ -566,11 +588,55 @@ fun SortButton(
                 Button(
                     onClick = {
                         // Handle Cancel button action
-                        showDialog.value = false
                         onDismiss()
+                        showDialog.value = false
                     }
                 ) {
                     Text(text = "Cancel")
+                }
+            }
+
+        )
+    }
+}
+
+@Composable
+fun ErrorDialog(
+    error: String,
+    funcToCall: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val showDialog = remember { mutableStateOf(true) }
+
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                onDismiss()
+                showDialog.value = false
+            },
+            title = { Text(text = stringResource(id = R.string.error_label)) },
+            text = {
+                Text(text = error)
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        funcToCall()
+                        showDialog.value = false
+                    }
+                ) {
+                    Text(text = stringResource(id = R.string.retry_button))
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        // Handle Cancel button action
+                        onDismiss()
+                        showDialog.value = false
+                    }
+                ) {
+                    Text(text = stringResource(id = R.string.cancel_button))
                 }
             }
 

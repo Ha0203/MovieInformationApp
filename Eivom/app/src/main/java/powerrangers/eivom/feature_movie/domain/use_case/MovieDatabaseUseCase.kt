@@ -3,7 +3,6 @@ package powerrangers.eivom.feature_movie.domain.use_case
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.palette.graphics.Palette
 import kotlinx.coroutines.flow.first
@@ -375,7 +374,7 @@ class MovieDatabaseUseCase(
         movieListItem: MovieListItem,
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
         region: String = Locale.getDefault().country
-    ) {
+    ): Boolean {
         try {
             val information = getMovieInformationResource(
                 movieId = movieListItem.id,
@@ -422,41 +421,38 @@ class MovieDatabaseUseCase(
 
             localMovieDatabaseRepository.insertLocalMovieItem(localMovieItem)
             localMovieMap?.data?.put(localMovieItem.id, localMovieItem)
+
+            return true
         } catch (e: Exception) {
-            Log.d("ADD", e.message ?: e.toString())
+            return false
         }
     }
 
-    suspend fun addFavoriteMovie(movieItem: MovieItem) {
-        try {
+    suspend fun addFavoriteMovie(
+        movieItem: MovieItem
+    ): Boolean {
+        return try {
             val localMovieItem = movieItem.copy(favorite = true).toLocalMovieItem()
             localMovieDatabaseRepository.insertLocalMovieItem(localMovieItem)
             localMovieMap?.data?.put(localMovieItem.id, localMovieItem)
+
+            true
         } catch (e: Exception) {
-            Log.d("ADD", e.message ?: e.toString())
+            false
         }
     }
 
     // Delete movie
     suspend fun deleteFavoriteMovie(
-        movieListItem: MovieListItem
-    ) {
-        try {
-            localMovieDatabaseRepository.deleteLocalMovieItemById(movieListItem.id)
-            localMovieMap?.data?.remove(movieListItem.id)
-        } catch (e: Exception) {
-            Log.d("DEL", e.message ?: e.toString())
-        }
-    }
+        movieId: Int
+    ): Boolean {
+        return try {
+            localMovieDatabaseRepository.deleteLocalMovieItemById(movieId)
+            localMovieMap?.data?.remove(movieId)
 
-    suspend fun deleteFavoriteMovie(
-        movieItem: MovieItem
-    ) {
-        try {
-            localMovieDatabaseRepository.deleteLocalMovieItemById(movieItem.id)
-            localMovieMap?.data?.remove(movieItem.id)
+            true
         } catch (e: Exception) {
-            Log.d("DEL", e.message ?: e.toString())
+            false
         }
     }
 
