@@ -83,7 +83,9 @@ class MovieListViewModel @Inject constructor(
                     )
                 )
 
-                currentPage++
+                if (movieListItems.value is Resource.Success) {
+                    currentPage++
+                }
             } catch (e: Exception) {
                 if (movieListItems.value.data == null) {
                     movieListItems.value = movieListItems.value.toError(data = emptyList(), message = e.message ?: ResourceErrorMessage.LOAD_MOVIELIST)

@@ -227,7 +227,7 @@ fun MovieListBody(
                     label = { Text(stringResource(R.string.search_label)) },
                     placeholder = {
                         Text(
-                            text = "Search",
+                            text = stringResource(id = R.string.search_movie_placeholder),
                             style = TextStyle(
                                 fontSize = 12.sp, // Adjust the font size as desired
                                 color = Color.Gray
@@ -284,7 +284,7 @@ fun MovieListBody(
                     //horizontalAlignment = CenterHorizontally
                 ) {
                     itemsIndexed(movieListItems.data!!) { index, movie ->
-                        if (index >= movieListItems.data!!.size - 1 && movieListItems !is Resource.Loading) {
+                        if (index >= movieListItems.data!!.size - 1 && movieListItems is Resource.Success) {
                             viewModel.loadMoviePaginated()
                         }
                         MovieListEntry(
@@ -315,7 +315,6 @@ fun MovieListBody(
                     }
 
                 }
-
                 Box(
                     contentAlignment = Center,
                     modifier = Modifier.fillMaxSize()
@@ -324,7 +323,6 @@ fun MovieListBody(
                         is Resource.Loading -> {
                             CircularProgressIndicator(color = MaterialTheme.colors.secondary)
                         }
-
                         is Resource.Error -> {
                             RetrySection(
                                 error = movieListItems.message ?: ResourceErrorMessage.UNKNOWN,
@@ -337,7 +335,6 @@ fun MovieListBody(
                         else -> {}
                     }
                 }
-
             }
         }
     }
@@ -362,13 +359,15 @@ fun MovieListEntry(
         mutableStateOf(isFavoriteMovie(movie.id))
     }
     val coroutineScope = rememberCoroutineScope()
+    val addError = stringResource(id = R.string.add_favorite_movie_failure)
+    val deleteError = stringResource(id = R.string.delete_favorite_movie_failure)
     val showErrorDialog = remember { mutableStateOf(false) }
     val errorDescription = remember { mutableStateOf("") }
 
     if (showErrorDialog.value) {
         ErrorDialog(
             error = errorDescription.value,
-            funcToCall = { showErrorDialog.value = false },
+            onRetry = { showErrorDialog.value = false },
             onDismiss = { showErrorDialog.value = false }
         )
     }
@@ -430,16 +429,15 @@ fun MovieListEntry(
                 onFavoriteToggle = { isChecked ->
                     coroutineScope.launch {
                         val isSuccess = if (isFavorite) {
-                            errorDescription.value = "Fail to delete"
+                            errorDescription.value = deleteError
                             deleteFavoriteMovie(movie)
                         } else {
-                            errorDescription.value = "Fail to add"
+                            errorDescription.value = addError
                             addFavoriteMovie(movie)
                         }
                         if (isSuccess) {
                             isFavorite = isChecked
-                        }
-                        else {
+                        } else {
                             showErrorDialog.value = true
                         }
                     }
@@ -512,7 +510,7 @@ fun FilterButton(
                 onDismiss()
                 showDialog.value = false
             },
-            title = { Text(text = "Select Filter") },
+            title = { Text(text = stringResource(id = R.string.filter_title)) },
             text = {
                 Column {
                     textList.forEach { text ->
@@ -530,7 +528,7 @@ fun FilterButton(
                         showDialog.value = false
                     }
                 ) {
-                    Text(text = "Confirm")
+                    Text(text = stringResource(id = R.string.confirm_button))
                 }
             },
             dismissButton = {
@@ -541,7 +539,7 @@ fun FilterButton(
                         showDialog.value = false
                     }
                 ) {
-                    Text(text = "Cancel")
+                    Text(text = stringResource(id = R.string.cancel_button))
                 }
             }
 
@@ -563,7 +561,7 @@ fun SortButton(
                 onDismiss()
                 showDialog.value = false
             },
-            title = { Text(text = "Select Sort") },
+            title = { Text(text = stringResource(id = R.string.sort_title)) },
             text = {
                 Column {
                     textList.forEach { text ->
@@ -581,7 +579,7 @@ fun SortButton(
                         showDialog.value = false
                     }
                 ) {
-                    Text(text = "Confirm")
+                    Text(text = stringResource(id = R.string.confirm_button))
                 }
             },
             dismissButton = {
@@ -592,7 +590,7 @@ fun SortButton(
                         showDialog.value = false
                     }
                 ) {
-                    Text(text = "Cancel")
+                    Text(text = stringResource(id = R.string.cancel_button))
                 }
             }
 
@@ -603,7 +601,7 @@ fun SortButton(
 @Composable
 fun ErrorDialog(
     error: String,
-    funcToCall: () -> Unit,
+    onRetry: () -> Unit,
     onDismiss: () -> Unit
 ) {
     val showDialog = remember { mutableStateOf(true) }
@@ -621,7 +619,7 @@ fun ErrorDialog(
             confirmButton = {
                 Button(
                     onClick = {
-                        funcToCall()
+                        onRetry()
                         showDialog.value = false
                     }
                 ) {
