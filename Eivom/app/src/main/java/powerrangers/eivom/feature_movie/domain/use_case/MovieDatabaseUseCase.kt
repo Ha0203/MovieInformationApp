@@ -24,6 +24,7 @@ import powerrangers.eivom.feature_movie.domain.model.toLocalMovieItem
 import powerrangers.eivom.feature_movie.domain.repository.LocalMovieDatabaseRepository
 import powerrangers.eivom.feature_movie.domain.repository.MovieDatabaseRepository
 import powerrangers.eivom.feature_movie.domain.utility.DefaultValue
+import powerrangers.eivom.feature_movie.domain.utility.MovieFilter
 import powerrangers.eivom.feature_movie.domain.utility.Resource
 import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
@@ -59,6 +60,21 @@ class MovieDatabaseUseCase(
     suspend fun getMovieListItemsResource(
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
         region: String = Locale.getDefault().country,
+        trending: MovieFilter.Trending? = MovieFilter.Trending(true),
+        includeAdult: MovieFilter.IncludeAdult? = null,
+        primaryReleaseYear: MovieFilter.ReleaseYear? = null,
+        minimumPrimaryReleaseDate: MovieFilter.MinimumReleaseDate? = null,
+        maximumPrimaryReleaseDate: MovieFilter.MaximumReleaseDate? = null,
+        minimumRating: MovieFilter.MinimumRating? = null,
+        maximumRating: MovieFilter.MaximumRating? = null,
+        minimumVote: MovieFilter.MinimumVote? = null,
+        maximumVote: MovieFilter.MaximumVote? = null,
+        genre: MovieFilter.Genre? = null,
+        originCountry: MovieFilter.OriginCountry? = null,
+        originLanguage: MovieFilter.OriginLanguage? = null,
+        minimumLength: MovieFilter.MinimumLength? = null,
+        maximumLength: MovieFilter.MaximumLength? = null,
+        withoutGenre: MovieFilter.WithoutGenre? = null,
         page: Int,
         landscapeWidth: Int,
         posterWidth: Int,
@@ -67,6 +83,21 @@ class MovieDatabaseUseCase(
         val movieList = getMovieListResource(
             apiKey = apiKey,
             region = region,
+            trending = trending,
+            includeAdult = includeAdult ?: MovieFilter.IncludeAdult(false),
+            primaryReleaseYear = primaryReleaseYear ?: MovieFilter.ReleaseYear(""),
+            minimumPrimaryReleaseDate = minimumPrimaryReleaseDate ?: MovieFilter.MinimumReleaseDate(LocalDate.of(1,1,1)),
+            maximumPrimaryReleaseDate = maximumPrimaryReleaseDate ?: MovieFilter.MaximumReleaseDate(LocalDate.of(9999,12,31)),
+            minimumRating = minimumRating ?: MovieFilter.MinimumRating(0f),
+            maximumRating = maximumRating ?: MovieFilter.MaximumRating(Float.MAX_VALUE),
+            minimumVote = minimumVote ?: MovieFilter.MinimumVote(0),
+            maximumVote = maximumVote ?: MovieFilter.MaximumVote(Int.MAX_VALUE),
+            genre = genre ?: MovieFilter.Genre(emptyList(), true),
+            originCountry = originCountry ?: MovieFilter.OriginCountry(emptyList(), true),
+            originLanguage = originLanguage ?: MovieFilter.OriginLanguage(emptyList(), true),
+            minimumLength = minimumLength ?: MovieFilter.MinimumLength(0),
+            maximumLength = maximumLength ?: MovieFilter.MaximumLength(Int.MAX_VALUE),
+            withoutGenre = withoutGenre ?: MovieFilter.WithoutGenre(emptyList(), true),
             page = page
         )
         if (movieList is Resource.Error) {
@@ -459,16 +490,104 @@ class MovieDatabaseUseCase(
     private suspend fun getMovieListResource(
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
         region: String = Locale.getDefault().country,
+        trending: MovieFilter.Trending?,
+        includeAdult: MovieFilter.IncludeAdult,
+        primaryReleaseYear: MovieFilter.ReleaseYear,
+        minimumPrimaryReleaseDate: MovieFilter.MinimumReleaseDate,
+        maximumPrimaryReleaseDate: MovieFilter.MaximumReleaseDate,
+        minimumRating: MovieFilter.MinimumRating,
+        maximumRating: MovieFilter.MaximumRating,
+        minimumVote: MovieFilter.MinimumVote,
+        maximumVote: MovieFilter.MaximumVote,
+        genre: MovieFilter.Genre,
+        originCountry: MovieFilter.OriginCountry,
+        originLanguage: MovieFilter.OriginLanguage,
+        minimumLength: MovieFilter.MinimumLength,
+        maximumLength: MovieFilter.MaximumLength,
+        withoutGenre: MovieFilter.WithoutGenre,
         page: Int
     ): Resource<MovieList> {
         return try {
-            Resource.Success(
-                data = movieDatabaseRepository.getMovieList(
-                    apiKey = apiKey,
-                    region = region,
-                    page = page
+            val formatter = DateTimeFormatter.ofPattern(DefaultValue.DATE_FORMAT)
+
+            if (trending == null) {
+                Resource.Success(
+                    data = movieDatabaseRepository.getMovieList(
+                        apiKey = apiKey,
+                        region = region,
+                        includeAdult = includeAdult.value as Boolean,
+                        primaryReleaseYear = primaryReleaseYear.value as String,
+                        minimumPrimaryReleaseDate = (minimumPrimaryReleaseDate.value as LocalDate).format(
+                            formatter
+                        ),
+                        maximumPrimaryReleaseDate = (maximumPrimaryReleaseDate.value as LocalDate).format(
+                            formatter
+                        ),
+                        minimumRating = minimumRating.value as Float,
+                        maximumRating = maximumRating.value as Float,
+                        minimumVote = minimumVote.value as Int,
+                        maximumVote = maximumVote.value as Int,
+                        genre = if (genre.isAndLogic != false) (genre.value as List<*>).joinToString(
+                            separator = ","
+                        )
+                        else (genre.value as List<*>).joinToString(separator = "|"),
+                        originCountry = if (originCountry.isAndLogic != false) (originCountry.value as List<*>).joinToString(
+                            separator = ","
+                        )
+                        else (originCountry.value as List<*>).joinToString(separator = "|"),
+                        originLanguage = if (originLanguage.isAndLogic != false) (originLanguage.value as List<*>).joinToString(
+                            separator = ","
+                        )
+                        else (originLanguage.value as List<*>).joinToString(separator = "|"),
+                        minimumLength = minimumLength.value as Int,
+                        maximumLength = maximumLength.value as Int,
+                        withoutGenre = if (withoutGenre.isAndLogic != false) (withoutGenre.value as List<*>).joinToString(
+                            separator = ","
+                        )
+                        else (withoutGenre.value as List<*>).joinToString(separator = "|"),
+                        page = page
+                    )
                 )
-            )
+            } else {
+                Resource.Success(
+                    data = movieDatabaseRepository.getTrendingMovieList(
+                        apiKey = apiKey,
+                        region = region,
+                        time = if (trending.value as Boolean) "day" else "week",
+                        includeAdult = includeAdult.value as Boolean,
+                        primaryReleaseYear = primaryReleaseYear.value as String,
+                        minimumPrimaryReleaseDate = (minimumPrimaryReleaseDate.value as LocalDate).format(
+                            formatter
+                        ),
+                        maximumPrimaryReleaseDate = (maximumPrimaryReleaseDate.value as LocalDate).format(
+                            formatter
+                        ),
+                        minimumRating = minimumRating.value as Float,
+                        maximumRating = maximumRating.value as Float,
+                        minimumVote = minimumVote.value as Int,
+                        maximumVote = maximumVote.value as Int,
+                        genre = if (genre.isAndLogic != false) (genre.value as List<*>).joinToString(
+                            separator = ","
+                        )
+                        else (genre.value as List<*>).joinToString(separator = "|"),
+                        originCountry = if (originCountry.isAndLogic != false) (originCountry.value as List<*>).joinToString(
+                            separator = ","
+                        )
+                        else (originCountry.value as List<*>).joinToString(separator = "|"),
+                        originLanguage = if (originLanguage.isAndLogic != false) (originLanguage.value as List<*>).joinToString(
+                            separator = ","
+                        )
+                        else (originLanguage.value as List<*>).joinToString(separator = "|"),
+                        minimumLength = minimumLength.value as Int,
+                        maximumLength = maximumLength.value as Int,
+                        withoutGenre = if (withoutGenre.isAndLogic != false) (withoutGenre.value as List<*>).joinToString(
+                            separator = ","
+                        )
+                        else (withoutGenre.value as List<*>).joinToString(separator = "|"),
+                        page = page
+                    )
+                )
+            }
         } catch (e: Exception) {
             Resource.Error(message = e.message ?: ResourceErrorMessage.GET_MOVIELIST)
         }

@@ -13,12 +13,85 @@ import javax.inject.Inject
 class MovieDatabaseRepositoryImpl @Inject constructor(
     private val movieDatabaseApi: MovieDatabaseApi
 ) : MovieDatabaseRepository {
+    override suspend fun getTrendingMovieList(
+        time: String,
+        apiKey: String,
+        region: String,
+        includeAdult: Boolean,
+        primaryReleaseYear: String,
+        minimumPrimaryReleaseDate: String,
+        maximumPrimaryReleaseDate: String,
+        minimumRating: Float,
+        maximumRating: Float,
+        minimumVote: Int,
+        maximumVote: Int,
+        genre: String,
+        originCountry: String,
+        originLanguage: String,
+        minimumLength: Int,
+        maximumLength: Int,
+        withoutGenre: String,
+        page: Int
+    ): MovieList =
+        movieDatabaseApi.getTrendingMovieList(
+            time = time,
+            apiKey = apiKey,
+            region = region,
+            includeAdult = includeAdult,
+            primaryReleaseYear = primaryReleaseYear,
+            minimumPrimaryReleaseDate = minimumPrimaryReleaseDate,
+            maximumPrimaryReleaseDate = maximumPrimaryReleaseDate,
+            minimumRating = minimumRating,
+            maximumRating = maximumRating,
+            minimumVote = minimumVote,
+            maximumVote = maximumVote,
+            genre = genre,
+            originCountry = originCountry,
+            originLanguage = originLanguage,
+            minimumLength = minimumLength,
+            maximumLength = maximumLength,
+            withoutGenre = withoutGenre,
+            page = page
+        )
+
     override suspend fun getMovieList(
         apiKey: String,
         region: String,
+        includeAdult: Boolean,
+        primaryReleaseYear: String,
+        minimumPrimaryReleaseDate: String,
+        maximumPrimaryReleaseDate: String,
+        minimumRating: Float,
+        maximumRating: Float,
+        minimumVote: Int,
+        maximumVote: Int,
+        genre: String,
+        originCountry: String,
+        originLanguage: String,
+        minimumLength: Int,
+        maximumLength: Int,
+        withoutGenre: String,
         page: Int
     ): MovieList =
-        movieDatabaseApi.getMovieList(apiKey = apiKey, region = region, page = page)
+        movieDatabaseApi.getMovieList(
+            apiKey = apiKey,
+            region = region,
+            includeAdult = includeAdult,
+            primaryReleaseYear = primaryReleaseYear,
+            minimumPrimaryReleaseDate = minimumPrimaryReleaseDate,
+            maximumPrimaryReleaseDate = maximumPrimaryReleaseDate,
+            minimumRating = minimumRating,
+            maximumRating = maximumRating,
+            minimumVote = minimumVote,
+            maximumVote = maximumVote,
+            genre = genre,
+            originCountry = originCountry,
+            originLanguage = originLanguage,
+            minimumLength = minimumLength,
+            maximumLength = maximumLength,
+            withoutGenre = withoutGenre,
+            page = page
+        )
 
     override suspend fun getMovieInformation(
         movieId: Int,
