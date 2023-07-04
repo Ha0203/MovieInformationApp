@@ -15,6 +15,7 @@ import powerrangers.eivom.feature_movie.data.utility.DataSourceRelation
 import powerrangers.eivom.feature_movie.data.utility.GenreNotFoundException
 import powerrangers.eivom.feature_movie.data.utility.LocalMovieItem
 import powerrangers.eivom.feature_movie.data.utility.toMovieItem
+import powerrangers.eivom.feature_movie.data.utility.toMovieListItem
 import powerrangers.eivom.feature_movie.domain.model.Collection
 import powerrangers.eivom.feature_movie.domain.model.Company
 import powerrangers.eivom.feature_movie.domain.model.MovieItem
@@ -63,6 +64,7 @@ class MovieDatabaseUseCase(
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
         region: MovieFilter.Region? = MovieFilter.Region(Locale.getDefault().country),
         trending: MovieFilter.Trending? = MovieFilter.Trending(TrendingTime.DAY),
+        favorite: MovieFilter.Favorite? = null,
         adultContent: MovieFilter.AdultContent? = null,
         primaryReleaseYear: MovieFilter.ReleaseYear? = null,
         minimumPrimaryReleaseDate: MovieFilter.MinimumReleaseDate? = null,
@@ -82,119 +84,220 @@ class MovieDatabaseUseCase(
         posterWidth: Int,
         dateFormat: DateTimeFormatter
     ): Resource<List<MovieListItem>> {
-        val movieList = getMovieListResource(
-            apiKey = apiKey,
-            region = region,
-            trending = trending,
-            adultContent = adultContent,
-            primaryReleaseYear = primaryReleaseYear,
-            minimumPrimaryReleaseDate = minimumPrimaryReleaseDate,
-            maximumPrimaryReleaseDate = maximumPrimaryReleaseDate,
-            minimumRating = minimumRating,
-            maximumRating = maximumRating,
-            minimumVote = minimumVote,
-            maximumVote = maximumVote,
-            genre = genre,
-            originCountry = originCountry,
-            originLanguage = originLanguage,
-            minimumLength = minimumLength,
-            maximumLength = maximumLength,
-            withoutGenre = withoutGenre,
-            page = page
-        )
-        if (movieList is Resource.Error) {
-            return Resource.Error(
-                message = movieList.message
-                    ?: ResourceErrorMessage.GET_MOVIELIST
+        if (favorite == null || !favorite.isFavorite) {
+            val movieList = getMovieListResource(
+                apiKey = apiKey,
+                region = region,
+                trending = trending,
+                adultContent = adultContent,
+                primaryReleaseYear = primaryReleaseYear,
+                minimumPrimaryReleaseDate = minimumPrimaryReleaseDate,
+                maximumPrimaryReleaseDate = maximumPrimaryReleaseDate,
+                minimumRating = minimumRating,
+                maximumRating = maximumRating,
+                minimumVote = minimumVote,
+                maximumVote = maximumVote,
+                genre = genre,
+                originCountry = originCountry,
+                originLanguage = originLanguage,
+                minimumLength = minimumLength,
+                maximumLength = maximumLength,
+                withoutGenre = withoutGenre,
+                page = page
             )
-        }
+            if (movieList is Resource.Error) {
+                return Resource.Error(
+                    message = movieList.message
+                        ?: ResourceErrorMessage.GET_MOVIELIST
+                )
+            }
 
-        if (localMovieMap == null) {
-            localMovieMap = getLocalMovieListItemsAsMap()
-        }
-        if (localMovieMap is Resource.Error) {
-            return Resource.Error(
-                message = (localMovieMap as Resource.Error).message
-                    ?: ResourceErrorMessage.GET_LOCALMOVIEMAP
-            )
-        }
+            if (localMovieMap == null) {
+                localMovieMap = getLocalMovieListItemsAsMap()
+            }
+            if (localMovieMap is Resource.Error) {
+                return Resource.Error(
+                    message = (localMovieMap as Resource.Error).message
+                        ?: ResourceErrorMessage.GET_LOCALMOVIEMAP
+                )
+            }
 
-        return try {
-            Resource.Success(
-                data = movieList.data!!.results.map { movie ->
-                    MovieListItem(
-                        favorite = localMovieMap?.data?.get(movie.id)?.favorite ?: false,
-                        watched = localMovieMap?.data?.get(movie.id)?.watched ?: false,
-                        sponsored = localMovieMap?.data?.get(movie.id)?.sponsored ?: false,
-                        adult = try {
-                            movie.adult
-                        } catch (e: Exception) {
-                            true
-                        },
-                        landscapeImageUrl = try {
-                            getMovieImageUrl(
-                                imageWidth = landscapeWidth,
-                                imagePath = movie.backdrop_path
+            return try {
+                if (favorite == null) {
+                    Resource.Success(
+                        data = movieList.data!!.results.map { movie ->
+                            MovieListItem(
+                                favorite = localMovieMap?.data?.get(movie.id)?.favorite ?: false,
+                                watched = localMovieMap?.data?.get(movie.id)?.watched ?: false,
+                                sponsored = localMovieMap?.data?.get(movie.id)?.sponsored ?: false,
+                                adult = try {
+                                    movie.adult
+                                } catch (e: Exception) {
+                                    true
+                                },
+                                landscapeImageUrl = try {
+                                    getMovieImageUrl(
+                                        imageWidth = landscapeWidth,
+                                        imagePath = movie.backdrop_path
+                                    )
+                                } catch (e: Exception) {
+                                    ""
+                                },
+                                genres = movie.genre_ids.map { genreId ->
+                                    TranslateCode.GENRE[genreId]
+                                        ?: throw GenreNotFoundException("Genre not found error")
+                                },
+                                id = movie.id,
+                                originalLanguage = TranslateCode.ISO_639_1[movie.original_language]
+                                    ?: "",
+                                originalTitle = try {
+                                    movie.original_title
+                                } catch (e: Exception) {
+                                    ""
+                                },
+                                overview = try {
+                                    movie.overview
+                                } catch (e: Exception) {
+                                    ""
+                                },
+                                posterUrl = try {
+                                    getMovieImageUrl(
+                                        imageWidth = posterWidth,
+                                        imagePath = movie.poster_path
+                                    )
+                                } catch (e: Exception) {
+                                    ""
+                                },
+                                releaseDate = try {
+                                    LocalDate.parse(
+                                        movie.release_date,
+                                        DateTimeFormatter.ofPattern(DefaultValue.DATE_FORMAT)
+                                    ).format(dateFormat)
+                                } catch (e: Exception) {
+                                    ""
+                                },
+                                title = try {
+                                    movie.title
+                                } catch (e: Exception) {
+                                    ""
+                                },
+                                voteAverage = try {
+                                    movie.vote_average
+                                } catch (e: Exception) {
+                                    0.0
+                                },
+                                voteCount = try {
+                                    movie.vote_count
+                                } catch (e: Exception) {
+                                    0
+                                }
                             )
-                        } catch (e: Exception) {
-                            ""
-                        },
-                        genres = movie.genre_ids.map { genreId ->
-                            TranslateCode.GENRE[genreId]
-                                ?: throw GenreNotFoundException("Genre not found error")
-                        },
-                        id = movie.id,
-                        originalLanguage = TranslateCode.ISO_639_1[movie.original_language]
-                            ?: "",
-                        originalTitle = try {
-                            movie.original_title
-                        } catch (e: Exception) {
-                            ""
-                        },
-                        overview = try {
-                            movie.overview
-                        } catch (e: Exception) {
-                            ""
-                        },
-                        posterUrl = try {
-                            getMovieImageUrl(
-                                imageWidth = posterWidth,
-                                imagePath = movie.poster_path
-                            )
-                        } catch (e: Exception) {
-                            ""
-                        },
-                        releaseDate = try {
-                            LocalDate.parse(
-                                movie.release_date,
-                                DateTimeFormatter.ofPattern(DefaultValue.DATE_FORMAT)
-                            ).format(dateFormat)
-                        } catch (e: Exception) {
-                            ""
-                        },
-                        title = try {
-                            movie.title
-                        } catch (e: Exception) {
-                            ""
-                        },
-                        voteAverage = try {
-                            movie.vote_average
-                        } catch (e: Exception) {
-                            0.0
-                        },
-                        voteCount = try {
-                            movie.vote_count
-                        } catch (e: Exception) {
-                            0
+                        }
+                    )
+                } else {
+                    Resource.Success(
+                        data = movieList.data!!.results.mapNotNull { movie ->
+                            if (localMovieMap?.data?.get(movie.id)?.favorite == true) {
+                                null
+                            } else {
+                                MovieListItem(
+                                    favorite = false,
+                                    watched = localMovieMap?.data?.get(movie.id)?.watched ?: false,
+                                    sponsored = localMovieMap?.data?.get(movie.id)?.sponsored
+                                        ?: false,
+                                    adult = try {
+                                        movie.adult
+                                    } catch (e: Exception) {
+                                        true
+                                    },
+                                    landscapeImageUrl = try {
+                                        getMovieImageUrl(
+                                            imageWidth = landscapeWidth,
+                                            imagePath = movie.backdrop_path
+                                        )
+                                    } catch (e: Exception) {
+                                        ""
+                                    },
+                                    genres = movie.genre_ids.map { genreId ->
+                                        TranslateCode.GENRE[genreId]
+                                            ?: throw GenreNotFoundException("Genre not found error")
+                                    },
+                                    id = movie.id,
+                                    originalLanguage = TranslateCode.ISO_639_1[movie.original_language]
+                                        ?: "",
+                                    originalTitle = try {
+                                        movie.original_title
+                                    } catch (e: Exception) {
+                                        ""
+                                    },
+                                    overview = try {
+                                        movie.overview
+                                    } catch (e: Exception) {
+                                        ""
+                                    },
+                                    posterUrl = try {
+                                        getMovieImageUrl(
+                                            imageWidth = posterWidth,
+                                            imagePath = movie.poster_path
+                                        )
+                                    } catch (e: Exception) {
+                                        ""
+                                    },
+                                    releaseDate = try {
+                                        LocalDate.parse(
+                                            movie.release_date,
+                                            DateTimeFormatter.ofPattern(DefaultValue.DATE_FORMAT)
+                                        ).format(dateFormat)
+                                    } catch (e: Exception) {
+                                        ""
+                                    },
+                                    title = try {
+                                        movie.title
+                                    } catch (e: Exception) {
+                                        ""
+                                    },
+                                    voteAverage = try {
+                                        movie.vote_average
+                                    } catch (e: Exception) {
+                                        0.0
+                                    },
+                                    voteCount = try {
+                                        movie.vote_count
+                                    } catch (e: Exception) {
+                                        0
+                                    }
+                                )
+                            }
                         }
                     )
                 }
-            )
-        } catch (e: Exception) {
-            return Resource.Error(
-                message = e.message
-                    ?: ResourceErrorMessage.CONVERT_MOVIELIST_TO_MOVIELISTITEMS
-            )
+            } catch (e: Exception) {
+                return Resource.Error(
+                    message = e.message
+                        ?: ResourceErrorMessage.CONVERT_MOVIELIST_TO_MOVIELISTITEMS
+                )
+            }
+        } else {
+            val localMovieListItems = getLocalMovieListItems()
+            if (localMovieListItems is Resource.Error) {
+                return Resource.Error(
+                    message = localMovieListItems.message
+                        ?: ResourceErrorMessage.GET_LOCALMOVIELIST
+                )
+            }
+
+            return try {
+                Resource.Success(
+                    data = localMovieListItems.data!!.map { localMovieItem ->
+                        localMovieItem.toMovieListItem()
+                    }
+                )
+            } catch (e: Exception) {
+                return Resource.Error(
+                    message = e.message
+                        ?: ResourceErrorMessage.CONVERT_LOCALMOVIEITEMS_TO_MOVIELISTITEMS
+                )
+            }
         }
     }
 
@@ -273,6 +376,7 @@ class MovieDatabaseUseCase(
         return try {
             Resource.Success(
                 data = MovieItem(
+                    editable = false,
                     favorite = localMovieMap?.data?.get(information.data?.id)?.favorite ?: false,
                     watched = localMovieMap?.data?.get(information.data?.id)?.watched ?: false,
                     sponsored = localMovieMap?.data?.get(information.data?.id)?.sponsored ?: false,
@@ -385,7 +489,8 @@ class MovieDatabaseUseCase(
                             null
                     } ?: emptyList(),
                     voteAverage = information.data?.vote_average ?: 0.0,
-                    voteCount = information.data?.vote_count ?: 0
+                    voteCount = information.data?.vote_count ?: 0,
+                    note = localMovieMap?.data?.get(information.data?.id)?.note ?: ""
                 )
             )
         } catch (e: Exception) {
@@ -422,10 +527,12 @@ class MovieDatabaseUseCase(
             }
 
             val localMovieItem = LocalMovieItem(
+                editable = false,
                 favorite = true,
                 watched = movieListItem.watched,
                 sponsored = movieListItem.sponsored,
                 adult = movieListItem.adult,
+                landscapeImageUrl = movieListItem.landscapeImageUrl,
                 budget = information.data?.budget ?: 0,
                 genres = movieListItem.genres,
                 homepageUrl = information.data?.homepage ?: "",
@@ -433,6 +540,7 @@ class MovieDatabaseUseCase(
                 originalLanguage = movieListItem.originalLanguage,
                 originalTitle = movieListItem.originalTitle,
                 overview = movieListItem.overview,
+                posterUrl = movieListItem.posterUrl,
                 productionCompanies = information.data?.production_companies?.map { company ->
                     company.name
                 } ?: emptyList(),
@@ -449,7 +557,8 @@ class MovieDatabaseUseCase(
                 tagline = information.data?.tagline ?: "",
                 title = movieListItem.title,
                 voteAverage = movieListItem.voteAverage,
-                voteCount = movieListItem.voteCount
+                voteCount = movieListItem.voteCount,
+                note = ""
             )
 
             localMovieDatabaseRepository.insertLocalMovieItem(localMovieItem)

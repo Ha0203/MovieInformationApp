@@ -36,6 +36,7 @@ object ResourceErrorMessage {
     const val ADD_LIST = "Adding Resource<List> error"
 
     const val CONVERT_MOVIELIST_TO_MOVIELISTITEMS = "Converting Resource<MovieList> to Resource<MovieListItems> error"
+    const val CONVERT_LOCALMOVIEITEMS_TO_MOVIELISTITEMS = "Converting Resource<LocalMovieItems> to Resource<MovieListItems> error"
     const val CONVERT_MOVIEINFORMATION_TO_MOVIEITEM = "Converting Resource<MovieInformation> to Resource<MovieItem> error"
 
     const val GET_MOVIELIST = "Getting Resource<MOVIELIST> error"

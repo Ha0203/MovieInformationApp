@@ -6,7 +6,7 @@ import powerrangers.eivom.feature_movie.data.utility.LocalMovieItem
 
 @Database(
     entities = [LocalMovieItem::class],
-    version = 2
+    version = 3
 )
 abstract class LocalMovieDatabase: RoomDatabase() {
 

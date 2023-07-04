@@ -3,6 +3,7 @@ package powerrangers.eivom.feature_movie.domain.model
 import powerrangers.eivom.feature_movie.data.utility.LocalMovieItem
 
 data class MovieItem(
+    val editable: Boolean,
     val favorite: Boolean,
     val watched: Boolean,
     val sponsored: Boolean,
@@ -31,15 +32,18 @@ data class MovieItem(
     val title: String,
     val videos: List<Video>,
     val voteAverage: Double,
-    val voteCount: Int
+    val voteCount: Int,
+    val note: String
 )
 
 fun MovieItem.toLocalMovieItem(): LocalMovieItem{
     return LocalMovieItem(
+        editable = this.editable,
         favorite = this.favorite,
         watched = this.watched,
         sponsored = this.sponsored,
         adult = this.adult,
+        landscapeImageUrl = this.landscapeImageUrl,
         budget = this.budget,
         genres = this.genres,
         homepageUrl = this.homepageUrl,
@@ -47,6 +51,7 @@ fun MovieItem.toLocalMovieItem(): LocalMovieItem{
         originalLanguage = this.originalLanguage,
         originalTitle = this.originalTitle,
         overview = this.overview,
+        posterUrl = this.posterUrl,
         productionCompanies = this.productionCompanies.map { company ->
             company.name
         },
@@ -59,6 +64,7 @@ fun MovieItem.toLocalMovieItem(): LocalMovieItem{
         tagline = this.tagline,
         title = this.title,
         voteAverage = this.voteAverage,
-        voteCount = this.voteCount
+        voteCount = this.voteCount,
+        note = this.note
     )
 }

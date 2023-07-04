@@ -5,8 +5,8 @@ import java.time.LocalDate
 sealed class MovieFilter {
     class Region(val region: String): MovieFilter()
 
-    class Trending(val trendingTime: TrendingTime): MovieFilter()
     class Favorite(val isFavorite: Boolean): MovieFilter()
+    class Trending(val trendingTime: TrendingTime): MovieFilter()
 
     class AdultContent(val isAdult: Boolean): MovieFilter()
 //    class Language(value: String): MovieFilter(value) Translate to corresponding language

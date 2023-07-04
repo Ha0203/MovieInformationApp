@@ -11,10 +11,12 @@ import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 @Entity(tableName = DataSourceRelation.LOCAL_MOVIE_ITEM_NAME)
 @TypeConverters(StringListConverter::class)
 data class LocalMovieItem(
+    val editable: Boolean,
     val favorite: Boolean,
     val watched: Boolean,
     val sponsored: Boolean,
     val adult: Boolean,
+    val landscapeImageUrl: String,
     val budget: Long,
     val genres: List<String>,
     val homepageUrl: String,
@@ -22,6 +24,7 @@ data class LocalMovieItem(
     val originalLanguage: String,
     val originalTitle: String,
     val overview: String,
+    val posterUrl: String,
     val productionCompanies: List<String>,
     val productionCountries: List<String>,
     val regionReleaseDate: String,
@@ -32,11 +35,13 @@ data class LocalMovieItem(
     val tagline: String,
     val title: String,
     val voteAverage: Double,
-    val voteCount: Int
+    val voteCount: Int,
+    val note: String
 )
 
 fun LocalMovieItem.toMovieItem(): MovieItem {
     return MovieItem(
+        editable = this.editable,
         favorite = this.favorite,
         watched = this.watched,
         sponsored = this.sponsored,
@@ -70,7 +75,8 @@ fun LocalMovieItem.toMovieItem(): MovieItem {
         title = this.title,
         videos = emptyList(),
         voteAverage = this.voteAverage,
-        voteCount = this.voteCount
+        voteCount = this.voteCount,
+        note = this.note
     )
 }
 
@@ -80,13 +86,13 @@ fun LocalMovieItem.toMovieListItem(): MovieListItem {
         watched = this.watched,
         sponsored = this.sponsored,
         adult = this.adult,
-        landscapeImageUrl = "",
+        landscapeImageUrl = this.landscapeImageUrl,
         genres = this.genres,
         id = this.id,
         originalLanguage = this.originalLanguage,
         originalTitle = this.originalTitle,
         overview = this.overview,
-        posterUrl = "",
+        posterUrl = this.posterUrl,
         releaseDate = this.regionReleaseDate,
         title = this.title,
         voteAverage = this.voteAverage,
