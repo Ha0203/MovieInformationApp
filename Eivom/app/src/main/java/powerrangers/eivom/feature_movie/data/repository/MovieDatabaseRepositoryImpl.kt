@@ -16,61 +16,32 @@ class MovieDatabaseRepositoryImpl @Inject constructor(
     override suspend fun getTrendingMovieList(
         time: String,
         apiKey: String,
-        region: String,
-        includeAdult: Boolean,
-        primaryReleaseYear: String,
-        minimumPrimaryReleaseDate: String,
-        maximumPrimaryReleaseDate: String,
-        minimumRating: Float,
-        maximumRating: Float,
-        minimumVote: Int,
-        maximumVote: Int,
-        genre: String,
-        originCountry: String,
-        originLanguage: String,
-        minimumLength: Int,
-        maximumLength: Int,
-        withoutGenre: String,
         page: Int
     ): MovieList =
         movieDatabaseApi.getTrendingMovieList(
             time = time,
             apiKey = apiKey,
-            region = region,
-            includeAdult = includeAdult,
-            primaryReleaseYear = primaryReleaseYear,
-            minimumPrimaryReleaseDate = minimumPrimaryReleaseDate,
-            maximumPrimaryReleaseDate = maximumPrimaryReleaseDate,
-            minimumRating = minimumRating,
-            maximumRating = maximumRating,
-            minimumVote = minimumVote,
-            maximumVote = maximumVote,
-            genre = genre,
-            originCountry = originCountry,
-            originLanguage = originLanguage,
-            minimumLength = minimumLength,
-            maximumLength = maximumLength,
-            withoutGenre = withoutGenre,
             page = page
         )
 
     override suspend fun getMovieList(
         apiKey: String,
-        region: String,
-        includeAdult: Boolean,
-        primaryReleaseYear: String,
-        minimumPrimaryReleaseDate: String,
-        maximumPrimaryReleaseDate: String,
-        minimumRating: Float,
-        maximumRating: Float,
-        minimumVote: Int,
-        maximumVote: Int,
-        genre: String,
-        originCountry: String,
-        originLanguage: String,
-        minimumLength: Int,
-        maximumLength: Int,
-        withoutGenre: String,
+        region: String?,
+        includeAdult: Boolean?,
+        primaryReleaseYear: String?,
+        minimumPrimaryReleaseDate: String?,
+        maximumPrimaryReleaseDate: String?,
+        minimumRating: Float?,
+        maximumRating: Float?,
+        minimumVote: Int?,
+        maximumVote: Int?,
+        genre: String?,
+        originCountry: String?,
+        originLanguage: String?,
+        minimumLength: Int?,
+        maximumLength: Int?,
+        withoutGenre: String?,
+        sortBy: String?,
         page: Int
     ): MovieList =
         movieDatabaseApi.getMovieList(
@@ -90,27 +61,28 @@ class MovieDatabaseRepositoryImpl @Inject constructor(
             minimumLength = minimumLength,
             maximumLength = maximumLength,
             withoutGenre = withoutGenre,
+            sortBy = sortBy,
             page = page
         )
 
     override suspend fun getMovieInformation(
         movieId: Int,
         apiKey: String,
-        region: String
+        region: String?
     ): MovieInformation =
         movieDatabaseApi.getMovieInformation(movieId = movieId, apiKey = apiKey, region = region)
 
     override suspend fun getMovieVideo(
         movieId: Int,
         apiKey: String,
-        region: String
+        region: String?
     ): MovieVideo =
         movieDatabaseApi.getMovieVideo(movieId = movieId, apiKey = apiKey, region = region)
 
     override suspend fun getMovieImage(
         movieId: Int,
         apiKey: String,
-        region: String
+        region: String?
     ): MovieImage =
         movieDatabaseApi.getMovieImage(movieId = movieId, apiKey = apiKey, region = region)
 }

@@ -27,6 +27,8 @@ import powerrangers.eivom.feature_movie.domain.repository.MovieDatabaseRepositor
 import powerrangers.eivom.feature_movie.domain.utility.DefaultValue
 import powerrangers.eivom.feature_movie.domain.utility.Logic
 import powerrangers.eivom.feature_movie.domain.utility.MovieFilter
+import powerrangers.eivom.feature_movie.domain.utility.MovieOrder
+import powerrangers.eivom.feature_movie.domain.utility.Order
 import powerrangers.eivom.feature_movie.domain.utility.Resource
 import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
@@ -62,9 +64,9 @@ class MovieDatabaseUseCase(
     // Get movie
     suspend fun getMovieListItemsResource(
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
+        trending: MovieFilter.Trending? = MovieFilter.Trending(TrendingTime.DAY), // No filter, no sort
+        favorite: MovieFilter.Favorite? = null, // No region filter
         region: MovieFilter.Region? = MovieFilter.Region(Locale.getDefault().country),
-        trending: MovieFilter.Trending? = MovieFilter.Trending(TrendingTime.DAY),
-        favorite: MovieFilter.Favorite? = null,
         adultContent: MovieFilter.AdultContent? = null,
         primaryReleaseYear: MovieFilter.ReleaseYear? = null,
         minimumPrimaryReleaseDate: MovieFilter.MinimumReleaseDate? = null,
@@ -79,6 +81,7 @@ class MovieDatabaseUseCase(
         minimumLength: MovieFilter.MinimumLength? = null,
         maximumLength: MovieFilter.MaximumLength? = null,
         withoutGenre: MovieFilter.WithoutGenre? = null,
+        sortBy: MovieOrder? = null,
         page: Int,
         landscapeWidth: Int,
         posterWidth: Int,
@@ -103,6 +106,7 @@ class MovieDatabaseUseCase(
                 minimumLength = minimumLength,
                 maximumLength = maximumLength,
                 withoutGenre = withoutGenre,
+                sortBy = sortBy,
                 page = page
             )
             if (movieList is Resource.Error) {
@@ -616,6 +620,7 @@ class MovieDatabaseUseCase(
         minimumLength: MovieFilter.MinimumLength?,
         maximumLength: MovieFilter.MaximumLength?,
         withoutGenre: MovieFilter.WithoutGenre?,
+        sortBy: MovieOrder?,
         page: Int
     ): Resource<MovieList> {
         return try {
@@ -625,35 +630,73 @@ class MovieDatabaseUseCase(
                 Resource.Success(
                     data = movieDatabaseRepository.getMovieList(
                         apiKey = apiKey,
-                        region = region?.region ?: "",
-                        includeAdult = adultContent?.isAdult ?: true,
-                        primaryReleaseYear = primaryReleaseYear?.year.toString(),
-                        minimumPrimaryReleaseDate = (minimumPrimaryReleaseDate?.releaseDate
-                            ?: LocalDate.of(1, 1, 1)).format(formatter),
-                        maximumPrimaryReleaseDate = (maximumPrimaryReleaseDate?.releaseDate
-                            ?: LocalDate.of(9999, 12, 31)).format(formatter),
-                        minimumRating = minimumRating?.rating ?: 0f,
-                        maximumRating = maximumRating?.rating ?: Float.MAX_VALUE,
-                        minimumVote = minimumVote?.voteCount ?: 0,
-                        maximumVote = maximumVote?.voteCount ?: Int.MAX_VALUE,
-                        genre = if ((genre?.logic ?: Logic.AND) == Logic.AND) (genre?.genres ?: emptyList()).joinToString(
+                        region = region?.region,
+                        includeAdult = adultContent?.isAdult,
+                        primaryReleaseYear = primaryReleaseYear?.year?.toString(),
+                        minimumPrimaryReleaseDate = (minimumPrimaryReleaseDate?.releaseDate)?.format(formatter),
+                        maximumPrimaryReleaseDate = (maximumPrimaryReleaseDate?.releaseDate)?.format(formatter),
+                        minimumRating = minimumRating?.rating,
+                        maximumRating = maximumRating?.rating,
+                        minimumVote = minimumVote?.voteCount,
+                        maximumVote = maximumVote?.voteCount,
+                        genre = if (genre == null) null else if (genre.logic == Logic.AND) (genre.genres).joinToString(
                             separator = ","
                         )
-                        else (genre?.genres ?: emptyList()).joinToString(separator = "|"),
-                        originCountry = if ((originCountry?.logic ?: Logic.AND) == Logic.AND) (originCountry?.countries ?: emptyList()).joinToString(
+                        else (genre.genres).joinToString(separator = "|"),
+                        originCountry = if (originCountry == null) null else if (originCountry.logic == Logic.AND) (originCountry.countries).joinToString(
                             separator = ","
                         )
-                        else (originCountry?.countries ?: emptyList()).joinToString(separator = "|"),
-                        originLanguage = if ((originLanguage?.logic ?: Logic.AND) == Logic.AND) (originLanguage?.languages ?: emptyList()).joinToString(
+                        else (originCountry.countries).joinToString(separator = "|"),
+                        originLanguage = if (originLanguage == null) null else if ((originLanguage.logic) == Logic.AND) (originLanguage.languages).joinToString(
                             separator = ","
                         )
-                        else (originLanguage?.languages ?: emptyList()).joinToString(separator = "|"),
+                        else (originLanguage.languages).joinToString(separator = "|"),
                         minimumLength = minimumLength?.movieLength ?: 0,
                         maximumLength = maximumLength?.movieLength ?: Int.MAX_VALUE,
-                        withoutGenre = if ((withoutGenre?.logic ?: Logic.AND) == Logic.AND) (withoutGenre?.withoutGenres ?: emptyList()).joinToString(
+                        withoutGenre = if (withoutGenre == null) null else if ((withoutGenre.logic) == Logic.AND) (withoutGenre.withoutGenres).joinToString(
                             separator = ","
                         )
-                        else (withoutGenre?.withoutGenres ?: emptyList()).joinToString(separator = "|"),
+                        else (withoutGenre.withoutGenres).joinToString(separator = "|"),
+                        sortBy = when (sortBy) {
+                            is MovieOrder.ReleaseDate -> {
+                                if (sortBy.order == Order.ASCENDING) {
+                                    "primary_release_date.asc"
+                                } else {
+                                    "primary_release_date.desc"
+                                }
+                            }
+                            is MovieOrder.Rating -> {
+                                if (sortBy.order == Order.ASCENDING) {
+                                    "vote_average.asc"
+                                } else {
+                                    "vote_average.desc"
+                                }
+                            }
+                            is MovieOrder.Vote -> {
+                                if (sortBy.order == Order.ASCENDING) {
+                                    "vote_count.asc"
+                                } else {
+                                    "vote_count.desc"
+                                }
+                            }
+                            is MovieOrder.OriginalTitle -> {
+                                if (sortBy.order == Order.ASCENDING) {
+                                    "original_title.asc"
+                                } else {
+                                    "original_title.desc"
+                                }
+                            }
+                            is MovieOrder.Title -> {
+                                if (sortBy.order == Order.ASCENDING) {
+                                    "title.asc"
+                                } else {
+                                    "title.desc"
+                                }
+                            }
+                            else -> {
+                                null
+                            }
+                        },
                         page = page
                     )
                 )
@@ -661,36 +704,7 @@ class MovieDatabaseUseCase(
                 Resource.Success(
                     data = movieDatabaseRepository.getTrendingMovieList(
                         apiKey = apiKey,
-                        region = region?.region ?: "",
                         time = if (trending.trendingTime == TrendingTime.DAY) "day" else "week",
-                        includeAdult = adultContent?.isAdult ?: true,
-                        primaryReleaseYear = primaryReleaseYear?.year.toString(),
-                        minimumPrimaryReleaseDate = (minimumPrimaryReleaseDate?.releaseDate
-                            ?: LocalDate.of(1, 1, 1)).format(formatter),
-                        maximumPrimaryReleaseDate = (maximumPrimaryReleaseDate?.releaseDate
-                            ?: LocalDate.of(9999, 12, 31)).format(formatter),
-                        minimumRating = minimumRating?.rating ?: 0f,
-                        maximumRating = maximumRating?.rating ?: Float.MAX_VALUE,
-                        minimumVote = minimumVote?.voteCount ?: 0,
-                        maximumVote = maximumVote?.voteCount ?: Int.MAX_VALUE,
-                        genre = if ((genre?.logic ?: Logic.AND) == Logic.AND) (genre?.genres ?: emptyList()).joinToString(
-                            separator = ","
-                        )
-                        else (genre?.genres ?: emptyList()).joinToString(separator = "|"),
-                        originCountry = if ((originCountry?.logic ?: Logic.AND) == Logic.AND) (originCountry?.countries ?: emptyList()).joinToString(
-                            separator = ","
-                        )
-                        else (originCountry?.countries ?: emptyList()).joinToString(separator = "|"),
-                        originLanguage = if ((originLanguage?.logic ?: Logic.AND) == Logic.AND) (originLanguage?.languages ?: emptyList()).joinToString(
-                            separator = ","
-                        )
-                        else (originLanguage?.languages ?: emptyList()).joinToString(separator = "|"),
-                        minimumLength = minimumLength?.movieLength ?: 0,
-                        maximumLength = maximumLength?.movieLength ?: Int.MAX_VALUE,
-                        withoutGenre = if ((withoutGenre?.logic ?: Logic.AND) == Logic.AND) (withoutGenre?.withoutGenres ?: emptyList()).joinToString(
-                            separator = ","
-                        )
-                        else (withoutGenre?.withoutGenres ?: emptyList()).joinToString(separator = "|"),
                         page = page
                     )
                 )
@@ -724,7 +738,7 @@ class MovieDatabaseUseCase(
     private suspend fun getMovieInformationResource(
         movieId: Int,
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
-        region: String = Locale.getDefault().country
+        region: String?
     ): Resource<MovieInformation> {
         return try {
             Resource.Success(
@@ -752,7 +766,7 @@ class MovieDatabaseUseCase(
     private suspend fun getMovieVideoResource(
         movieId: Int,
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
-        region: String = Locale.getDefault().country
+        region: String?
     ): Resource<MovieVideo> {
         return try {
             Resource.Success(
@@ -770,7 +784,7 @@ class MovieDatabaseUseCase(
     private suspend fun getMovieImageResource(
         movieId: Int,
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
-        region: String = Locale.getDefault().country
+        region: String?
     ): Resource<MovieImage> {
         return try {
             Resource.Success(
