@@ -300,7 +300,7 @@ class MovieDatabaseUseCase(
                                 null
                             } else {
                                 MovieListItem(
-                                    favorite = false,
+                                    favorite = localMovieMap?.data?.get(movie.id)?.favorite ?: false,
                                     watched = localMovieMap?.data?.get(movie.id)?.watched ?: false,
                                     sponsored = localMovieMap?.data?.get(movie.id)?.sponsored
                                         ?: false,
@@ -376,7 +376,7 @@ class MovieDatabaseUseCase(
                                 null
                             } else {
                                 MovieListItem(
-                                    favorite = false,
+                                    favorite = localMovieMap?.data?.get(movie.id)?.favorite ?: false,
                                     watched = localMovieMap?.data?.get(movie.id)?.watched ?: false,
                                     sponsored = localMovieMap?.data?.get(movie.id)?.sponsored
                                         ?: false,
@@ -455,7 +455,7 @@ class MovieDatabaseUseCase(
                                 null
                             } else {
                                 MovieListItem(
-                                    favorite = false,
+                                    favorite = localMovieMap?.data?.get(movie.id)?.favorite ?: false,
                                     watched = localMovieMap?.data?.get(movie.id)?.watched ?: false,
                                     sponsored = localMovieMap?.data?.get(movie.id)?.sponsored
                                         ?: false,
