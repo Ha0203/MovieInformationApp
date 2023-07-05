@@ -64,9 +64,10 @@ class MovieDatabaseUseCase(
     // Get movie
     suspend fun getMovieListItemsResource(
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
-        trending: MovieFilter.Trending? = MovieFilter.Trending(TrendingTime.DAY), // No filter, no sort
+        trending: MovieFilter.Trending? = MovieFilter.Trending(TrendingTime.DAY),   // No filter, no sort
         favorite: MovieFilter.Favorite? = null, // No region filter
-        region: MovieFilter.Region? = MovieFilter.Region(Locale.getDefault().country),
+        watched: MovieFilter.Watched? = null, // No region filter
+        region: MovieFilter.Region? = MovieFilter.Region(Locale.getDefault().country),  // No favorite and watched filter
         adultContent: MovieFilter.AdultContent? = null,
         primaryReleaseYear: MovieFilter.ReleaseYear? = null,
         minimumPrimaryReleaseDate: MovieFilter.MinimumReleaseDate? = null,
@@ -87,7 +88,7 @@ class MovieDatabaseUseCase(
         posterWidth: Int,
         dateFormat: DateTimeFormatter
     ): Resource<List<MovieListItem>> {
-        if (favorite == null || !favorite.isFavorite) {
+        if (favorite?.isFavorite != true && watched?.isWatched != true) {
             val movieList = getMovieListResource(
                 apiKey = apiKey,
                 region = region,
@@ -127,7 +128,7 @@ class MovieDatabaseUseCase(
             }
 
             return try {
-                if (favorite == null) {
+                if (favorite == null && watched == null) {
                     Resource.Success(
                         data = movieList.data!!.results.map { movie ->
                             MovieListItem(
@@ -198,10 +199,165 @@ class MovieDatabaseUseCase(
                             )
                         }
                     )
-                } else {
+                } else if (favorite?.isFavorite == false && watched == null) {
                     Resource.Success(
                         data = movieList.data!!.results.mapNotNull { movie ->
                             if (localMovieMap?.data?.get(movie.id)?.favorite == true) {
+                                null
+                            } else {
+                                MovieListItem(
+                                    favorite = false,
+                                    watched = localMovieMap?.data?.get(movie.id)?.watched ?: false,
+                                    sponsored = localMovieMap?.data?.get(movie.id)?.sponsored
+                                        ?: false,
+                                    adult = try {
+                                        movie.adult
+                                    } catch (e: Exception) {
+                                        true
+                                    },
+                                    landscapeImageUrl = try {
+                                        getMovieImageUrl(
+                                            imageWidth = landscapeWidth,
+                                            imagePath = movie.backdrop_path
+                                        )
+                                    } catch (e: Exception) {
+                                        ""
+                                    },
+                                    genres = movie.genre_ids.map { genreId ->
+                                        TranslateCode.GENRE[genreId]
+                                            ?: throw GenreNotFoundException("Genre not found error")
+                                    },
+                                    id = movie.id,
+                                    originalLanguage = TranslateCode.ISO_639_1[movie.original_language]
+                                        ?: "",
+                                    originalTitle = try {
+                                        movie.original_title
+                                    } catch (e: Exception) {
+                                        ""
+                                    },
+                                    overview = try {
+                                        movie.overview
+                                    } catch (e: Exception) {
+                                        ""
+                                    },
+                                    posterUrl = try {
+                                        getMovieImageUrl(
+                                            imageWidth = posterWidth,
+                                            imagePath = movie.poster_path
+                                        )
+                                    } catch (e: Exception) {
+                                        ""
+                                    },
+                                    releaseDate = try {
+                                        LocalDate.parse(
+                                            movie.release_date,
+                                            DateTimeFormatter.ofPattern(DefaultValue.DATE_FORMAT)
+                                        ).format(dateFormat)
+                                    } catch (e: Exception) {
+                                        ""
+                                    },
+                                    title = try {
+                                        movie.title
+                                    } catch (e: Exception) {
+                                        ""
+                                    },
+                                    voteAverage = try {
+                                        movie.vote_average
+                                    } catch (e: Exception) {
+                                        0.0
+                                    },
+                                    voteCount = try {
+                                        movie.vote_count
+                                    } catch (e: Exception) {
+                                        0
+                                    }
+                                )
+                            }
+                        }
+                    )
+                } else if (watched?.isWatched == false && favorite == null) {
+                    Resource.Success(
+                        data = movieList.data!!.results.mapNotNull { movie ->
+                            if (localMovieMap?.data?.get(movie.id)?.watched == true) {
+                                null
+                            } else {
+                                MovieListItem(
+                                    favorite = false,
+                                    watched = localMovieMap?.data?.get(movie.id)?.watched ?: false,
+                                    sponsored = localMovieMap?.data?.get(movie.id)?.sponsored
+                                        ?: false,
+                                    adult = try {
+                                        movie.adult
+                                    } catch (e: Exception) {
+                                        true
+                                    },
+                                    landscapeImageUrl = try {
+                                        getMovieImageUrl(
+                                            imageWidth = landscapeWidth,
+                                            imagePath = movie.backdrop_path
+                                        )
+                                    } catch (e: Exception) {
+                                        ""
+                                    },
+                                    genres = movie.genre_ids.map { genreId ->
+                                        TranslateCode.GENRE[genreId]
+                                            ?: throw GenreNotFoundException("Genre not found error")
+                                    },
+                                    id = movie.id,
+                                    originalLanguage = TranslateCode.ISO_639_1[movie.original_language]
+                                        ?: "",
+                                    originalTitle = try {
+                                        movie.original_title
+                                    } catch (e: Exception) {
+                                        ""
+                                    },
+                                    overview = try {
+                                        movie.overview
+                                    } catch (e: Exception) {
+                                        ""
+                                    },
+                                    posterUrl = try {
+                                        getMovieImageUrl(
+                                            imageWidth = posterWidth,
+                                            imagePath = movie.poster_path
+                                        )
+                                    } catch (e: Exception) {
+                                        ""
+                                    },
+                                    releaseDate = try {
+                                        LocalDate.parse(
+                                            movie.release_date,
+                                            DateTimeFormatter.ofPattern(DefaultValue.DATE_FORMAT)
+                                        ).format(dateFormat)
+                                    } catch (e: Exception) {
+                                        ""
+                                    },
+                                    title = try {
+                                        movie.title
+                                    } catch (e: Exception) {
+                                        ""
+                                    },
+                                    voteAverage = try {
+                                        movie.vote_average
+                                    } catch (e: Exception) {
+                                        0.0
+                                    },
+                                    voteCount = try {
+                                        movie.vote_count
+                                    } catch (e: Exception) {
+                                        0
+                                    }
+                                )
+                            }
+                        }
+                    )
+                } else {
+                    Resource.Success(
+                        data = movieList.data!!.results.mapNotNull { movie ->
+                            if (
+                                localMovieMap?.data?.get(movie.id)?.favorite == true &&
+                                localMovieMap?.data?.get(movie.id)?.watched == true
+                            ) {
                                 null
                             } else {
                                 MovieListItem(

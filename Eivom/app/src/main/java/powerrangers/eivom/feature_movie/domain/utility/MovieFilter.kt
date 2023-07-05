@@ -6,8 +6,9 @@ sealed class MovieFilter {
     class Trending(val trendingTime: TrendingTime): MovieFilter()   // No additional filter, sort
 
     class Favorite(val isFavorite: Boolean): MovieFilter()  // No region filter
+    class Watched(val isWatched: Boolean): MovieFilter() // No region filter
 
-    class Region(val region: String): MovieFilter()
+    class Region(val region: String): MovieFilter() // No favorite and watched filter
     class AdultContent(val isAdult: Boolean): MovieFilter()
 //    class Language(value: String): MovieFilter(value) Translate to corresponding language
     class ReleaseYear(val year: Int): MovieFilter()
