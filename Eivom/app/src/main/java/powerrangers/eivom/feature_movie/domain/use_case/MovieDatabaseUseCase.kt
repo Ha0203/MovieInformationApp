@@ -88,6 +88,16 @@ class MovieDatabaseUseCase(
         posterWidth: Int,
         dateFormat: DateTimeFormatter
     ): Resource<List<MovieListItem>> {
+        if (localMovieMap == null) {
+            localMovieMap = getLocalMovieListItemsAsMap()
+        }
+        if (localMovieMap is Resource.Error) {
+            return Resource.Error(
+                message = (localMovieMap as Resource.Error).message
+                    ?: ResourceErrorMessage.GET_LOCALMOVIEMAP
+            )
+        }
+
         if (favorite?.isFavorite != true && watched?.isWatched != true) {
             val movieList = getMovieListResource(
                 apiKey = apiKey,
@@ -114,16 +124,6 @@ class MovieDatabaseUseCase(
                 return Resource.Error(
                     message = movieList.message
                         ?: ResourceErrorMessage.GET_MOVIELIST
-                )
-            }
-
-            if (localMovieMap == null) {
-                localMovieMap = getLocalMovieListItemsAsMap()
-            }
-            if (localMovieMap is Resource.Error) {
-                return Resource.Error(
-                    message = (localMovieMap as Resource.Error).message
-                        ?: ResourceErrorMessage.GET_LOCALMOVIEMAP
                 )
             }
 
@@ -469,6 +469,16 @@ class MovieDatabaseUseCase(
         posterWidth: Int,
         dateFormat: DateTimeFormatter
     ): Resource<MovieItem> {
+        if (localMovieMap == null) {
+            localMovieMap = getLocalMovieListItemsAsMap()
+        }
+        if (localMovieMap is Resource.Error) {
+            return Resource.Error(
+                message = (localMovieMap as Resource.Error).message
+                    ?: ResourceErrorMessage.GET_LOCALMOVIEMAP
+            )
+        }
+
         val information = getMovieInformationResource(
             movieId = movieId,
             apiKey = apiKey,
@@ -521,16 +531,6 @@ class MovieDatabaseUseCase(
                         ?: ResourceErrorMessage.GET_MOVIEIMAGE
                 )
             }
-        }
-
-        if (localMovieMap == null) {
-            localMovieMap = getLocalMovieListItemsAsMap()
-        }
-        if (localMovieMap is Resource.Error) {
-            return Resource.Error(
-                message = (localMovieMap as Resource.Error).message
-                    ?: ResourceErrorMessage.GET_LOCALMOVIEMAP
-            )
         }
 
         return try {
