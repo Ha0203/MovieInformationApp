@@ -65,6 +65,14 @@ class MovieDatabaseRepositoryImpl @Inject constructor(
             page = page
         )
 
+    override suspend fun searchMovieList(
+        apiKey: String,
+        query: String,
+        region: String?,
+        page: Int
+    ): MovieList =
+        movieDatabaseApi.searchMovieList(apiKey = apiKey, query = query, region = region, page = page)
+
     override suspend fun getMovieInformation(
         movieId: Int,
         apiKey: String,

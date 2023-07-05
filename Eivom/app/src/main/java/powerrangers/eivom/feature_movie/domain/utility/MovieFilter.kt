@@ -9,7 +9,7 @@ sealed class MovieFilter {
     class Watched(val isWatched: Boolean): MovieFilter() // No region filter
 
     class Region(val region: String): MovieFilter() // No favorite and watched filter
-    class AdultContent(val isAdult: Boolean): MovieFilter()
+    class AdultContentIncluded(val isIncluded: Boolean): MovieFilter()
 //    class Language(value: String): MovieFilter(value) Translate to corresponding language
     class ReleaseYear(val year: Int): MovieFilter()
     class MinimumReleaseDate(val releaseDate: LocalDate): MovieFilter()

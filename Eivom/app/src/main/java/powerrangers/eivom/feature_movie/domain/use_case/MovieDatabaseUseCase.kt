@@ -64,11 +64,12 @@ class MovieDatabaseUseCase(
     // Get movie
     suspend fun getMovieListItemsResource(
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
+        searchQuery: String? = null,    // No filter, no sort
         trending: MovieFilter.Trending? = MovieFilter.Trending(TrendingTime.DAY),   // No filter, no sort
         favorite: MovieFilter.Favorite? = null, // No region filter
-        watched: MovieFilter.Watched? = null, // No region filter
+        watched: MovieFilter.Watched? = null,   // No region filter
         region: MovieFilter.Region? = MovieFilter.Region(Locale.getDefault().country),  // No favorite and watched filter
-        adultContent: MovieFilter.AdultContent? = null,
+        adultContentIncluded: MovieFilter.AdultContentIncluded? = null,
         primaryReleaseYear: MovieFilter.ReleaseYear? = null,
         minimumPrimaryReleaseDate: MovieFilter.MinimumReleaseDate? = null,
         maximumPrimaryReleaseDate: MovieFilter.MaximumReleaseDate? = null,
@@ -98,12 +99,105 @@ class MovieDatabaseUseCase(
             )
         }
 
+        if (!searchQuery.isNullOrBlank()) {
+            val movieList = searchMovieListResource(
+                apiKey = apiKey,
+                query = searchQuery,
+                region = region,
+                page = page
+            )
+            if (movieList is Resource.Error) {
+                return Resource.Error(
+                    message = movieList.message
+                        ?: ResourceErrorMessage.GET_MOVIELIST
+                )
+            }
+
+            return try {
+                Resource.Success(
+                    data = movieList.data!!.results.map { movie ->
+                        MovieListItem(
+                            favorite = localMovieMap?.data?.get(movie.id)?.favorite ?: false,
+                            watched = localMovieMap?.data?.get(movie.id)?.watched ?: false,
+                            sponsored = localMovieMap?.data?.get(movie.id)?.sponsored ?: false,
+                            adult = try {
+                                movie.adult
+                            } catch (e: Exception) {
+                                true
+                            },
+                            landscapeImageUrl = try {
+                                getMovieImageUrl(
+                                    imageWidth = landscapeWidth,
+                                    imagePath = movie.backdrop_path
+                                )
+                            } catch (e: Exception) {
+                                ""
+                            },
+                            genres = movie.genre_ids.map { genreId ->
+                                TranslateCode.GENRE[genreId]
+                                    ?: throw GenreNotFoundException("Genre not found error")
+                            },
+                            id = movie.id,
+                            originalLanguage = TranslateCode.ISO_639_1[movie.original_language]
+                                ?: "",
+                            originalTitle = try {
+                                movie.original_title
+                            } catch (e: Exception) {
+                                ""
+                            },
+                            overview = try {
+                                movie.overview
+                            } catch (e: Exception) {
+                                ""
+                            },
+                            posterUrl = try {
+                                getMovieImageUrl(
+                                    imageWidth = posterWidth,
+                                    imagePath = movie.poster_path
+                                )
+                            } catch (e: Exception) {
+                                ""
+                            },
+                            releaseDate = try {
+                                LocalDate.parse(
+                                    movie.release_date,
+                                    DateTimeFormatter.ofPattern(DefaultValue.DATE_FORMAT)
+                                ).format(dateFormat)
+                            } catch (e: Exception) {
+                                ""
+                            },
+                            title = try {
+                                movie.title
+                            } catch (e: Exception) {
+                                ""
+                            },
+                            voteAverage = try {
+                                movie.vote_average
+                            } catch (e: Exception) {
+                                0.0
+                            },
+                            voteCount = try {
+                                movie.vote_count
+                            } catch (e: Exception) {
+                                0
+                            }
+                        )
+                    }
+                )
+            } catch (e: Exception) {
+                return Resource.Error(
+                    message = e.message
+                        ?: ResourceErrorMessage.CONVERT_MOVIELIST_TO_MOVIELISTITEMS
+                )
+            }
+        }
+
         if (favorite?.isFavorite != true && watched?.isWatched != true) {
             val movieList = getMovieListResource(
                 apiKey = apiKey,
                 region = region,
                 trending = trending,
-                adultContent = adultContent,
+                adultContentIncluded = adultContentIncluded,
                 primaryReleaseYear = primaryReleaseYear,
                 minimumPrimaryReleaseDate = minimumPrimaryReleaseDate,
                 maximumPrimaryReleaseDate = maximumPrimaryReleaseDate,
@@ -762,7 +856,7 @@ class MovieDatabaseUseCase(
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
         region: MovieFilter.Region?,
         trending: MovieFilter.Trending?,
-        adultContent: MovieFilter.AdultContent?,
+        adultContentIncluded: MovieFilter.AdultContentIncluded?,
         primaryReleaseYear: MovieFilter.ReleaseYear?,
         minimumPrimaryReleaseDate: MovieFilter.MinimumReleaseDate?,
         maximumPrimaryReleaseDate: MovieFilter.MaximumReleaseDate?,
@@ -787,7 +881,7 @@ class MovieDatabaseUseCase(
                     data = movieDatabaseRepository.getMovieList(
                         apiKey = apiKey,
                         region = region?.region,
-                        includeAdult = adultContent?.isAdult,
+                        includeAdult = adultContentIncluded?.isIncluded,
                         primaryReleaseYear = primaryReleaseYear?.year?.toString(),
                         minimumPrimaryReleaseDate = (minimumPrimaryReleaseDate?.releaseDate)?.format(formatter),
                         maximumPrimaryReleaseDate = (maximumPrimaryReleaseDate?.releaseDate)?.format(formatter),
@@ -865,6 +959,26 @@ class MovieDatabaseUseCase(
                     )
                 )
             }
+        } catch (e: Exception) {
+            Resource.Error(message = e.message ?: ResourceErrorMessage.GET_MOVIELIST)
+        }
+    }
+
+    private suspend fun searchMovieListResource(
+        apiKey: String = DataSourceRelation.TMDB_API_KEY,
+        query: String,
+        region: MovieFilter.Region?,
+        page: Int
+    ): Resource<MovieList> {
+        return try {
+            Resource.Success(
+                data = movieDatabaseRepository.searchMovieList(
+                    apiKey = apiKey,
+                    query = query,
+                    region = region?.region,
+                    page = page
+                )
+            )
         } catch (e: Exception) {
             Resource.Error(message = e.message ?: ResourceErrorMessage.GET_MOVIELIST)
         }

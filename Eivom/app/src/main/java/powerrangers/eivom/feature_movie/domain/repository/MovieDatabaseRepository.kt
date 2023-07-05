@@ -32,7 +32,29 @@ interface MovieDatabaseRepository {
         sortBy: String?,
         page: Int
     ): MovieList
-    suspend fun getMovieInformation(movieId: Int, apiKey: String, region: String?): MovieInformation
-    suspend fun getMovieVideo(movieId: Int, apiKey: String, region: String?): MovieVideo
-    suspend fun getMovieImage(movieId: Int, apiKey: String, region: String?): MovieImage
+
+    suspend fun searchMovieList(
+        apiKey: String,
+        query: String,
+        region: String?,
+        page: Int
+    ): MovieList
+
+    suspend fun getMovieInformation(
+        movieId: Int,
+        apiKey: String,
+        region: String?
+    ): MovieInformation
+
+    suspend fun getMovieVideo(
+        movieId: Int,
+        apiKey: String,
+        region: String?
+    ): MovieVideo
+
+    suspend fun getMovieImage(
+        movieId: Int,
+        apiKey: String,
+        region: String?
+    ): MovieImage
 }

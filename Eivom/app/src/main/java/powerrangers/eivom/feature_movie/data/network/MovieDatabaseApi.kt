@@ -41,6 +41,14 @@ interface MovieDatabaseApi {
         @Query("page") page: Int
     ): MovieList
 
+    @GET("search/movie")
+    suspend fun searchMovieList(
+        @Query("api_key") apiKey: String,
+        @Query("query") query: String,
+        @Query("region") region: String?,
+        @Query("page") page: Int
+    ): MovieList
+
     // Get movie information
     @GET("movie/{movie_id}")
     suspend fun getMovieInformation(
