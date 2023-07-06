@@ -300,7 +300,8 @@ class MovieDatabaseUseCase(
                                 null
                             } else {
                                 MovieListItem(
-                                    favorite = localMovieMap?.data?.get(movie.id)?.favorite ?: false,
+                                    favorite = localMovieMap?.data?.get(movie.id)?.favorite
+                                        ?: false,
                                     watched = localMovieMap?.data?.get(movie.id)?.watched ?: false,
                                     sponsored = localMovieMap?.data?.get(movie.id)?.sponsored
                                         ?: false,
@@ -376,7 +377,8 @@ class MovieDatabaseUseCase(
                                 null
                             } else {
                                 MovieListItem(
-                                    favorite = localMovieMap?.data?.get(movie.id)?.favorite ?: false,
+                                    favorite = localMovieMap?.data?.get(movie.id)?.favorite
+                                        ?: false,
                                     watched = localMovieMap?.data?.get(movie.id)?.watched ?: false,
                                     sponsored = localMovieMap?.data?.get(movie.id)?.sponsored
                                         ?: false,
@@ -455,7 +457,8 @@ class MovieDatabaseUseCase(
                                 null
                             } else {
                                 MovieListItem(
-                                    favorite = localMovieMap?.data?.get(movie.id)?.favorite ?: false,
+                                    favorite = localMovieMap?.data?.get(movie.id)?.favorite
+                                        ?: false,
                                     watched = localMovieMap?.data?.get(movie.id)?.watched ?: false,
                                     sponsored = localMovieMap?.data?.get(movie.id)?.sponsored
                                         ?: false,
@@ -902,8 +905,12 @@ class MovieDatabaseUseCase(
                         region = region?.region,
                         includeAdult = adultContentIncluded?.isIncluded,
                         primaryReleaseYear = primaryReleaseYear?.year?.toString(),
-                        minimumPrimaryReleaseDate = (minimumPrimaryReleaseDate?.releaseDate)?.format(formatter),
-                        maximumPrimaryReleaseDate = (maximumPrimaryReleaseDate?.releaseDate)?.format(formatter),
+                        minimumPrimaryReleaseDate = (minimumPrimaryReleaseDate?.releaseDate)?.format(
+                            formatter
+                        ),
+                        maximumPrimaryReleaseDate = (maximumPrimaryReleaseDate?.releaseDate)?.format(
+                            formatter
+                        ),
                         minimumRating = minimumRating?.rating,
                         maximumRating = maximumRating?.rating,
                         minimumVote = minimumVote?.voteCount,
@@ -934,6 +941,7 @@ class MovieDatabaseUseCase(
                                     "primary_release_date.desc"
                                 }
                             }
+
                             is MovieOrder.Rating -> {
                                 if (sortBy.order == Order.ASCENDING) {
                                     "vote_average.asc"
@@ -941,6 +949,7 @@ class MovieDatabaseUseCase(
                                     "vote_average.desc"
                                 }
                             }
+
                             is MovieOrder.Vote -> {
                                 if (sortBy.order == Order.ASCENDING) {
                                     "vote_count.asc"
@@ -948,6 +957,7 @@ class MovieDatabaseUseCase(
                                     "vote_count.desc"
                                 }
                             }
+
                             is MovieOrder.OriginalTitle -> {
                                 if (sortBy.order == Order.ASCENDING) {
                                     "original_title.asc"
@@ -955,6 +965,7 @@ class MovieDatabaseUseCase(
                                     "original_title.desc"
                                 }
                             }
+
                             is MovieOrder.Title -> {
                                 if (sortBy.order == Order.ASCENDING) {
                                     "title.asc"
@@ -962,6 +973,7 @@ class MovieDatabaseUseCase(
                                     "title.desc"
                                 }
                             }
+
                             else -> {
                                 null
                             }
@@ -1023,9 +1035,34 @@ class MovieDatabaseUseCase(
         withoutGenre: MovieFilter.WithoutGenre? = null,
         sortBy: MovieOrder? = null,
     ): Resource<List<LocalMovieItem>> {
+        val localMovieItemList = localMovieDatabaseRepository.getLocalMovieListItems().first()
+        val formatter = DateTimeFormatter.ofPattern(DefaultValue.DATE_FORMAT)
+
+        var resList = mutableListOf<LocalMovieItem>()
+        if (searchQuery.isNullOrBlank()) {
+            for (movie in localMovieItemList) {
+                if (
+                    (if (favorite == null) true else {movie.favorite == favorite.isFavorite}) &&
+                    (if (watched == null) true else {movie.watched == watched.isWatched}) &&
+                    (if (adultContentIncluded?.isIncluded == false) !movie.adult else true) &&
+                    (if (primaryReleaseYear == null) true else {LocalDate.parse(movie.regionReleaseDate, formatter).year == primaryReleaseYear.year}) &&
+                    (LocalDate.parse(movie.regionReleaseDate, formatter) >= (minimumPrimaryReleaseDate?.releaseDate ?: LocalDate.of(1,1,1))) &&
+                    (LocalDate.parse(movie.regionReleaseDate, formatter) <= (maximumPrimaryReleaseDate?.releaseDate ?: LocalDate.of(9999,12,31))) &&
+                    (movie.voteAverage >= (minimumRating?.rating ?: Float.MIN_VALUE)) &&
+                    (movie.voteAverage <= (maximumRating?.rating ?: Float.MAX_VALUE)) &&
+                    (movie.voteCount >= (minimumVote?.voteCount ?: Int.MIN_VALUE)) &&
+                    (movie.voteCount <= (maximumVote?.voteCount ?: Int.MAX_VALUE)) &&
+                    (movie.length >= (minimumLength?.movieLength ?: Int.MIN_VALUE)) &&
+                    (movie.length <= (maximumLength?.movieLength ?: Int.MAX_VALUE))
+                ) {
+                    resList.add(movie)
+                }
+            }
+        }
+
         return try {
             Resource.Success(
-                data = localMovieDatabaseRepository.getLocalMovieListItems().first()
+                data = resList
             )
         } catch (e: Exception) {
             Resource.Error(message = e.message ?: ResourceErrorMessage.GET_LOCALMOVIELIST)
