@@ -532,7 +532,26 @@ class MovieDatabaseUseCase(
                 )
             }
         } else {
-            val localMovieListItems = getLocalMovieListItems()
+            val localMovieListItems = getLocalMovieListItems(
+                searchQuery = searchQuery,    // No filter, no sort
+                favorite = favorite, // No region filter
+                watched = watched,   // No region filter
+                adultContentIncluded = adultContentIncluded,
+                primaryReleaseYear = primaryReleaseYear,
+                minimumPrimaryReleaseDate = minimumPrimaryReleaseDate,
+                maximumPrimaryReleaseDate = maximumPrimaryReleaseDate,
+                minimumRating = minimumRating,
+                maximumRating = maximumRating,
+                minimumVote = minimumVote,
+                maximumVote = maximumVote,
+                genre = genre,
+                originCountry = originCountry,
+                originLanguage = originLanguage,
+                minimumLength = minimumLength,
+                maximumLength = maximumLength,
+                withoutGenre = withoutGenre,
+                sortBy = sortBy,
+            )
             if (localMovieListItems is Resource.Error) {
                 return Resource.Error(
                     message = localMovieListItems.message
@@ -984,7 +1003,26 @@ class MovieDatabaseUseCase(
         }
     }
 
-    private suspend fun getLocalMovieListItems(): Resource<List<LocalMovieItem>> {
+    private suspend fun getLocalMovieListItems(
+        searchQuery: String? = null,    // No filter, no sort
+        favorite: MovieFilter.Favorite? = null, // No region filter
+        watched: MovieFilter.Watched? = null,   // No region filter
+        adultContentIncluded: MovieFilter.AdultContentIncluded? = null,
+        primaryReleaseYear: MovieFilter.ReleaseYear? = null,
+        minimumPrimaryReleaseDate: MovieFilter.MinimumReleaseDate? = null,
+        maximumPrimaryReleaseDate: MovieFilter.MaximumReleaseDate? = null,
+        minimumRating: MovieFilter.MinimumRating? = null,
+        maximumRating: MovieFilter.MaximumRating? = null,
+        minimumVote: MovieFilter.MinimumVote? = null,
+        maximumVote: MovieFilter.MaximumVote? = null,
+        genre: MovieFilter.Genre? = null,
+        originCountry: MovieFilter.OriginCountry? = null,
+        originLanguage: MovieFilter.OriginLanguage? = null,
+        minimumLength: MovieFilter.MinimumLength? = null,
+        maximumLength: MovieFilter.MaximumLength? = null,
+        withoutGenre: MovieFilter.WithoutGenre? = null,
+        sortBy: MovieOrder? = null,
+    ): Resource<List<LocalMovieItem>> {
         return try {
             Resource.Success(
                 data = localMovieDatabaseRepository.getLocalMovieListItems().first()
