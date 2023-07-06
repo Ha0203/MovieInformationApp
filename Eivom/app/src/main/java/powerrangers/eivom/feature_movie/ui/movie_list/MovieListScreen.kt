@@ -33,7 +33,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
-import androidx.compose.material.Checkbox
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -43,10 +42,8 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Filter
-import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.rememberScaffoldState
@@ -60,7 +57,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
-import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
@@ -78,7 +74,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import kotlinx.coroutines.async
@@ -90,7 +85,6 @@ import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
 import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.TopBar
-import java.util.logging.Filter
 
 
 @Composable
@@ -106,7 +100,7 @@ fun MovieListScreen(
         scaffoldState = scaffoldState,
         topBar = {
             TopBar(
-                title = stringResource(id = R.string.app_name).uppercase(),
+                title = stringResource(id = R.string.app_name),
                 onMenuIconClick = {
                     coroutineScope.launch {
                         scaffoldState.drawerState.open()
@@ -603,7 +597,7 @@ fun FilterButton(
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
     val showDialog = remember { mutableStateOf(true) }
-    val textList = remember { mutableStateListOf("Action", "Science Fiction", "Horror") }
+    remember { mutableStateListOf("Action", "Science Fiction", "Horror") }
 
 
     if (showDialog.value) {

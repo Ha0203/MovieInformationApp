@@ -46,12 +46,13 @@ fun TopBar(
             {
                 Text(
                     text = title,
+                    fontSize = 50.sp,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.h1,
                     color = MaterialTheme.colors.primary,
-                    //modifier = modifier.fillMaxWidth()
+                    modifier = modifier.padding(bottom = 30.dp)
                 )
-                Spacer(modifier = Modifier.width(30.dp))
+                Spacer(modifier = Modifier.width(50.dp))
             }
 
         },

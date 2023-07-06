@@ -8,21 +8,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import powerrangers.eivom.R
 
-val Rockdale = FontFamily(
-    Font(R.font.rockdale)
+val VintageKing = FontFamily(
+    Font(R.font.vintageking)
 )
 val Margot= FontFamily(
     Font(R.font.margot)
-)
-val Devil = FontFamily(
-    Font(R.font.devilsummonerexpand)
 )
 
 // Set of Material typography styles to start with
 val Typography = Typography(
     h1 = TextStyle(
-        fontFamily = Rockdale,
-        fontSize = 50.sp,
+        fontFamily = VintageKing,
         fontWeight = FontWeight.Normal,
         letterSpacing = 1.sp,
     ),
