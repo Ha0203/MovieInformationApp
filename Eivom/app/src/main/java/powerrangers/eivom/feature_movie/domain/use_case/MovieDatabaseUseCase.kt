@@ -1053,7 +1053,11 @@ class MovieDatabaseUseCase(
                     (movie.voteCount >= (minimumVote?.voteCount ?: 0)) &&
                     (movie.voteCount <= (maximumVote?.voteCount ?: Int.MAX_VALUE)) &&
                     (movie.length >= (minimumLength?.movieLength ?: 0)) &&
-                    (movie.length <= (maximumLength?.movieLength ?: Int.MAX_VALUE))
+                    (movie.length <= (maximumLength?.movieLength ?: Int.MAX_VALUE)) &&
+                    (if (genre == null) true else {if (genre.logic == Logic.AND) movie.genres.containsAll(genre.genres.map { TranslateCode.GENRE[it] }) else genre.genres.any{TranslateCode.GENRE[it] in movie.genres}}) &&
+                    (if (originCountry == null) true else {if (originCountry.logic == Logic.AND) movie.productionCountries.containsAll(originCountry.countries.map { TranslateCode.ISO_3166_1[it] }) else originCountry.countries.any{TranslateCode.ISO_3166_1[it] in movie.productionCountries}}) &&
+                    (if (originLanguage == null) true else movie.originalLanguage in originLanguage.languages) &&
+                    (if (withoutGenre == null) true else {!(if (withoutGenre.logic == Logic.AND) movie.genres.containsAll(withoutGenre.withoutGenres.map { TranslateCode.GENRE[it] }) else withoutGenre.withoutGenres.any{TranslateCode.GENRE[it] in movie.genres})})
                 ) {
                     filterList.add(movie)
                 }
