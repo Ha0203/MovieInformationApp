@@ -33,6 +33,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
+import androidx.compose.material.Checkbox
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -42,8 +43,10 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Filter
+import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.rememberScaffoldState
@@ -54,8 +57,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
@@ -64,6 +69,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -72,6 +78,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import kotlinx.coroutines.async
@@ -83,6 +90,7 @@ import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
 import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.TopBar
+import java.util.logging.Filter
 
 
 @Composable
@@ -129,6 +137,8 @@ fun MovieListBody(
     val isFilterVisible by remember { viewModel.isFilterVisible }
     val isSearchVisible by remember { viewModel.isSearchVisible }
     val isSortVisible by remember { viewModel.isSortVisible }
+
+    val filterState by remember { viewModel.filterState  }
     //val textSizeState = remember { mutableStateOf(15.sp)}
     //val userSearch by remember { viewModel.userSearch }
 
@@ -154,10 +164,10 @@ fun MovieListBody(
                 FilterButton(
                     funcToCall = {
                         viewModel.reverseIsFilter()
-                    }
-                ) {
-                    viewModel.reverseIsFilter()
-                }
+                    },
+                    onDismiss = { viewModel.reverseIsFilter() },
+                    filterState = filterState,
+                )
             }
 //
             IconButton(onClick = { viewModel.reverseIsSort() }) {
@@ -171,10 +181,9 @@ fun MovieListBody(
                 SortButton(
                     funcToCall = {
                         viewModel.reverseIsSort()
-                    }
-                ) {
-                    viewModel.reverseIsSort()
-                }
+                    },
+                    onDismiss = { viewModel.reverseIsSort() }
+                )
             }
 
             IconButton(onClick = { viewModel.reverseIsSearch() }) {
@@ -497,12 +506,105 @@ fun RetrySection(
 }
 
 @Composable
+fun TrendingFilter(
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+)
+{
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(id = R.string.Trending_FilterState),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        IconButton(onClick = {viewModel.reverseIsTrending()} ) {
+            if (!filterState.isTrending)
+                Icon(
+                    painter = painterResource(R.drawable.unchecked_ic),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colors.primary
+                )
+            else Icon(
+                painter = painterResource(R.drawable.checked_ic),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = MaterialTheme.colors.primary
+            )
+        }
+    }
+
+    if (filterState.isTrending)
+    {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(id = R.string.TrendingDay_FilterState),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+            Spacer( modifier = Modifier.weight(0.10f))
+            IconButton(onClick = {viewModel.reverseIsTrendingDay()} ) {
+                if (!filterState.isTrendingDay)
+                    Icon(
+                        painter = painterResource(R.drawable.unchecked_ic),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                else Icon(
+                    painter = painterResource(R.drawable.checked_ic),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colors.primary
+                )
+            }
+
+            Spacer( modifier = Modifier.weight(0.25f))
+
+            Text(
+                text = stringResource(id = R.string.TrendingWeek_FilterState),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+            Spacer( modifier = Modifier.weight(0.10f))
+            IconButton(onClick = {viewModel.reverseIsTrendingWeek()} ) {
+                if (!filterState.isTrendingWeek)
+                    Icon(
+                        painter = painterResource(R.drawable.unchecked_ic),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                else Icon(
+                    painter = painterResource(R.drawable.checked_ic),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colors.primary
+                )
+            }
+        }
+    }
+    else viewModel.setAllTrendingDefault()
+}
+
+@Composable
 fun FilterButton(
     funcToCall: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
 ) {
     val showDialog = remember { mutableStateOf(true) }
     val textList = remember { mutableStateListOf("Action", "Science Fiction", "Horror") }
+
 
     if (showDialog.value) {
         AlertDialog(
@@ -512,13 +614,17 @@ fun FilterButton(
             },
             title = { Text(text = stringResource(id = R.string.filter_title)) },
             text = {
-                Column {
-                    textList.forEach { text ->
-                        Text(
-                            text = text,
-                            modifier = Modifier.padding(vertical = 4.dp)
+                Column(
+                    modifier = Modifier
+                        .animateContentSize(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                stiffness = Spring.StiffnessLow
+                            )
                         )
-                    }
+                ) {
+                    // Trending Filter
+                    TrendingFilter(filterState = filterState, viewModel = viewModel)
                 }
             },
             confirmButton = {
@@ -602,7 +708,8 @@ fun SortButton(
 fun ErrorDialog(
     error: String,
     onRetry: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+
 ) {
     val showDialog = remember { mutableStateOf(true) }
 

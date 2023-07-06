@@ -13,12 +13,15 @@ import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 import powerrangers.eivom.feature_movie.domain.use_case.MovieDatabaseUseCase
 import powerrangers.eivom.feature_movie.domain.use_case.UserPreferencesUseCase
 import powerrangers.eivom.feature_movie.domain.utility.DefaultValue
+import powerrangers.eivom.feature_movie.domain.utility.MovieFilter
 import powerrangers.eivom.feature_movie.domain.utility.Resource
 import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
+import powerrangers.eivom.feature_movie.domain.utility.TrendingTime
 import powerrangers.eivom.feature_movie.domain.utility.addList
 import powerrangers.eivom.feature_movie.domain.utility.toError
 import powerrangers.eivom.feature_movie.domain.utility.toLoading
 import powerrangers.eivom.feature_movie.ui.utility.UserPreferences
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,16 +37,17 @@ class MovieListViewModel @Inject constructor(
 
     var movieListItems = mutableStateOf<Resource<List<MovieListItem>>>(Resource.Loading(data = emptyList()))
         private set
-
     //State of tool
+    var filterState = mutableStateOf(FilterState())
+        private set
+    var sortState = mutableStateOf(SortState())
+        private set
     var isFilterVisible = mutableStateOf(false)
         private set
     var isSearchVisible = mutableStateOf(false)
         private set
-
     var isSortVisible = mutableStateOf(false)
         private set
-
     var userSearch by mutableStateOf("")
         private set
 
@@ -79,7 +83,8 @@ class MovieListViewModel @Inject constructor(
                         page = currentPage,
                         landscapeWidth = landscapeWidth,
                         posterWidth = posterWidth,
-                        dateFormat = userPreferences.value.dateFormat
+                        dateFormat = userPreferences.value.dateFormat,
+                        trending = MovieFilter.Trending(TrendingTime.DAY)
                     )
                 )
 
@@ -111,10 +116,29 @@ class MovieListViewModel @Inject constructor(
 
     fun reverseIsSort() {
         isSortVisible.value = !isSortVisible.value
+        //filterState.value = filterState.value.copy(isUpdated = true)
     }
     fun updateUserSearch(userWord: String){
         userSearch = userWord
     }
+
+    fun reverseIsTrending(){
+        filterState.value = filterState.value.copy(isTrending = !filterState.value.isTrending)
+    }
+
+    fun reverseIsTrendingDay(){
+        filterState.value = filterState.value.copy(isTrendingDay = !filterState.value.isTrendingDay)
+    }
+
+    fun reverseIsTrendingWeek(){
+        filterState.value = filterState.value.copy(isTrendingWeek = !filterState.value.isTrendingWeek)
+    }
+
+    fun setAllTrendingDefault(){
+        filterState.value = filterState.value.copy(isTrendingWeek = false)
+        filterState.value = filterState.value.copy(isTrendingDay = false)
+    }
+
 
     fun isFavoriteMovie(movieId: Int): Boolean = movieDatabaseUseCase.isFavoriteMovie(movieId)
     fun isWatchedMovie(movieId: Int): Boolean = movieDatabaseUseCase.isWatchedMovie(movieId)

@@ -11,10 +11,11 @@ import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 @Entity(tableName = DataSourceRelation.LOCAL_MOVIE_ITEM_NAME)
 @TypeConverters(StringListConverter::class)
 data class LocalMovieItem(
-    val editable: Boolean,
+    val editable: Boolean, // Make true
     val favorite: Boolean,
     val watched: Boolean,
     val sponsored: Boolean,
+    // From Adult to voteCount that allow user to change value except the ID
     val adult: Boolean,
     val landscapeImageUrl: String,
     val budget: Long,
