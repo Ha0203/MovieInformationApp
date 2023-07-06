@@ -1069,6 +1069,41 @@ class MovieDatabaseUseCase(
         }
     }
 
+    private fun sortLocalMovieItems(
+        localMovieItemList: List<LocalMovieItem>,
+        sortBy: MovieOrder
+    ): List<LocalMovieItem>
+    {
+        var list: List<LocalMovieItem> = emptyList()
+
+        if(sortBy.order == Order.ASCENDING) {
+            list = if(sortBy is MovieOrder.ReleaseDate)
+                localMovieItemList.sortedBy { it.regionReleaseDate }
+            else if(sortBy is MovieOrder.Rating)
+                localMovieItemList.sortedBy { it.voteAverage }
+            else if(sortBy is MovieOrder.Vote )
+                localMovieItemList.sortedBy { it.voteCount }
+            else if(sortBy is MovieOrder.OriginalTitle)
+                localMovieItemList.sortedBy { it.originalTitle }
+            else
+                localMovieItemList.sortedBy { it.title}
+        }
+        else{
+            list = if(sortBy is MovieOrder.ReleaseDate)
+                localMovieItemList.sortedByDescending { it.regionReleaseDate }
+            else if(sortBy is MovieOrder.Rating)
+                localMovieItemList.sortedByDescending { it.voteAverage }
+            else if(sortBy is MovieOrder.Vote )
+                localMovieItemList.sortedByDescending { it.voteCount }
+            else if(sortBy is MovieOrder.OriginalTitle)
+                localMovieItemList.sortedByDescending { it.originalTitle }
+            else
+                localMovieItemList.sortedByDescending { it.title}
+        }
+
+        return list
+    }
+
     private suspend fun getLocalMovieListItemsAsMap(): Resource<MutableMap<Int, LocalMovieItem>> {
         return try {
             Resource.Success(
