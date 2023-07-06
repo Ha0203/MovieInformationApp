@@ -1016,29 +1016,29 @@ class MovieDatabaseUseCase(
     }
 
     private suspend fun getLocalMovieListItems(
-        searchQuery: String? = null,    // No filter, no sort
-        favorite: MovieFilter.Favorite? = null, // No region filter
-        watched: MovieFilter.Watched? = null,   // No region filter
-        adultContentIncluded: MovieFilter.AdultContentIncluded? = null,
-        primaryReleaseYear: MovieFilter.ReleaseYear? = null,
-        minimumPrimaryReleaseDate: MovieFilter.MinimumReleaseDate? = null,
-        maximumPrimaryReleaseDate: MovieFilter.MaximumReleaseDate? = null,
-        minimumRating: MovieFilter.MinimumRating? = null,
-        maximumRating: MovieFilter.MaximumRating? = null,
-        minimumVote: MovieFilter.MinimumVote? = null,
-        maximumVote: MovieFilter.MaximumVote? = null,
-        genre: MovieFilter.Genre? = null,
-        originCountry: MovieFilter.OriginCountry? = null,
-        originLanguage: MovieFilter.OriginLanguage? = null,
-        minimumLength: MovieFilter.MinimumLength? = null,
-        maximumLength: MovieFilter.MaximumLength? = null,
-        withoutGenre: MovieFilter.WithoutGenre? = null,
-        sortBy: MovieOrder? = null,
+        searchQuery: String?,// No filter, no sort
+        favorite: MovieFilter.Favorite?,// No region filter
+        watched: MovieFilter.Watched?,// No region filter
+        adultContentIncluded: MovieFilter.AdultContentIncluded?,
+        primaryReleaseYear: MovieFilter.ReleaseYear?,
+        minimumPrimaryReleaseDate: MovieFilter.MinimumReleaseDate?,
+        maximumPrimaryReleaseDate: MovieFilter.MaximumReleaseDate?,
+        minimumRating: MovieFilter.MinimumRating?,
+        maximumRating: MovieFilter.MaximumRating?,
+        minimumVote: MovieFilter.MinimumVote?,
+        maximumVote: MovieFilter.MaximumVote?,
+        genre: MovieFilter.Genre?,
+        originCountry: MovieFilter.OriginCountry?,
+        originLanguage: MovieFilter.OriginLanguage?,
+        minimumLength: MovieFilter.MinimumLength?,
+        maximumLength: MovieFilter.MaximumLength?,
+        withoutGenre: MovieFilter.WithoutGenre?,
+        sortBy: MovieOrder?,
     ): Resource<List<LocalMovieItem>> {
         val localMovieItemList = localMovieDatabaseRepository.getLocalMovieListItems().first()
         val formatter = DateTimeFormatter.ofPattern(DefaultValue.DATE_FORMAT)
 
-        var resList = mutableListOf<LocalMovieItem>()
+        val filterList = mutableListOf<LocalMovieItem>()
         if (searchQuery.isNullOrBlank()) {
             for (movie in localMovieItemList) {
                 if (
@@ -1048,21 +1048,27 @@ class MovieDatabaseUseCase(
                     (if (primaryReleaseYear == null) true else {LocalDate.parse(movie.regionReleaseDate, formatter).year == primaryReleaseYear.year}) &&
                     (LocalDate.parse(movie.regionReleaseDate, formatter) >= (minimumPrimaryReleaseDate?.releaseDate ?: LocalDate.of(1,1,1))) &&
                     (LocalDate.parse(movie.regionReleaseDate, formatter) <= (maximumPrimaryReleaseDate?.releaseDate ?: LocalDate.of(9999,12,31))) &&
-                    (movie.voteAverage >= (minimumRating?.rating ?: Float.MIN_VALUE)) &&
+                    (movie.voteAverage >= (minimumRating?.rating ?: 0f)) &&
                     (movie.voteAverage <= (maximumRating?.rating ?: Float.MAX_VALUE)) &&
-                    (movie.voteCount >= (minimumVote?.voteCount ?: Int.MIN_VALUE)) &&
+                    (movie.voteCount >= (minimumVote?.voteCount ?: 0)) &&
                     (movie.voteCount <= (maximumVote?.voteCount ?: Int.MAX_VALUE)) &&
-                    (movie.length >= (minimumLength?.movieLength ?: Int.MIN_VALUE)) &&
+                    (movie.length >= (minimumLength?.movieLength ?: 0)) &&
                     (movie.length <= (maximumLength?.movieLength ?: Int.MAX_VALUE))
                 ) {
-                    resList.add(movie)
+                    filterList.add(movie)
                 }
             }
         }
 
+        val resultList = if (sortBy != null) {
+            sortLocalMovieItems(filterList, sortBy)
+        } else {
+            filterList
+        }
+
         return try {
             Resource.Success(
-                data = resList
+                data = resultList
             )
         } catch (e: Exception) {
             Resource.Error(message = e.message ?: ResourceErrorMessage.GET_LOCALMOVIELIST)
@@ -1074,31 +1080,25 @@ class MovieDatabaseUseCase(
         sortBy: MovieOrder
     ): List<LocalMovieItem>
     {
-        var list: List<LocalMovieItem> = emptyList()
+        val list: List<LocalMovieItem>
 
         if(sortBy.order == Order.ASCENDING) {
-            list = if(sortBy is MovieOrder.ReleaseDate)
-                localMovieItemList.sortedBy { it.regionReleaseDate }
-            else if(sortBy is MovieOrder.Rating)
-                localMovieItemList.sortedBy { it.voteAverage }
-            else if(sortBy is MovieOrder.Vote )
-                localMovieItemList.sortedBy { it.voteCount }
-            else if(sortBy is MovieOrder.OriginalTitle)
-                localMovieItemList.sortedBy { it.originalTitle }
-            else
-                localMovieItemList.sortedBy { it.title}
+            list = when (sortBy) {
+                is MovieOrder.ReleaseDate -> localMovieItemList.sortedBy { it.regionReleaseDate }
+                is MovieOrder.Rating -> localMovieItemList.sortedBy { it.voteAverage }
+                is MovieOrder.Vote -> localMovieItemList.sortedBy { it.voteCount }
+                is MovieOrder.OriginalTitle -> localMovieItemList.sortedBy { it.originalTitle }
+                else -> localMovieItemList.sortedBy { it.title}
+            }
         }
         else{
-            list = if(sortBy is MovieOrder.ReleaseDate)
-                localMovieItemList.sortedByDescending { it.regionReleaseDate }
-            else if(sortBy is MovieOrder.Rating)
-                localMovieItemList.sortedByDescending { it.voteAverage }
-            else if(sortBy is MovieOrder.Vote )
-                localMovieItemList.sortedByDescending { it.voteCount }
-            else if(sortBy is MovieOrder.OriginalTitle)
-                localMovieItemList.sortedByDescending { it.originalTitle }
-            else
-                localMovieItemList.sortedByDescending { it.title}
+            list = when (sortBy) {
+                is MovieOrder.ReleaseDate -> localMovieItemList.sortedByDescending { it.regionReleaseDate }
+                is MovieOrder.Rating -> localMovieItemList.sortedByDescending { it.voteAverage }
+                is MovieOrder.Vote -> localMovieItemList.sortedByDescending { it.voteCount }
+                is MovieOrder.OriginalTitle -> localMovieItemList.sortedByDescending { it.originalTitle }
+                else -> localMovieItemList.sortedByDescending { it.title}
+            }
         }
 
         return list
