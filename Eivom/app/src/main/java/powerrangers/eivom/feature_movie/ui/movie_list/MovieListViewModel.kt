@@ -16,6 +16,7 @@ import powerrangers.eivom.feature_movie.domain.utility.DefaultValue
 import powerrangers.eivom.feature_movie.domain.utility.MovieFilter
 import powerrangers.eivom.feature_movie.domain.utility.Resource
 import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
+import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
 import powerrangers.eivom.feature_movie.domain.utility.TrendingTime
 import powerrangers.eivom.feature_movie.domain.utility.addList
 import powerrangers.eivom.feature_movie.domain.utility.toError
@@ -84,7 +85,9 @@ class MovieListViewModel @Inject constructor(
                         landscapeWidth = landscapeWidth,
                         posterWidth = posterWidth,
                         dateFormat = userPreferences.value.dateFormat,
-                        trending = MovieFilter.Trending(TrendingTime.DAY)
+                        //trending = MovieFilter.Trending(TrendingTime.DAY),
+                        //region = MovieFilter.Region("Cuba")
+                        //genre = MovieFilter.Genre()
                     )
                 )
 
@@ -122,6 +125,7 @@ class MovieListViewModel @Inject constructor(
         userSearch = userWord
     }
 
+    // Trending State
     fun reverseIsTrending(){
         filterState.value = filterState.value.copy(isTrending = !filterState.value.isTrending)
     }
@@ -132,6 +136,11 @@ class MovieListViewModel @Inject constructor(
 
     fun reverseIsTrendingWeek(){
         filterState.value = filterState.value.copy(isTrendingWeek = !filterState.value.isTrendingWeek)
+    }
+
+    //Favorite State
+    fun reverseIsFavorite(){
+        filterState.value = filterState.value.copy(isFavorite = !filterState.value.isFavorite)
     }
 
     fun setAllTrendingDefault(){

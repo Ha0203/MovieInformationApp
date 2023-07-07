@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
@@ -77,8 +78,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import kotlinx.coroutines.async
@@ -90,7 +91,10 @@ import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
 import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.TopBar
-import java.util.logging.Filter
+
+
+
+
 
 
 @Composable
@@ -511,25 +515,126 @@ fun TrendingFilter(
     viewModel: MovieListViewModel = hiltViewModel()
 )
 {
+    Column(
+        modifier = Modifier
+        .animateContentSize(
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioNoBouncy,
+                stiffness = Spring.StiffnessLow
+            )
+        )
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(id = R.string.Trending_FilterState),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            IconButton(onClick = {viewModel.reverseIsTrending()} ) {
+                if (!filterState.isTrending)
+                    Icon(
+                        painter = painterResource(R.drawable.unchecked_ic),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                else Icon(
+                    painter = painterResource(R.drawable.checked_ic),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colors.primary
+                )
+            }
+        }
+
+        if (filterState.isTrending)
+        {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(id = R.string.TrendingDay_FilterState),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+                Spacer( modifier = Modifier.weight(0.10f))
+                IconButton(onClick = {viewModel.reverseIsTrendingDay()} ) {
+                    if (!filterState.isTrendingDay)
+                        Icon(
+                            painter = painterResource(R.drawable.unchecked_ic),
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colors.primary
+                        )
+                    else Icon(
+                        painter = painterResource(R.drawable.checked_ic),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                }
+
+                Spacer( modifier = Modifier.weight(0.25f))
+
+                Text(
+                    text = stringResource(id = R.string.TrendingWeek_FilterState),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+                Spacer( modifier = Modifier.weight(0.10f))
+                IconButton(onClick = {viewModel.reverseIsTrendingWeek()} ) {
+                    if (!filterState.isTrendingWeek)
+                        Icon(
+                            painter = painterResource(R.drawable.unchecked_ic),
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colors.primary
+                        )
+                    else Icon(
+                        painter = painterResource(R.drawable.checked_ic),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                }
+            }
+        }
+        else viewModel.setAllTrendingDefault()
+    }
+}
+
+@Composable
+fun FavoriteFilter(
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+)
+{
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = stringResource(id = R.string.Trending_FilterState),
+            text = stringResource(id = R.string.Favorite_FilterState),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(vertical = 4.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
-        IconButton(onClick = {viewModel.reverseIsTrending()} ) {
-            if (!filterState.isTrending)
+        IconButton(onClick = { if (!filterState.isTrending ) viewModel.reverseIsFavorite()} ) {
+            if (!filterState.isFavorite )
                 Icon(
                     painter = painterResource(R.drawable.unchecked_ic),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp),
                     tint = MaterialTheme.colors.primary
                 )
-            else Icon(
+            else
+                Icon(
                 painter = painterResource(R.drawable.checked_ic),
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
@@ -537,62 +642,6 @@ fun TrendingFilter(
             )
         }
     }
-
-    if (filterState.isTrending)
-    {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(id = R.string.TrendingDay_FilterState),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 4.dp)
-            )
-            Spacer( modifier = Modifier.weight(0.10f))
-            IconButton(onClick = {viewModel.reverseIsTrendingDay()} ) {
-                if (!filterState.isTrendingDay)
-                    Icon(
-                        painter = painterResource(R.drawable.unchecked_ic),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
-                else Icon(
-                    painter = painterResource(R.drawable.checked_ic),
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = MaterialTheme.colors.primary
-                )
-            }
-
-            Spacer( modifier = Modifier.weight(0.25f))
-
-            Text(
-                text = stringResource(id = R.string.TrendingWeek_FilterState),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 4.dp)
-            )
-            Spacer( modifier = Modifier.weight(0.10f))
-            IconButton(onClick = {viewModel.reverseIsTrendingWeek()} ) {
-                if (!filterState.isTrendingWeek)
-                    Icon(
-                        painter = painterResource(R.drawable.unchecked_ic),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
-                else Icon(
-                    painter = painterResource(R.drawable.checked_ic),
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = MaterialTheme.colors.primary
-                )
-            }
-        }
-    }
-    else viewModel.setAllTrendingDefault()
 }
 
 @Composable
@@ -612,27 +661,40 @@ fun FilterButton(
                 onDismiss()
                 showDialog.value = false
             },
-            title = { Text(text = stringResource(id = R.string.filter_title)) },
-            text = {
-                Column(
+            modifier = Modifier
+                    .height(400.dp),
+            //properties = DialogProperties(width = 300.dp, height = 400.dp),
+            title = {
+                Text(
+                    text = stringResource(id = R.string.filter_title),
+                    style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp),
+                    textAlign = TextAlign.Center,
                     modifier = Modifier
-                        .animateContentSize(
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioNoBouncy,
-                                stiffness = Spring.StiffnessLow
-                            )
-                        )
-                ) {
+                        .fillMaxWidth()
+                        .padding(top = 20.dp)
+                )
+            },
+            text = {
+                Column() {
+//                    item { TrendingFilter(filterState = filterState, viewModel = viewModel) }
+//                    item { FavoriteFilter(filterState = filterState, viewModel = viewModel) }
                     // Trending Filter
                     TrendingFilter(filterState = filterState, viewModel = viewModel)
+                    // Favorite Filter
+                    FavoriteFilter(filterState = filterState, viewModel = viewModel)
+                    // Adding a gap to push the button fixed to the bottom
+                    Spacer(modifier = Modifier.weight(1f))
                 }
+
             },
             confirmButton = {
+
                 Button(
                     onClick = {
                         funcToCall()
                         showDialog.value = false
-                    }
+                    },
+                    //modifier = Modifier.fillMaxHeight()
                 ) {
                     Text(text = stringResource(id = R.string.confirm_button))
                 }
@@ -648,7 +710,6 @@ fun FilterButton(
                     Text(text = stringResource(id = R.string.cancel_button))
                 }
             }
-
         )
     }
 }
@@ -698,8 +759,7 @@ fun SortButton(
                 ) {
                     Text(text = stringResource(id = R.string.cancel_button))
                 }
-            }
-
+            },
         )
     }
 }
