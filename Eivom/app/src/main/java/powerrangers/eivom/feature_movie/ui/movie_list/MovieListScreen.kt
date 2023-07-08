@@ -553,6 +553,7 @@ fun TrendingFilter(
 
         if (filterState.isTrending)
         {
+
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -563,7 +564,10 @@ fun TrendingFilter(
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
                 Spacer( modifier = Modifier.weight(0.10f))
-                IconButton(onClick = {viewModel.reverseIsTrendingDay()} ) {
+                IconButton(onClick = {
+                    viewModel.reverseIsTrendingDay()
+                    if (filterState.isTrendingWeek) viewModel.reverseIsTrendingWeek()
+                } ) {
                     if (!filterState.isTrendingDay)
                         Icon(
                             painter = painterResource(R.drawable.unchecked_ic),
@@ -571,12 +575,13 @@ fun TrendingFilter(
                             modifier = Modifier.size(20.dp),
                             tint = MaterialTheme.colors.primary
                         )
-                    else Icon(
-                        painter = painterResource(R.drawable.checked_ic),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
+                    else    Icon(
+                            painter = painterResource(R.drawable.checked_ic),
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colors.primary
+                        )
+
                 }
 
                 Spacer( modifier = Modifier.weight(0.25f))
@@ -588,7 +593,10 @@ fun TrendingFilter(
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
                 Spacer( modifier = Modifier.weight(0.10f))
-                IconButton(onClick = {viewModel.reverseIsTrendingWeek()} ) {
+                IconButton(onClick = {
+                    viewModel.reverseIsTrendingWeek()
+                    if (filterState.isTrendingDay) viewModel.reverseIsTrendingDay()
+                } ) {
                     if (!filterState.isTrendingWeek)
                         Icon(
                             painter = painterResource(R.drawable.unchecked_ic),
@@ -645,6 +653,41 @@ fun FavoriteFilter(
 }
 
 @Composable
+fun AdultConTentFilter(
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+)
+{
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(id = R.string.AdultContentIncluded_FilterState),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        IconButton(onClick = { if (!filterState.isTrending ) viewModel.reverseAdultContet()} ) {
+            if (!filterState.AdultContentIncluded )
+                Icon(
+                    painter = painterResource(R.drawable.unchecked_ic),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colors.primary
+                )
+            else
+                Icon(
+                    painter = painterResource(R.drawable.checked_ic),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colors.primary
+                )
+        }
+    }
+}
+
+@Composable
 fun FilterButton(
     funcToCall: () -> Unit,
     onDismiss: () -> Unit,
@@ -682,6 +725,8 @@ fun FilterButton(
                     TrendingFilter(filterState = filterState, viewModel = viewModel)
                     // Favorite Filter
                     FavoriteFilter(filterState = filterState, viewModel = viewModel)
+                    // Adult Content Filter
+                    AdultConTentFilter(filterState = filterState, viewModel = viewModel)
                     // Adding a gap to push the button fixed to the bottom
                     Spacer(modifier = Modifier.weight(1f))
                 }

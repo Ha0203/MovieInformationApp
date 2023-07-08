@@ -143,6 +143,11 @@ class MovieListViewModel @Inject constructor(
         filterState.value = filterState.value.copy(isFavorite = !filterState.value.isFavorite)
     }
 
+    // Adult content
+    fun reverseAdultContet(){
+        filterState.value = filterState.value.copy(AdultContentIncluded = !filterState.value.AdultContentIncluded)
+    }
+
     fun setAllTrendingDefault(){
         filterState.value = filterState.value.copy(isTrendingWeek = false)
         filterState.value = filterState.value.copy(isTrendingDay = false)
