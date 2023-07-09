@@ -51,7 +51,12 @@ class MovieListViewModel @Inject constructor(
         private set
     var userSearch by mutableStateOf("")
         private set
-
+    var isExpanded = mutableStateOf(false)
+        private set
+    var regionSelected = mutableStateOf("Select Region")
+        private set
+    var lastRegionSelected = mutableStateOf("")
+        private set
     init {
         viewModelScope.launch {
             userPreferences.value = UserPreferences(
@@ -86,7 +91,7 @@ class MovieListViewModel @Inject constructor(
                         posterWidth = posterWidth,
                         dateFormat = userPreferences.value.dateFormat,
                         //trending = MovieFilter.Trending(TrendingTime.DAY),
-                        //region = MovieFilter.Region("Cuba")
+                        //region = MovieFilter.Region("Viet Nam")
                         //genre = MovieFilter.Genre()
                     )
                 )
@@ -153,6 +158,21 @@ class MovieListViewModel @Inject constructor(
         filterState.value = filterState.value.copy(isTrendingDay = false)
     }
 
+    fun changeRegionSelect(region: String){
+        lastRegionSelected.value = regionSelected.value
+        regionSelected.value = region
+    }
+    fun resetRegionSelect(){
+        lastRegionSelected.value = regionSelected.value
+        regionSelected.value = ""
+    }
+
+    fun resetLastRegion(){
+        lastRegionSelected.value = ""
+    }
+    fun reverseExpanded(){
+        isExpanded.value = !isExpanded.value
+    }
 
     fun isFavoriteMovie(movieId: Int): Boolean = movieDatabaseUseCase.isFavoriteMovie(movieId)
     fun isWatchedMovie(movieId: Int): Boolean = movieDatabaseUseCase.isWatchedMovie(movieId)

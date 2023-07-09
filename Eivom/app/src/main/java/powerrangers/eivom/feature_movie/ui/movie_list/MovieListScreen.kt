@@ -2,6 +2,7 @@ package powerrangers.eivom.feature_movie.ui.movie_list
 
 import android.graphics.drawable.Drawable
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
@@ -9,42 +10,57 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.Checkbox
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Filter
 import androidx.compose.material.icons.filled.MonitorHeart
@@ -88,6 +104,7 @@ import powerrangers.eivom.R
 import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 import powerrangers.eivom.feature_movie.domain.utility.Resource
 import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
+import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
 import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.TopBar
@@ -173,7 +190,6 @@ fun MovieListBody(
                     filterState = filterState,
                 )
             }
-//
             IconButton(onClick = { viewModel.reverseIsSort() }) {
                 Icon(
                     imageVector = Icons.Filled.Sort,
@@ -652,6 +668,72 @@ fun FavoriteFilter(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun RegionFilter(
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+){
+//    val expanded by remember { viewModel.isRegionExpanded }
+    val regions = TranslateCode.ISO_3166_1.values.toList()
+    val regionSelected by remember { viewModel.regionSelected }
+    //var showMenu = remember { mutableStateOf(false)}
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(id = R.string.Region_FilterState),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+
+        // Region selection
+        Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
+            OutlinedButton(
+                onClick = {
+                    if (regionSelected.isEmpty())
+                    {
+                        viewModel.changeRegionSelect(regions[0])
+                    }
+                    else {
+                        viewModel.resetRegionSelect()
+                    }
+                }
+            ) {
+                Text(text = regionSelected.ifEmpty { "Select Region" })
+
+                DropdownMenu(
+                    expanded = regionSelected.isEmpty(),
+                    onDismissRequest = {
+                        viewModel.resetRegionSelect()
+                        //showMenu.value = false
+                    },
+                    modifier = Modifier.width(IntrinsicSize.Min)
+                ) {
+//                    Column(
+//                        modifier = Modifier.verticalScroll(rememberScrollState())
+//                    ){
+//                        regions.forEach() {region ->
+//                            DropdownMenuItem(onClick = { viewModel.changeRegionSelect(region) }) {
+//                                Text(text = region)
+//                            }
+//                        }
+//                    }
+                    regions.forEach() {region ->
+                        DropdownMenuItem(onClick = { viewModel.changeRegionSelect(region) }) {
+                            Text(text = region)
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+}
+
 @Composable
 fun AdultConTentFilter(
     filterState: FilterState,
@@ -687,6 +769,7 @@ fun AdultConTentFilter(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun FilterButton(
     funcToCall: () -> Unit,
@@ -697,66 +780,77 @@ fun FilterButton(
     val showDialog = remember { mutableStateOf(true) }
     val textList = remember { mutableStateListOf("Action", "Science Fiction", "Horror") }
 
-
-    if (showDialog.value) {
-        AlertDialog(
-            onDismissRequest = {
-                onDismiss()
-                showDialog.value = false
-            },
-            modifier = Modifier
+    AnimatedVisibility(
+        visible = showDialog.value,
+        enter = scaleIn(
+            initialScale = 0.8f,
+            animationSpec = tween(durationMillis = 300)
+        ) + fadeIn(),
+        exit = scaleOut(
+            targetScale = 0.8f,
+            animationSpec = tween(durationMillis = 300)
+        ) + fadeOut()
+    ){
+            AlertDialog(
+                onDismissRequest = {
+                    onDismiss()
+                    showDialog.value = false
+                },
+                modifier = Modifier
                     .height(400.dp),
-            //properties = DialogProperties(width = 300.dp, height = 400.dp),
-            title = {
-                Text(
-                    text = stringResource(id = R.string.filter_title),
-                    style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 20.dp)
-                )
-            },
-            text = {
-                Column() {
+                //properties = DialogProperties(width = 300.dp, height = 400.dp),
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.filter_title),
+                        style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 20.dp)
+                    )
+                },
+                text = {
+                    Column() {
 //                    item { TrendingFilter(filterState = filterState, viewModel = viewModel) }
 //                    item { FavoriteFilter(filterState = filterState, viewModel = viewModel) }
-                    // Trending Filter
-                    TrendingFilter(filterState = filterState, viewModel = viewModel)
-                    // Favorite Filter
-                    FavoriteFilter(filterState = filterState, viewModel = viewModel)
-                    // Adult Content Filter
-                    AdultConTentFilter(filterState = filterState, viewModel = viewModel)
-                    // Adding a gap to push the button fixed to the bottom
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-
-            },
-            confirmButton = {
-
-                Button(
-                    onClick = {
-                        funcToCall()
-                        showDialog.value = false
-                    },
-                    //modifier = Modifier.fillMaxHeight()
-                ) {
-                    Text(text = stringResource(id = R.string.confirm_button))
-                }
-            },
-            dismissButton = {
-                Button(
-                    onClick = {
-                        // Handle Cancel button action
-                        onDismiss()
-                        showDialog.value = false
+                        // Trending Filter
+                        TrendingFilter(filterState = filterState, viewModel = viewModel)
+                        // Favorite Filter
+                        FavoriteFilter(filterState = filterState, viewModel = viewModel)
+                        // Adult Content Filter
+                        AdultConTentFilter(filterState = filterState, viewModel = viewModel)
+                        // Region
+                        RegionFilter(filterState = filterState, viewModel = viewModel)
+                        // Adding a gap to push the button fixed to the bottom
+                        Spacer(modifier = Modifier.weight(1f))
                     }
-                ) {
-                    Text(text = stringResource(id = R.string.cancel_button))
+
+                },
+                confirmButton = {
+
+                    Button(
+                        onClick = {
+                            funcToCall()
+                            showDialog.value = false
+                        },
+                        //modifier = Modifier.fillMaxHeight()
+                    ) {
+                        Text(text = stringResource(id = R.string.confirm_button))
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = {
+                            // Handle Cancel button action
+                            onDismiss()
+                            showDialog.value = false
+                        }
+                    ) {
+                        Text(text = stringResource(id = R.string.cancel_button))
+                    }
                 }
-            }
-        )
-    }
+            )
+        }
 }
 
 @Composable
