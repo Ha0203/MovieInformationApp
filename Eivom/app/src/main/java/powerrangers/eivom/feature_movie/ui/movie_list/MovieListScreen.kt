@@ -56,6 +56,7 @@ import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
@@ -91,9 +92,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.SubcomposeAsyncImage
@@ -102,6 +108,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import powerrangers.eivom.R
 import powerrangers.eivom.feature_movie.domain.model.MovieListItem
+import powerrangers.eivom.feature_movie.domain.utility.MovieOrder
 import powerrangers.eivom.feature_movie.domain.utility.Resource
 import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
@@ -711,27 +718,33 @@ fun RegionFilter(
                         viewModel.resetRegionSelect()
                         //showMenu.value = false
                     },
-                    modifier = Modifier.width(IntrinsicSize.Min)
                 ) {
-//                    Column(
-//                        modifier = Modifier.verticalScroll(rememberScrollState())
-//                    ){
-//                        regions.forEach() {region ->
-//                            DropdownMenuItem(onClick = { viewModel.changeRegionSelect(region) }) {
-//                                Text(text = region)
-//                            }
-//                        }
-//                    }
-                    regions.forEach() {region ->
-                        DropdownMenuItem(onClick = { viewModel.changeRegionSelect(region) }) {
-                            Text(text = region)
+                    Column(
+                        modifier = Modifier
+                            .width(IntrinsicSize.Min)
+                            .heightIn(max = DropdownMenuHeight(visibleItems = 5))
+                            .verticalScroll(rememberScrollState())
+                    ){
+                        regions.forEach() { region ->
+                            DropdownMenuItem(onClick = { viewModel.changeRegionSelect(region) }) {
+                                Text(text = region)
+                            }
                         }
                     }
+
                 }
             }
 
         }
     }
+}
+
+@Composable
+fun DropdownMenuHeight(visibleItems: Int): Dp {
+    val itemHeight = 48.dp // Height of each item in the dropdown menu
+    val padding = 8.dp // Vertical padding between items
+
+    return (visibleItems * itemHeight) + ((visibleItems - 1) * padding)
 }
 
 @Composable
@@ -768,6 +781,62 @@ fun AdultConTentFilter(
         }
     }
 }
+@Composable
+fun ReleaseDateFilter(
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+) {
+    val newRD by remember { viewModel.releaseDate }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(id = R.string.ReleaseYear_FilterState),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+
+        OutlinedTextField(
+            value = newRD,
+            onValueChange = { newValue ->
+                val filteredValue = newValue.filter { it.isDigit() }
+                viewModel.updateReleaseDate(filteredValue)
+            },
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Number
+            ),
+            visualTransformation = VisualTransformation.None,
+            textStyle = TextStyle(
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+            ),
+            colors = TextFieldDefaults.textFieldColors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+            ),
+            placeholder = {
+                Text(
+                    text = "YYYY",
+                    style = TextStyle(
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colors.primary,
+                                textAlign = TextAlign.Center
+                    ),
+
+                )
+            },
+
+            modifier = Modifier
+                .size(width = 130.dp, height = 45.dp)
+
+        )
+    }
+}
+
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -819,8 +888,10 @@ fun FilterButton(
                         FavoriteFilter(filterState = filterState, viewModel = viewModel)
                         // Adult Content Filter
                         AdultConTentFilter(filterState = filterState, viewModel = viewModel)
-                        // Region
+                        // Region Filter
                         RegionFilter(filterState = filterState, viewModel = viewModel)
+                        // Release Date Filter
+                        ReleaseDateFilter(filterState = filterState, viewModel = viewModel)
                         // Adding a gap to push the button fixed to the bottom
                         Spacer(modifier = Modifier.weight(1f))
                     }

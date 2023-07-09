@@ -57,6 +57,8 @@ class MovieListViewModel @Inject constructor(
         private set
     var lastRegionSelected = mutableStateOf("")
         private set
+    var releaseDate = mutableStateOf("")
+        private set
     init {
         viewModelScope.launch {
             userPreferences.value = UserPreferences(
@@ -174,6 +176,9 @@ class MovieListViewModel @Inject constructor(
         isExpanded.value = !isExpanded.value
     }
 
+    fun updateReleaseDate(newRD: String){
+        releaseDate.value = newRD
+    }
     fun isFavoriteMovie(movieId: Int): Boolean = movieDatabaseUseCase.isFavoriteMovie(movieId)
     fun isWatchedMovie(movieId: Int): Boolean = movieDatabaseUseCase.isWatchedMovie(movieId)
     fun isSponsoredMovie(movieId: Int): Boolean = movieDatabaseUseCase.isSponsoredMovie(movieId)
