@@ -23,11 +23,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import powerrangers.eivom.R
 import powerrangers.eivom.navigation.Route
+import powerrangers.eivom.ui.theme.VintageKing
 import powerrangers.eivom.ui.utility.MenuItem
 
 
@@ -48,11 +50,11 @@ fun TopBar(
                     text = title,
                     fontSize = 50.sp,
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.h1,
+                    style = TextStyle(fontFamily = VintageKing) ,
                     color = MaterialTheme.colors.primary,
-                    modifier = modifier.padding(bottom = 30.dp)
+                    modifier = modifier.padding(start = 40.dp),
+                    letterSpacing = 3.sp,
                 )
-                Spacer(modifier = Modifier.width(50.dp))
             }
 
         },
@@ -84,8 +86,8 @@ fun DrawerHeader(
     ) {
         Text(
             text = stringResource(id = R.string.app_name),
-            style = MaterialTheme.typography.h1,
-            fontSize = 40.sp,
+            style = TextStyle(fontFamily = VintageKing),
+            fontSize = 50.sp,
             color = MaterialTheme.colors.primary,
         )
         Spacer(modifier = Modifier.weight(1f))

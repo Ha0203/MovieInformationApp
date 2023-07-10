@@ -11,10 +11,13 @@ import powerrangers.eivom.R
 val VintageKing = FontFamily(
     Font(R.font.vintageking)
 )
-val Margot= FontFamily(
-    Font(R.font.margot)
-)
 
+val UlagadiRegular = FontFamily(
+    Font(R.font.ulagadiregular)
+)
+val UlagadiBold = FontFamily(
+    Font(R.font.ulagadibold)
+)
 // Set of Material typography styles to start with
 val Typography = Typography(
     h1 = TextStyle(
@@ -23,13 +26,13 @@ val Typography = Typography(
         letterSpacing = 1.sp,
     ),
     body1 = TextStyle(
-        fontFamily = Margot,
+        fontFamily = UlagadiRegular,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp
     ),
     h2 = TextStyle (
-        fontFamily =  Margot,
-        fontSize = 20.sp,
+        fontFamily =  UlagadiBold,
+        fontSize = 15.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 0.5.sp
     )

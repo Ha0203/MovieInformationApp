@@ -425,7 +425,8 @@ fun MovieListEntry(
                     .fillMaxWidth()
                     .padding(
                         top = 16.dp
-                    )
+                    ),
+                style = MaterialTheme.typography.h2,
             )
             FavoriteMovieButton(
                 isFavorite = isFavorite,
