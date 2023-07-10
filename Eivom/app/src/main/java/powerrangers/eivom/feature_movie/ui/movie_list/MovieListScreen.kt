@@ -16,12 +16,15 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -45,6 +48,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Checkbox
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.DropdownMenu
@@ -67,6 +71,7 @@ import androidx.compose.material.icons.filled.Filter
 import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material.primarySurface
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -90,11 +95,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -115,10 +122,8 @@ import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
 import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.TopBar
-
-
-
-
+import java.time.LocalDate
+import java.util.Date
 
 
 @Composable
@@ -698,7 +703,9 @@ fun RegionFilter(
         Spacer(modifier = Modifier.weight(1f))
 
         // Region selection
-        Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
+        Box(
+            modifier = Modifier.wrapContentSize(Alignment.TopEnd)
+        ) {
             OutlinedButton(
                 onClick = {
                     if (regionSelected.isEmpty())
@@ -708,7 +715,8 @@ fun RegionFilter(
                     else {
                         viewModel.resetRegionSelect()
                     }
-                }
+                },
+
             ) {
                 Text(text = regionSelected.ifEmpty { "Select Region" })
 
@@ -718,6 +726,7 @@ fun RegionFilter(
                         viewModel.resetRegionSelect()
                         //showMenu.value = false
                     },
+                    //modifier = Modifier.border(2.dp, Color.LightGray)
                 ) {
                     Column(
                         modifier = Modifier
@@ -810,28 +819,40 @@ fun ReleaseDateFilter(
             ),
             visualTransformation = VisualTransformation.None,
             textStyle = TextStyle(
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center,
+                //background = Color.White
             ),
+            shape = RoundedCornerShape(5.dp),
             colors = TextFieldDefaults.textFieldColors(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor =  Color.Gray,
+                placeholderColor = MaterialTheme.colors.primary,
+                textColor = MaterialTheme.colors.primary,
+                backgroundColor = Color.White,
+
             ),
             placeholder = {
                 Text(
-                    text = "YYYY",
+                    text = LocalDate.now().year.toString(),
                     style = TextStyle(
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colors.primary,
-                                textAlign = TextAlign.Center
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Light,
+                        fontStyle = FontStyle.Italic,
+                        color = Color.LightGray,
+                        textAlign = TextAlign.Center
                     ),
-
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
                 )
             },
 
             modifier = Modifier
-                .size(width = 130.dp, height = 45.dp)
+                .size(width = 70.dp, height = 45.dp)
+                .border(1.dp, Color.LightGray, shape = RoundedCornerShape(4.dp)),
 
         )
     }
@@ -890,6 +911,7 @@ fun FilterButton(
                         AdultConTentFilter(filterState = filterState, viewModel = viewModel)
                         // Region Filter
                         RegionFilter(filterState = filterState, viewModel = viewModel)
+                        Spacer(modifier = Modifier.weight(0.25f))
                         // Release Date Filter
                         ReleaseDateFilter(filterState = filterState, viewModel = viewModel)
                         // Adding a gap to push the button fixed to the bottom
