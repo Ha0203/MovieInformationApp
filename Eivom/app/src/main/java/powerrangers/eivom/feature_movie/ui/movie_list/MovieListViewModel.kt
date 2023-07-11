@@ -16,6 +16,7 @@ import powerrangers.eivom.feature_movie.domain.utility.DefaultValue
 import powerrangers.eivom.feature_movie.domain.utility.MovieFilter
 import powerrangers.eivom.feature_movie.domain.utility.Resource
 import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
+import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
 import powerrangers.eivom.feature_movie.domain.utility.TrendingTime
 import powerrangers.eivom.feature_movie.domain.utility.addList
 import powerrangers.eivom.feature_movie.domain.utility.toError
@@ -50,7 +51,14 @@ class MovieListViewModel @Inject constructor(
         private set
     var userSearch by mutableStateOf("")
         private set
-
+    var isExpanded = mutableStateOf(false)
+        private set
+    var regionSelected = mutableStateOf("Select Region")
+        private set
+    var lastRegionSelected = mutableStateOf("")
+        private set
+    var releaseDate = mutableStateOf("")
+        private set
     init {
         viewModelScope.launch {
             userPreferences.value = UserPreferences(
@@ -84,7 +92,9 @@ class MovieListViewModel @Inject constructor(
                         landscapeWidth = landscapeWidth,
                         posterWidth = posterWidth,
                         dateFormat = userPreferences.value.dateFormat,
-                        trending = MovieFilter.Trending(TrendingTime.DAY)
+                        //trending = MovieFilter.Trending(TrendingTime.DAY),
+                        //region = MovieFilter.Region("Viet Nam")
+                        //genre = MovieFilter.Genre()
                     )
                 )
 
@@ -122,6 +132,7 @@ class MovieListViewModel @Inject constructor(
         userSearch = userWord
     }
 
+    // Trending State
     fun reverseIsTrending(){
         filterState.value = filterState.value.copy(isTrending = !filterState.value.isTrending)
     }
@@ -134,12 +145,40 @@ class MovieListViewModel @Inject constructor(
         filterState.value = filterState.value.copy(isTrendingWeek = !filterState.value.isTrendingWeek)
     }
 
+    //Favorite State
+    fun reverseIsFavorite(){
+        filterState.value = filterState.value.copy(isFavorite = !filterState.value.isFavorite)
+    }
+
+    // Adult content
+    fun reverseAdultContet(){
+        filterState.value = filterState.value.copy(AdultContentIncluded = !filterState.value.AdultContentIncluded)
+    }
+
     fun setAllTrendingDefault(){
         filterState.value = filterState.value.copy(isTrendingWeek = false)
         filterState.value = filterState.value.copy(isTrendingDay = false)
     }
 
+    fun changeRegionSelect(region: String){
+        lastRegionSelected.value = regionSelected.value
+        regionSelected.value = region
+    }
+    fun resetRegionSelect(){
+        lastRegionSelected.value = regionSelected.value
+        regionSelected.value = ""
+    }
 
+    fun resetLastRegion(){
+        lastRegionSelected.value = ""
+    }
+    fun reverseExpanded(){
+        isExpanded.value = !isExpanded.value
+    }
+
+    fun updateReleaseDate(newRD: String){
+        releaseDate.value = newRD
+    }
     fun isFavoriteMovie(movieId: Int): Boolean = movieDatabaseUseCase.isFavoriteMovie(movieId)
     fun isWatchedMovie(movieId: Int): Boolean = movieDatabaseUseCase.isWatchedMovie(movieId)
     fun isSponsoredMovie(movieId: Int): Boolean = movieDatabaseUseCase.isSponsoredMovie(movieId)

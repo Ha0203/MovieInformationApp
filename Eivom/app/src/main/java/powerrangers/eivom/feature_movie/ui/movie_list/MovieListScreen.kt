@@ -2,6 +2,7 @@ package powerrangers.eivom.feature_movie.ui.movie_list
 
 import android.graphics.drawable.Drawable
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
@@ -9,43 +10,64 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
+import androidx.compose.material.Checkbox
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Filter
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material.primarySurface
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -68,11 +90,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
@@ -80,11 +110,14 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import powerrangers.eivom.R
 import powerrangers.eivom.feature_movie.domain.model.MovieListItem
+import powerrangers.eivom.feature_movie.domain.utility.MovieOrder
 import powerrangers.eivom.feature_movie.domain.utility.Resource
 import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
+import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
 import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.TopBar
+import java.util.logging.Filter
 
 
 @Composable
@@ -163,7 +196,6 @@ fun MovieListBody(
                     filterState = filterState,
                 )
             }
-//
             IconButton(onClick = { viewModel.reverseIsSort() }) {
                 Icon(
                     imageVector = Icons.Filled.Sort,
@@ -505,25 +537,134 @@ fun TrendingFilter(
     viewModel: MovieListViewModel = hiltViewModel()
 )
 {
+    Column(
+        modifier = Modifier
+        .animateContentSize(
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioNoBouncy,
+                stiffness = Spring.StiffnessLow
+            )
+        )
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(id = R.string.Trending_FilterState),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            IconButton(onClick = {viewModel.reverseIsTrending()} ) {
+                if (!filterState.isTrending)
+                    Icon(
+                        painter = painterResource(R.drawable.unchecked_ic),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                else Icon(
+                    painter = painterResource(R.drawable.checked_ic),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colors.primary
+                )
+            }
+        }
+
+        if (filterState.isTrending)
+        {
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(id = R.string.TrendingDay_FilterState),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+                Spacer( modifier = Modifier.weight(0.10f))
+                IconButton(onClick = {
+                    viewModel.reverseIsTrendingDay()
+                    if (filterState.isTrendingWeek) viewModel.reverseIsTrendingWeek()
+                } ) {
+                    if (!filterState.isTrendingDay)
+                        Icon(
+                            painter = painterResource(R.drawable.unchecked_ic),
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colors.primary
+                        )
+                    else    Icon(
+                            painter = painterResource(R.drawable.checked_ic),
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colors.primary
+                        )
+
+                }
+
+                Spacer( modifier = Modifier.weight(0.25f))
+
+                Text(
+                    text = stringResource(id = R.string.TrendingWeek_FilterState),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+                Spacer( modifier = Modifier.weight(0.10f))
+                IconButton(onClick = {
+                    viewModel.reverseIsTrendingWeek()
+                    if (filterState.isTrendingDay) viewModel.reverseIsTrendingDay()
+                } ) {
+                    if (!filterState.isTrendingWeek)
+                        Icon(
+                            painter = painterResource(R.drawable.unchecked_ic),
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colors.primary
+                        )
+                    else Icon(
+                        painter = painterResource(R.drawable.checked_ic),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                }
+            }
+        }
+        else viewModel.setAllTrendingDefault()
+    }
+}
+
+@Composable
+fun FavoriteFilter(
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+)
+{
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = stringResource(id = R.string.Trending_FilterState),
+            text = stringResource(id = R.string.Favorite_FilterState),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(vertical = 4.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
-        IconButton(onClick = {viewModel.reverseIsTrending()} ) {
-            if (!filterState.isTrending)
+        IconButton(onClick = { if (!filterState.isTrending ) viewModel.reverseIsFavorite()} ) {
+            if (!filterState.isFavorite )
                 Icon(
                     painter = painterResource(R.drawable.unchecked_ic),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp),
                     tint = MaterialTheme.colors.primary
                 )
-            else Icon(
+            else
+                Icon(
                 painter = painterResource(R.drawable.checked_ic),
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
@@ -531,64 +672,188 @@ fun TrendingFilter(
             )
         }
     }
-
-    if (filterState.isTrending)
-    {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(id = R.string.TrendingDay_FilterState),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 4.dp)
-            )
-            Spacer( modifier = Modifier.weight(0.10f))
-            IconButton(onClick = {viewModel.reverseIsTrendingDay()} ) {
-                if (!filterState.isTrendingDay)
-                    Icon(
-                        painter = painterResource(R.drawable.unchecked_ic),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
-                else Icon(
-                    painter = painterResource(R.drawable.checked_ic),
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = MaterialTheme.colors.primary
-                )
-            }
-
-            Spacer( modifier = Modifier.weight(0.25f))
-
-            Text(
-                text = stringResource(id = R.string.TrendingWeek_FilterState),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 4.dp)
-            )
-            Spacer( modifier = Modifier.weight(0.10f))
-            IconButton(onClick = {viewModel.reverseIsTrendingWeek()} ) {
-                if (!filterState.isTrendingWeek)
-                    Icon(
-                        painter = painterResource(R.drawable.unchecked_ic),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
-                else Icon(
-                    painter = painterResource(R.drawable.checked_ic),
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = MaterialTheme.colors.primary
-                )
-            }
-        }
-    }
-    else viewModel.setAllTrendingDefault()
 }
 
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun RegionFilter(
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+){
+//    val expanded by remember { viewModel.isRegionExpanded }
+    val regions = TranslateCode.ISO_3166_1.values.toList()
+    val regionSelected by remember { viewModel.regionSelected }
+    //var showMenu = remember { mutableStateOf(false)}
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(id = R.string.Region_FilterState),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+
+        // Region selection
+        Box(
+            modifier = Modifier.wrapContentSize(Alignment.TopEnd)
+        ) {
+            OutlinedButton(
+                onClick = {
+                    if (regionSelected.isEmpty())
+                    {
+                        viewModel.changeRegionSelect(regions[0])
+                    }
+                    else {
+                        viewModel.resetRegionSelect()
+                    }
+                },
+
+            ) {
+                Text(text = regionSelected.ifEmpty { "Select Region" })
+
+                DropdownMenu(
+                    expanded = regionSelected.isEmpty(),
+                    onDismissRequest = {
+                        viewModel.resetRegionSelect()
+                        //showMenu.value = false
+                    },
+                    //modifier = Modifier.border(2.dp, Color.LightGray)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .width(IntrinsicSize.Min)
+                            .heightIn(max = DropdownMenuHeight(visibleItems = 5))
+                            .verticalScroll(rememberScrollState())
+                    ){
+                        regions.forEach() { region ->
+                            DropdownMenuItem(onClick = { viewModel.changeRegionSelect(region) }) {
+                                Text(text = region)
+                            }
+                        }
+                    }
+
+                }
+            }
+
+        }
+    }
+}
+
+@Composable
+fun DropdownMenuHeight(visibleItems: Int): Dp {
+    val itemHeight = 48.dp // Height of each item in the dropdown menu
+    val padding = 8.dp // Vertical padding between items
+
+    return (visibleItems * itemHeight) + ((visibleItems - 1) * padding)
+}
+
+@Composable
+fun AdultConTentFilter(
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+)
+{
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(id = R.string.AdultContentIncluded_FilterState),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        IconButton(onClick = { if (!filterState.isTrending ) viewModel.reverseAdultContet()} ) {
+            if (!filterState.AdultContentIncluded )
+                Icon(
+                    painter = painterResource(R.drawable.unchecked_ic),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colors.primary
+                )
+            else
+                Icon(
+                    painter = painterResource(R.drawable.checked_ic),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colors.primary
+                )
+        }
+    }
+}
+@Composable
+fun ReleaseDateFilter(
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+) {
+    val newRD by remember { viewModel.releaseDate }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(id = R.string.ReleaseYear_FilterState),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+
+        OutlinedTextField(
+            value = newRD,
+            onValueChange = { newValue ->
+                val filteredValue = newValue.filter { it.isDigit() }
+                viewModel.updateReleaseDate(filteredValue)
+            },
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Number
+            ),
+            visualTransformation = VisualTransformation.None,
+            textStyle = TextStyle(
+                fontSize = 12.sp,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center,
+                //background = Color.White
+            ),
+            shape = RoundedCornerShape(5.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor =  Color.Gray,
+                placeholderColor = MaterialTheme.colors.primary,
+                textColor = MaterialTheme.colors.primary,
+                backgroundColor = Color.White,
+
+            ),
+            placeholder = {
+                Text(
+                    text = LocalDate.now().year.toString(),
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Light,
+                        fontStyle = FontStyle.Italic,
+                        color = Color.LightGray,
+                        textAlign = TextAlign.Center
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                )
+            },
+
+            modifier = Modifier
+                .size(width = 70.dp, height = 45.dp)
+                .border(1.dp, Color.LightGray, shape = RoundedCornerShape(4.dp)),
+
+        )
+    }
+}
+
+
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun FilterButton(
     funcToCall: () -> Unit,
@@ -599,52 +864,80 @@ fun FilterButton(
     val showDialog = remember { mutableStateOf(true) }
     remember { mutableStateListOf("Action", "Science Fiction", "Horror") }
 
-
-    if (showDialog.value) {
-        AlertDialog(
-            onDismissRequest = {
-                onDismiss()
-                showDialog.value = false
-            },
-            title = { Text(text = stringResource(id = R.string.filter_title)) },
-            text = {
-                Column(
-                    modifier = Modifier
-                        .animateContentSize(
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioNoBouncy,
-                                stiffness = Spring.StiffnessLow
-                            )
-                        )
-                ) {
-                    // Trending Filter
-                    TrendingFilter(filterState = filterState, viewModel = viewModel)
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        funcToCall()
-                        showDialog.value = false
+    AnimatedVisibility(
+        visible = showDialog.value,
+        enter = scaleIn(
+            initialScale = 0.8f,
+            animationSpec = tween(durationMillis = 300)
+        ) + fadeIn(),
+        exit = scaleOut(
+            targetScale = 0.8f,
+            animationSpec = tween(durationMillis = 300)
+        ) + fadeOut()
+    ){
+            AlertDialog(
+                onDismissRequest = {
+                    onDismiss()
+                    showDialog.value = false
+                },
+                modifier = Modifier
+                    .height(400.dp),
+                //properties = DialogProperties(width = 300.dp, height = 400.dp),
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.filter_title),
+                        style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 20.dp)
+                    )
+                },
+                text = {
+                    Column() {
+//                    item { TrendingFilter(filterState = filterState, viewModel = viewModel) }
+//                    item { FavoriteFilter(filterState = filterState, viewModel = viewModel) }
+                        // Trending Filter
+                        TrendingFilter(filterState = filterState, viewModel = viewModel)
+                        // Favorite Filter
+                        FavoriteFilter(filterState = filterState, viewModel = viewModel)
+                        // Adult Content Filter
+                        AdultConTentFilter(filterState = filterState, viewModel = viewModel)
+                        // Region Filter
+                        RegionFilter(filterState = filterState, viewModel = viewModel)
+                        Spacer(modifier = Modifier.weight(0.25f))
+                        // Release Date Filter
+                        ReleaseDateFilter(filterState = filterState, viewModel = viewModel)
+                        // Adding a gap to push the button fixed to the bottom
+                        Spacer(modifier = Modifier.weight(1f))
                     }
-                ) {
-                    Text(text = stringResource(id = R.string.confirm_button))
-                }
-            },
-            dismissButton = {
-                Button(
-                    onClick = {
-                        // Handle Cancel button action
-                        onDismiss()
-                        showDialog.value = false
-                    }
-                ) {
-                    Text(text = stringResource(id = R.string.cancel_button))
-                }
-            }
 
-        )
-    }
+                },
+                confirmButton = {
+
+                    Button(
+                        onClick = {
+                            funcToCall()
+                            showDialog.value = false
+                        },
+                        //modifier = Modifier.fillMaxHeight()
+                    ) {
+                        Text(text = stringResource(id = R.string.confirm_button))
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = {
+                            // Handle Cancel button action
+                            onDismiss()
+                            showDialog.value = false
+                        }
+                    ) {
+                        Text(text = stringResource(id = R.string.cancel_button))
+                    }
+                }
+            )
+        }
 }
 
 @Composable
@@ -692,8 +985,7 @@ fun SortButton(
                 ) {
                     Text(text = stringResource(id = R.string.cancel_button))
                 }
-            }
-
+            },
         )
     }
 }
