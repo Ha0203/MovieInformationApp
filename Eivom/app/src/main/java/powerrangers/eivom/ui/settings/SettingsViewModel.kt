@@ -10,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import powerrangers.eivom.domain.use_case.GoogleAuthClient
 import powerrangers.eivom.domain.utility.Resource
+import powerrangers.eivom.domain.utility.ResourceErrorMessage
 import powerrangers.eivom.domain.utility.UserData
 import javax.inject.Inject
 
@@ -38,9 +39,13 @@ class SettingsViewModel @Inject constructor(
     fun onSignInClick(launcher: ActivityResultLauncher<IntentSenderRequest>) {
         viewModelScope.launch {
             val signInIntentSender = googleAuthClient.signIn()
+            if (signInIntentSender == null) {
+                producerState.value = producerState.value.copy(errorMessage = ResourceErrorMessage.SIGN_IN)
+                return@launch
+            }
             launcher.launch(
                 IntentSenderRequest.Builder(
-                    signInIntentSender ?: return@launch
+                    signInIntentSender
                 ).build()
             )
         }
@@ -48,8 +53,12 @@ class SettingsViewModel @Inject constructor(
 
     fun handleIntent(intent: Intent?) {
         viewModelScope.launch {
+            if (intent == null) {
+                producerState.value = producerState.value.copy(errorMessage = ResourceErrorMessage.SIGN_IN)
+                return@launch
+            }
             val signInResult = googleAuthClient.signInWithIntent(
-                intent = intent ?: return@launch
+                intent = intent
             )
             updateProducerSignInState(signInResult)
         }
@@ -72,5 +81,11 @@ class SettingsViewModel @Inject constructor(
                 isSignOutSuccess = true
             )
         }
+    }
+
+    fun deleteErrorMessage() {
+        producerState.value = producerState.value.copy(
+            errorMessage = null
+        )
     }
 }

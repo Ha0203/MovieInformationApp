@@ -54,6 +54,7 @@ object ResourceErrorMessage {
     const val GET_LOCALMOVIEITEM = "Getting Resource<LOCALMOVIEITEM> error"
     const val GET_LOCALMOVIEMAP = "Getting Resource<LOCALMOVIEMAP> error"
 
+    const val SIGN_IN = "Sign in error"
     const val SIGN_IN_WITH_INTENT = "Sign in with intent error"
     const val GET_SIGNED_IN_USER = "Get signed in user error"
 }

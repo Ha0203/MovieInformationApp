@@ -15,12 +15,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -84,6 +87,9 @@ fun SettingsBody(
             },
             onSignOutClick = {
                 viewModel.onSignOutClick()
+            },
+            deleteErrorMessage = {
+                viewModel.deleteErrorMessage()
             }
         )
     }
@@ -95,7 +101,8 @@ fun ProducerSignInSection(
     producerState: ProducerState,
     onSignInClick: (ActivityResultLauncher<IntentSenderRequest>) -> Unit,
     handleIntent: (Intent?) -> Unit,
-    onSignOutClick: () -> Unit
+    onSignOutClick: () -> Unit,
+    deleteErrorMessage: () -> Unit
 ) {
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult(),
@@ -105,17 +112,17 @@ fun ProducerSignInSection(
             }
         }
     )
-
     val context = LocalContext.current
-    LaunchedEffect(key1 = producerState.errorMessage) {
-        producerState.errorMessage?.let { error ->
-            Toast.makeText(
-                context,
-                error,
-                Toast.LENGTH_LONG
-            ).show()
-        }
+
+    if (producerState.errorMessage != null) {
+        ErrorInformedDialog(
+            error = producerState.errorMessage,
+            onDismiss = {
+                deleteErrorMessage()
+            }
+        )
     }
+
     LaunchedEffect(key1 = producerState.isSignInSuccess) {
         if (producerState.isSignInSuccess) {
             Toast.makeText(
@@ -158,5 +165,36 @@ fun ProducerSignInSection(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ErrorInformedDialog(
+    error: String,
+    onDismiss: () -> Unit,
+) {
+    val showDialog = remember { mutableStateOf(true) }
+
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                onDismiss()
+                showDialog.value = false
+            },
+            title = { Text(text = stringResource(id = R.string.error_label)) },
+            text = {
+                Text(text = error)
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onDismiss()
+                        showDialog.value = false
+                    }
+                ) {
+                    Text(text = stringResource(id = R.string.confirm_button))
+                }
+            }
+        )
     }
 }
