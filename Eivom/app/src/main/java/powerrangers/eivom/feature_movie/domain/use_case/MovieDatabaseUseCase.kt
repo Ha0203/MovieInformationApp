@@ -29,8 +29,8 @@ import powerrangers.eivom.feature_movie.domain.utility.Logic
 import powerrangers.eivom.feature_movie.domain.utility.MovieFilter
 import powerrangers.eivom.feature_movie.domain.utility.MovieOrder
 import powerrangers.eivom.feature_movie.domain.utility.Order
-import powerrangers.eivom.feature_movie.domain.utility.Resource
-import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
+import powerrangers.eivom.domain.utility.Resource
+import powerrangers.eivom.domain.utility.ResourceErrorMessage
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
 import powerrangers.eivom.feature_movie.domain.utility.TrendingTime
 import java.time.LocalDate

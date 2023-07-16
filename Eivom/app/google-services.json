@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "433566890639",
+    "project_id": "eivom-powerrangers",
+    "storage_bucket": "eivom-powerrangers.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:433566890639:android:e2f6bf33bcfd4e57714efa",
+        "android_client_info": {
+          "package_name": "powerrangers.eivom"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "433566890639-8jft41bovuoe4cns3ki8l6rdtce6k46p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-Z9w6zQP_vb3G60cfcIn5tIdzNX1yRhU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "433566890639-8jft41bovuoe4cns3ki8l6rdtce6k46p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

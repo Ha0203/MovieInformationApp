@@ -18,6 +18,7 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -114,6 +115,12 @@ fun DrawerBody(
             title = stringResource(id = R.string.movie_list_screen_title),
             icon = Icons.Filled.List,
             contentDescription = stringResource(id = R.string.movie_list_screen_button_content_description)
+        ),
+        MenuItem(
+            route = Route.SETTINGS,
+            title = stringResource(id = R.string.settings_title),
+            icon = Icons.Filled.Settings,
+            contentDescription = stringResource(id = R.string.settings_button_content_description)
         )
     )
     LazyColumn(modifier = modifier) {

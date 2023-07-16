@@ -1,4 +1,4 @@
-package powerrangers.eivom.feature_movie.domain.utility
+package powerrangers.eivom.domain.utility
 
 sealed class Resource<T>(val data: T? = null, val message: String? = null) {
     class Success<T>(data: T) : Resource<T>(data)
@@ -12,7 +12,10 @@ fun <T> Resource<List<T>>.addList(resource: Resource<List<T>>): Resource<List<T>
         Resource.Success(data = list)
     }
     catch (e: Exception) {
-        Resource.Error(data = this.data, message = e.message ?: resource.message ?: ResourceErrorMessage.ADD_LIST)
+        Resource.Error(
+            data = this.data,
+            message = e.message ?: resource.message ?: ResourceErrorMessage.ADD_LIST
+        )
     }
 }
 
@@ -50,4 +53,7 @@ object ResourceErrorMessage {
     const val GET_LOCALMOVIELIST = "Getting Resource<LOCALMOVIELIST> error"
     const val GET_LOCALMOVIEITEM = "Getting Resource<LOCALMOVIEITEM> error"
     const val GET_LOCALMOVIEMAP = "Getting Resource<LOCALMOVIEMAP> error"
+
+    const val SIGN_IN_WITH_INTENT = "Sign in with intent error"
+    const val GET_SIGNED_IN_USER = "Get signed in user error"
 }

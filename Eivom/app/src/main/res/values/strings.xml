@@ -1,11 +1,14 @@
 <resources>
     <!-- General -->
     <string name="app_name">Eivom</string>
+    <string name="unknown">Unknown</string>
 
     <!-- Scaffold Component -->
     <string name="menu_button_content_description">Menu</string>
     <string name="movie_list_screen_title">Movie list screen</string>
     <string name="movie_list_screen_button_content_description">Movie list screen</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_button_content_description">Settings</string>
 
     <!-- Screen Component -->
     <string name="error_label">Error</string>
@@ -51,7 +54,15 @@
     <string name="MaximumLength_FilterState">MaximumLength</string>
     <string name="WithoutGenre_FilterState">WithoutGenre</string>
 
+    <!-- Settings -->
+    <string name="producer_sign_in_title">Producer</string>
+    <string name="sign_in_text">Sign in</string>
+    <string name="sign_in_success">Sign in successfully</string>
+    <string name="sign_out_text">Sign out</string>
+    <string name="sign_out_success">Sign out successfully</string>
 
+    <!-- Default -->
+    <string name="web_client_id">433566890639-bpm5pknik6rs3dgh5ehb5ne4vmpcq185.apps.googleusercontent.com</string>
 
 
 </resources>

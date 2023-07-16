@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import powerrangers.eivom.feature_movie.domain.model.MovieItem
 import powerrangers.eivom.feature_movie.domain.use_case.MovieDatabaseUseCase
 import powerrangers.eivom.feature_movie.domain.use_case.UserPreferencesUseCase
-import powerrangers.eivom.feature_movie.domain.utility.Resource
+import powerrangers.eivom.domain.utility.Resource
 import powerrangers.eivom.feature_movie.ui.utility.UserPreferences
 import powerrangers.eivom.navigation.Route
 import javax.inject.Inject

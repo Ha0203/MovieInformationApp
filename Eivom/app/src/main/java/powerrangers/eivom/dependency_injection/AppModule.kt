@@ -6,11 +6,13 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
+import com.google.android.gms.auth.api.identity.Identity
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import powerrangers.eivom.domain.use_case.GoogleAuthClient
 import powerrangers.eivom.feature_movie.data.database.LocalMovieDatabase
 import powerrangers.eivom.feature_movie.data.database.LocalMovieItemDao
 import powerrangers.eivom.feature_movie.data.network.MovieDatabaseApi
@@ -94,4 +96,11 @@ object AppModule {
     @Singleton
     fun provideLocalMovieDatabaseRepository(localMovieItemDao: LocalMovieItemDao): LocalMovieDatabaseRepository =
         LocalMovieDatabaseRepositoryImpl(localMovieItemDao)
+
+    @Provides
+    @Singleton
+    fun provideGoogleAuthClient(@ApplicationContext context: Context): GoogleAuthClient = GoogleAuthClient(
+        context = context,
+        oneTapClient = Identity.getSignInClient(context)
+    )
 }

@@ -13,16 +13,12 @@ import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 import powerrangers.eivom.feature_movie.domain.use_case.MovieDatabaseUseCase
 import powerrangers.eivom.feature_movie.domain.use_case.UserPreferencesUseCase
 import powerrangers.eivom.feature_movie.domain.utility.DefaultValue
-import powerrangers.eivom.feature_movie.domain.utility.MovieFilter
-import powerrangers.eivom.feature_movie.domain.utility.Resource
-import powerrangers.eivom.feature_movie.domain.utility.ResourceErrorMessage
-import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
-import powerrangers.eivom.feature_movie.domain.utility.TrendingTime
-import powerrangers.eivom.feature_movie.domain.utility.addList
-import powerrangers.eivom.feature_movie.domain.utility.toError
-import powerrangers.eivom.feature_movie.domain.utility.toLoading
+import powerrangers.eivom.domain.utility.Resource
+import powerrangers.eivom.domain.utility.ResourceErrorMessage
+import powerrangers.eivom.domain.utility.addList
+import powerrangers.eivom.domain.utility.toError
+import powerrangers.eivom.domain.utility.toLoading
 import powerrangers.eivom.feature_movie.ui.utility.UserPreferences
-import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
