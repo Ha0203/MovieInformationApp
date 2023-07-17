@@ -10,14 +10,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.runtime.Composable
@@ -113,8 +116,14 @@ fun DrawerBody(
         MenuItem(
             route = Route.MOVIE_LIST_SCREEN,
             title = stringResource(id = R.string.movie_list_screen_title),
-            icon = Icons.Filled.List,
+            icon = Icons.Filled.Movie,
             contentDescription = stringResource(id = R.string.movie_list_screen_button_content_description)
+        ),
+        MenuItem(
+            route = Route.MOVIE_MANAGEMENT_SCREEN,
+            title = stringResource(id = R.string.movie_management_screen_title),
+            icon = Icons.Filled.List,
+            contentDescription = stringResource(id = R.string.movie_management_screen_button_content_description)
         ),
         MenuItem(
             route = Route.SETTINGS,
@@ -144,5 +153,23 @@ fun DrawerBody(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun FloatingAddButton(
+    modifier: Modifier = Modifier,
+    contentDescription: String,
+    onClick: () -> Unit
+) {
+    FloatingActionButton(
+        onClick = onClick,
+        shape = MaterialTheme.shapes.medium,
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = Icons.Default.Add,
+            contentDescription = contentDescription
+        )
     }
 }

@@ -7,6 +7,8 @@
     <string name="menu_button_content_description">Menu</string>
     <string name="movie_list_screen_title">Movie list screen</string>
     <string name="movie_list_screen_button_content_description">Movie list screen</string>
+    <string name="movie_management_screen_title">Movie management screen</string>
+    <string name="movie_management_screen_button_content_description">Movie management screen</string>
     <string name="settings_title">Settings</string>
     <string name="settings_button_content_description">Settings</string>
 
@@ -17,6 +19,7 @@
 
     <string name="retry_button">Retry</string>
     <string name="confirm_button">Confirm</string>
+    <string name="save_button_title">Save</string>
     <string name="cancel_button">Cancel</string>
     <string name="back_button">Back</string>
     <string name="search_label">Enter your movie</string>
@@ -53,6 +56,14 @@
     <string name="MinimumLength_FilterState">MinimumLength</string>
     <string name="MaximumLength_FilterState">MaximumLength</string>
     <string name="WithoutGenre_FilterState">WithoutGenre</string>
+
+    <!-- Movie Management -->
+    <string name="user_error">User error</string>
+    <string name="navigate_to_settings">Settings</string>
+    <string name="add_sponsored_movie_button_content_description">Add sponsored movie</string>
+    <string name="add_sponsored_movie_title">Add Sponsored Movie</string>
+    <string name="key_field_label">Movie Key</string>
+    <string name="key_field_placeholder">AB123CDE45</string>
 
     <!-- Settings -->
     <string name="producer_sign_in_title">Producer</string>

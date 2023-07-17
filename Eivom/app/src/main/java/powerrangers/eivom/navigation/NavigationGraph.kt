@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import powerrangers.eivom.feature_movie.ui.movie_detail.MovieDetailScreen
 import powerrangers.eivom.feature_movie.ui.movie_list.MovieListScreen
+import powerrangers.eivom.feature_movie.ui.movie_management.MovieManagementScreen
 import powerrangers.eivom.ui.settings.SettingsScreen
 
 @Composable
@@ -24,6 +25,21 @@ fun EivomNavigationHost(
             MovieListScreen(
                 navigateToMenuItem = {
                     navController.navigate(it)
+                },
+                navigateToMovieDetailScreen = { movieId ->
+                    navController.navigate(Route.MOVIE_DETAIL_SCREEN + "/${movieId}")
+                }
+            )
+        }
+        composable(
+            route = Route.MOVIE_MANAGEMENT_SCREEN
+        ) {
+            MovieManagementScreen(
+                navigateToMenuItem = {
+                    navController.navigate(it)
+                },
+                navigateToSettingsScreen = {
+                    navController.navigate(Route.SETTINGS)
                 },
                 navigateToMovieDetailScreen = { movieId ->
                     navController.navigate(Route.MOVIE_DETAIL_SCREEN + "/${movieId}")

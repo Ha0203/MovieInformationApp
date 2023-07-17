@@ -125,7 +125,7 @@ fun ProducerSignInSection(
             Toast.makeText(
                 context,
                 context.getString(R.string.sign_in_success),
-                Toast.LENGTH_LONG
+                Toast.LENGTH_SHORT
             ).show()
         }
     }
@@ -134,7 +134,7 @@ fun ProducerSignInSection(
             Toast.makeText(
                 context,
                 context.getString(R.string.sign_out_success),
-                Toast.LENGTH_LONG
+                Toast.LENGTH_SHORT
             ).show()
         }
     }
