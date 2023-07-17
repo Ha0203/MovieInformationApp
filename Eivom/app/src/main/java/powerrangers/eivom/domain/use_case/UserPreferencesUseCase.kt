@@ -1,8 +1,8 @@
-package powerrangers.eivom.feature_movie.domain.use_case
+package powerrangers.eivom.domain.use_case
 
 import androidx.compose.ui.graphics.Color
-import powerrangers.eivom.feature_movie.data.utility.UserPreferencesKey
-import powerrangers.eivom.feature_movie.domain.repository.UserPreferencesRepository
+import powerrangers.eivom.data.utility.UserPreferencesKey
+import powerrangers.eivom.domain.repository.UserPreferencesRepository
 import powerrangers.eivom.feature_movie.domain.utility.DefaultValue
 import java.time.format.DateTimeFormatter
 

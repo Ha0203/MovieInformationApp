@@ -1,4 +1,4 @@
-package powerrangers.eivom.feature_movie.domain.repository
+package powerrangers.eivom.domain.repository
 
 interface UserPreferencesRepository {
     // Save functions

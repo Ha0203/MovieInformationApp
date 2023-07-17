@@ -15,15 +15,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -115,12 +112,12 @@ fun ProducerSignInSection(
     val context = LocalContext.current
 
     if (producerState.errorMessage != null) {
-        ErrorInformedDialog(
-            error = producerState.errorMessage,
-            onDismiss = {
-                deleteErrorMessage()
-            }
-        )
+        Toast.makeText(
+            context,
+            producerState.errorMessage,
+            Toast.LENGTH_LONG
+        ).show()
+        deleteErrorMessage()
     }
 
     LaunchedEffect(key1 = producerState.isSignInSuccess) {
@@ -165,36 +162,5 @@ fun ProducerSignInSection(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun ErrorInformedDialog(
-    error: String,
-    onDismiss: () -> Unit,
-) {
-    val showDialog = remember { mutableStateOf(true) }
-
-    if (showDialog.value) {
-        AlertDialog(
-            onDismissRequest = {
-                onDismiss()
-                showDialog.value = false
-            },
-            title = { Text(text = stringResource(id = R.string.error_label)) },
-            text = {
-                Text(text = error)
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        onDismiss()
-                        showDialog.value = false
-                    }
-                ) {
-                    Text(text = stringResource(id = R.string.confirm_button))
-                }
-            }
-        )
     }
 }

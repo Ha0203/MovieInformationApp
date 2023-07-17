@@ -1,4 +1,4 @@
-package powerrangers.eivom.feature_movie.data.utility
+package powerrangers.eivom.data.utility
 
 // Settings options
 object UserPreferencesKey {

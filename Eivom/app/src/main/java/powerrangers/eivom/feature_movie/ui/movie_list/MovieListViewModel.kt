@@ -11,7 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 import powerrangers.eivom.feature_movie.domain.use_case.MovieDatabaseUseCase
-import powerrangers.eivom.feature_movie.domain.use_case.UserPreferencesUseCase
+import powerrangers.eivom.domain.use_case.UserPreferencesUseCase
 import powerrangers.eivom.feature_movie.domain.utility.DefaultValue
 import powerrangers.eivom.domain.utility.Resource
 import powerrangers.eivom.domain.utility.ResourceErrorMessage

@@ -1,4 +1,4 @@
-package powerrangers.eivom.feature_movie.data.repository
+package powerrangers.eivom.data.repository
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -6,8 +6,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.first
-import powerrangers.eivom.feature_movie.domain.repository.UserPreferencesRepository
-import powerrangers.eivom.feature_movie.data.utility.UserPreferencesKey
+import powerrangers.eivom.domain.repository.UserPreferencesRepository
+import powerrangers.eivom.data.utility.UserPreferencesKey
 
 // Settings Repository
 class UserPreferencesRepositoryImpl(
