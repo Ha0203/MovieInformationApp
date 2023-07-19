@@ -4,13 +4,13 @@
     <string name="unknown">Unknown</string>
 
     <!-- Scaffold Component -->
-    <string name="menu_button_content_description">Menu</string>
-    <string name="movie_list_screen_title">Movie list screen</string>
-    <string name="movie_list_screen_button_content_description">Movie list screen</string>
-    <string name="movie_management_screen_title">Movie management screen</string>
-    <string name="movie_management_screen_button_content_description">Movie management screen</string>
+    <string name="menu_button_content_description">Open menu</string>
+    <string name="movie_list_screen_title">Movies</string>
+    <string name="movie_list_screen_button_content_description">Move to movies screen</string>
+    <string name="movie_management_screen_title">Movie management</string>
+    <string name="movie_management_screen_button_content_description">Move to movie management screen</string>
     <string name="settings_title">Settings</string>
-    <string name="settings_button_content_description">Settings</string>
+    <string name="settings_button_content_description">Move to settings screen</string>
 
     <!-- Screen Component -->
     <string name="error_label">Error</string>
