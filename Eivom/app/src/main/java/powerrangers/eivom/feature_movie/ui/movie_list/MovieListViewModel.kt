@@ -58,6 +58,8 @@ class MovieListViewModel @Inject constructor(
 
     var minReleaseDate = mutableStateOf<String?>(null)
         private set
+    var maxReleaseDate = mutableStateOf<String?>(null)
+        private set
     var showDatePicker = mutableStateOf(false)
         private set
 
@@ -185,6 +187,11 @@ class MovieListViewModel @Inject constructor(
     fun updateMinReleaseDate(newMin: String){
         minReleaseDate.value = newMin
     }
+
+    fun updateMaxReleaseDate(newMax: String){
+        minReleaseDate.value = newMax
+    }
+
     fun reverseDatePicker(){
         showDatePicker.value = !showDatePicker.value
     }

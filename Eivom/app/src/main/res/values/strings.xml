@@ -43,19 +43,19 @@
     <string name="Watched_FilterState">Watched</string>
     <string name="Region_FilterState">Region</string>
     <string name="AdultContentIncluded_FilterState">Include Adult Content</string>
-    <string name="ReleaseYear_FilterState">ReleaseYear</string>
-    <string name="MinimumReleaseDate_FilterState">MinimumReleaseDate</string>
-    <string name="MaximumReleaseDate_FilterState">MaximumReleaseDate</string>
-    <string name="MinimumRating_FilterState">MinimumRating</string>
-    <string name="MaximumRating_FilterState">MaximumRating</string>
-    <string name="MinimumVote_FilterState">MinimumVote</string>
-    <string name="MaximumVote_FilterState">MaximumVote</string>
+    <string name="ReleaseYear_FilterState">Release Year</string>
+    <string name="MinimumReleaseDate_FilterState">Min Release Date</string>
+    <string name="MaximumReleaseDate_FilterState">Max Release Date</string>
+    <string name="MinimumRating_FilterState">Min Rating</string>
+    <string name="MaximumRating_FilterState">Max Rating</string>
+    <string name="MinimumVote_FilterState">Min Vote</string>
+    <string name="MaximumVote_FilterState">Max Vote</string>
     <string name="Genre_FilterState">Genre</string>
-    <string name="OriginCountry_FilterState">OriginCountry</string>
-    <string name="OriginLanguage_FilterState">OriginLanguage</string>
-    <string name="MinimumLength_FilterState">MinimumLength</string>
-    <string name="MaximumLength_FilterState">MaximumLength</string>
-    <string name="WithoutGenre_FilterState">WithoutGenre</string>
+    <string name="OriginCountry_FilterState">Country</string>
+    <string name="OriginLanguage_FilterState">Language</string>
+    <string name="MinimumLength_FilterState">Min Length</string>
+    <string name="MaximumLength_FilterState">Max Length</string>
+    <string name="WithoutGenre_FilterState">Without Genre</string>
 
     <!-- Movie Management -->
     <string name="user_error">User error</string>

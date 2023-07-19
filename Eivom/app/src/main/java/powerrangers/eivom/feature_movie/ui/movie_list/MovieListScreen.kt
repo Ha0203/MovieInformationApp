@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
@@ -921,6 +922,82 @@ fun MinDateFilter(
     }
 }
 
+@Composable
+fun MaxDateFilter(
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+) {
+    val newMaxRD by remember { viewModel.maxReleaseDate }
+    val showDatePicker by remember { viewModel.showDatePicker }
+
+    val context = LocalContext.current
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(id = R.string.MinimumReleaseDate_FilterState),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        OutlinedTextField(
+            value = newMaxRD ?: "",
+            onValueChange = { viewModel.updateMinReleaseDate(it) },
+            label = { Text("Select a date") },
+            visualTransformation = VisualTransformation.None,
+            textStyle = TextStyle(
+                fontSize = 12.sp,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center,
+            ),
+            trailingIcon = {
+                IconButton(
+                    onClick = {
+                        val calendar = Calendar.getInstance()
+                        newMaxRD?.let {
+                            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                            calendar.time = dateFormat.parse(newMaxRD) ?: calendar.time
+                        }
+
+                        DatePickerDialog(
+                            context,
+                            { _, year, month, dayOfMonth ->
+                                val newcalendar = Calendar.getInstance()
+                                newcalendar.set(year, month, dayOfMonth)
+                                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                                viewModel.updateMinReleaseDate(dateFormat.format(newcalendar.time))
+                                viewModel.reverseDatePicker()
+                            },
+                            calendar.get(Calendar.YEAR),
+                            calendar.get(Calendar.MONTH),
+                            calendar.get(Calendar.DAY_OF_MONTH)
+                        ).show()
+                    },
+                ) {
+                    Icon(Icons.Default.DateRange, contentDescription = "Select a date")
+                }
+            },
+            readOnly = true,
+            singleLine = true,
+            shape = RoundedCornerShape(5.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor =  Color.Gray,
+                placeholderColor = MaterialTheme.colors.primary,
+                textColor = MaterialTheme.colors.primary,
+                backgroundColor = Color.White,
+            ),
+            modifier = Modifier
+                .size(width = 70.dp, height = 45.dp)
+        )
+    }
+}
+
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -964,24 +1041,42 @@ fun FilterButton(
                     )
                 },
                 text = {
-                    Column() {
+                    LazyColumn() {
 //                    item { TrendingFilter(filterState = filterState, viewModel = viewModel) }
 //                    item { FavoriteFilter(filterState = filterState, viewModel = viewModel) }
                         // Trending Filter
-                        TrendingFilter(filterState = filterState, viewModel = viewModel)
+                        item{
+                            TrendingFilter(filterState = filterState, viewModel = viewModel)
+                        }
                         // Favorite Filter
-                        FavoriteFilter(filterState = filterState, viewModel = viewModel)
+                        item{
+                            FavoriteFilter(filterState = filterState, viewModel = viewModel)
+                        }
                         // Adult Content Filter
-                        AdultConTentFilter(filterState = filterState, viewModel = viewModel)
+                        item{
+                            AdultConTentFilter(filterState = filterState, viewModel = viewModel)
+                        }
                         // Region Filter
-                        RegionFilter(filterState = filterState, viewModel = viewModel)
-                        Spacer(modifier = Modifier.weight(0.25f))
+                        item{
+                            RegionFilter(filterState = filterState, viewModel = viewModel)
+                        }
+//                        item{
+//                            Spacer(modifier = Modifier.weight(0.25f))
+//                        }
                         // Release Date Filter
-                        ReleaseDateFilter(filterState = filterState, viewModel = viewModel)
+                        item{
+                            ReleaseDateFilter(filterState = filterState, viewModel = viewModel)
+                        }
                         // Min release Date
-                        MinDateFilter(filterState = filterState, viewModel = viewModel)
-                        // Adding a gap to push the button fixed to the bottom
-                        Spacer(modifier = Modifier.weight(1f))
+                        item{
+                            MinDateFilter(filterState = filterState, viewModel = viewModel)
+                        }
+                        // Max release Date
+                        item{
+                            MaxDateFilter(filterState = filterState, viewModel = viewModel)
+                        }
+//                        // Adding a gap to push the button fixed to the bottom
+//                        Spacer(modifier = Modifier.weight(1f))
                     }
 
                 },
