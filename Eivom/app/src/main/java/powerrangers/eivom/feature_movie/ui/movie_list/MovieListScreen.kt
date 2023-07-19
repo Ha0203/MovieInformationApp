@@ -1,6 +1,8 @@
 package powerrangers.eivom.feature_movie.ui.movie_list
 
+import android.app.DatePickerDialog
 import android.graphics.drawable.Drawable
+import android.widget.DatePicker
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
@@ -54,6 +56,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Filter
 import androidx.compose.material.icons.filled.Search
@@ -90,6 +93,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
@@ -103,7 +107,11 @@ import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
 import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.TopBar
+import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 
 @Composable
@@ -833,7 +841,82 @@ fun ReleaseDateFilter(
             modifier = Modifier
                 .size(width = 70.dp, height = 45.dp)
                 .border(1.dp, Color.LightGray, shape = RoundedCornerShape(4.dp)),
+        )
+    }
+}
 
+@Composable
+fun MinDateFilter(
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+) {
+    val newMinRD by remember { viewModel.minReleaseDate }
+    val showDatePicker by remember { viewModel.showDatePicker }
+
+    val context = LocalContext.current
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(id = R.string.MinimumReleaseDate_FilterState),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        OutlinedTextField(
+            value = newMinRD ?: "",
+            onValueChange = { viewModel.updateMinReleaseDate(it) },
+            label = { Text("Select a date") },
+            visualTransformation = VisualTransformation.None,
+            textStyle = TextStyle(
+                fontSize = 12.sp,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center,
+            ),
+            trailingIcon = {
+                IconButton(
+                    onClick = {
+                        val calendar = Calendar.getInstance()
+                        newMinRD?.let {
+                            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                            calendar.time = dateFormat.parse(newMinRD) ?: calendar.time
+                        }
+
+                        DatePickerDialog(
+                            context,
+                            { _, year, month, dayOfMonth ->
+                                val newcalendar = Calendar.getInstance()
+                                newcalendar.set(year, month, dayOfMonth)
+                                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                                viewModel.updateMinReleaseDate(dateFormat.format(newcalendar.time))
+                                viewModel.reverseDatePicker()
+                            },
+                            calendar.get(Calendar.YEAR),
+                            calendar.get(Calendar.MONTH),
+                            calendar.get(Calendar.DAY_OF_MONTH)
+                        ).show()
+                  },
+                ) {
+                    Icon(Icons.Default.DateRange, contentDescription = "Select a date")
+                }
+            },
+            readOnly = true,
+            singleLine = true,
+            shape = RoundedCornerShape(5.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor =  Color.Gray,
+                placeholderColor = MaterialTheme.colors.primary,
+                textColor = MaterialTheme.colors.primary,
+                backgroundColor = Color.White,
+            ),
+            modifier = Modifier
+                .size(width = 70.dp, height = 45.dp)
         )
     }
 }
@@ -867,8 +950,9 @@ fun FilterButton(
                     showDialog.value = false
                 },
                 modifier = Modifier
-                    .height(400.dp),
-                //properties = DialogProperties(width = 300.dp, height = 400.dp),
+                    .height(400.dp)
+                    .padding(10.dp),
+
                 title = {
                     Text(
                         text = stringResource(id = R.string.filter_title),
@@ -894,6 +978,8 @@ fun FilterButton(
                         Spacer(modifier = Modifier.weight(0.25f))
                         // Release Date Filter
                         ReleaseDateFilter(filterState = filterState, viewModel = viewModel)
+                        // Min release Date
+                        MinDateFilter(filterState = filterState, viewModel = viewModel)
                         // Adding a gap to push the button fixed to the bottom
                         Spacer(modifier = Modifier.weight(1f))
                     }
