@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -49,22 +50,23 @@ fun TopBar(
             )
             {
                 Text(
+                    modifier = modifier.fillMaxWidth(),
                     text = title,
-                    fontSize = 50.sp,
+                    fontSize = 60.sp,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.h1,
                     color = MaterialTheme.colors.primary,
-                    modifier = modifier.padding(bottom = 30.dp)
                 )
                 Spacer(modifier = Modifier.width(50.dp))
             }
 
         },
-        modifier = modifier,
+        modifier = modifier.height(80.dp),
         backgroundColor = MaterialTheme.colors.background,
         navigationIcon = {
             IconButton(onClick = onMenuIconClick) {
                 Icon(
+                    modifier = modifier.padding(top=30.dp),
                     imageVector = Icons.Filled.Menu,
                     contentDescription = stringResource(id = R.string.menu_button_content_description),
                     tint = MaterialTheme.colors.primary
