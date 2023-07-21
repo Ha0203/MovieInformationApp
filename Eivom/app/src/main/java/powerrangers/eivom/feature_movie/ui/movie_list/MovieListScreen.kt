@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -45,6 +46,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
+import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -95,6 +97,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
@@ -936,7 +939,7 @@ fun MaxDateFilter(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = stringResource(id = R.string.MinimumReleaseDate_FilterState),
+            text = stringResource(id = R.string.MaximumReleaseDate_FilterState),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(vertical = 4.dp)
@@ -998,6 +1001,107 @@ fun MaxDateFilter(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun FilterDialog(
+    funcToCall: () -> Unit,
+    onDismiss: () -> Unit,
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+) {
+    Dialog(
+        onDismissRequest = {
+            onDismiss()
+        },
+        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = true),
+        content = {
+            Column(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .background(MaterialTheme.colors.surface)
+                    .fillMaxWidth()
+                    .width(300.dp)
+                    .height(400.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.filter_title),
+                    style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .padding(top = 20.dp)
+                        .fillMaxWidth()
+                        .weight(0.2f)
+                )
+
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
+                    item{
+                        TrendingFilter(filterState = filterState, viewModel = viewModel)
+                    }
+                    // Favorite Filter
+                    item{
+                        FavoriteFilter(filterState = filterState, viewModel = viewModel)
+                    }
+                    // Adult Content Filter
+                    item{
+                        AdultConTentFilter(filterState = filterState, viewModel = viewModel)
+                    }
+                    // Region Filter
+                    item{
+                        RegionFilter(filterState = filterState, viewModel = viewModel)
+                    }
+//                        item{
+//                            Spacer(modifier = Modifier.weight(0.25f))
+//                        }
+                    // Release Date Filter
+                    item{
+                        ReleaseDateFilter(filterState = filterState, viewModel = viewModel)
+                    }
+                    // Min release Date
+                    item{
+                        MinDateFilter(filterState = filterState, viewModel = viewModel)
+                    }
+                    // Max release Date
+                    item{
+                        MaxDateFilter(filterState = filterState, viewModel = viewModel)
+                    }
+                    // Add other filter items here
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                        .weight(0.2f),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Button(
+                        onClick = {
+                            // Handle Cancel button action
+                            onDismiss()
+                        },
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+                        Text(text = stringResource(id = R.string.cancel_button))
+                    }
+
+                    Button(
+                        onClick = {
+                            funcToCall()
+                        },
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+                        Text(text = stringResource(id = R.string.confirm_button))
+                    }
+                }
+            }
+        }
+    )
+}
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -1008,7 +1112,6 @@ fun FilterButton(
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
     val showDialog = remember { mutableStateOf(true) }
-    remember { mutableStateListOf("Action", "Science Fiction", "Horror") }
 
     AnimatedVisibility(
         visible = showDialog.value,
@@ -1020,92 +1123,118 @@ fun FilterButton(
             targetScale = 0.8f,
             animationSpec = tween(durationMillis = 300)
         ) + fadeOut()
-    ){
-            AlertDialog(
-                onDismissRequest = {
-                    onDismiss()
-                    showDialog.value = false
-                },
-                modifier = Modifier
-                    .height(400.dp)
-                    .padding(10.dp),
-
-                title = {
-                    Text(
-                        text = stringResource(id = R.string.filter_title),
-                        style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 20.dp)
-                    )
-                },
-                text = {
-                    LazyColumn() {
-//                    item { TrendingFilter(filterState = filterState, viewModel = viewModel) }
-//                    item { FavoriteFilter(filterState = filterState, viewModel = viewModel) }
-                        // Trending Filter
-                        item{
-                            TrendingFilter(filterState = filterState, viewModel = viewModel)
-                        }
-                        // Favorite Filter
-                        item{
-                            FavoriteFilter(filterState = filterState, viewModel = viewModel)
-                        }
-                        // Adult Content Filter
-                        item{
-                            AdultConTentFilter(filterState = filterState, viewModel = viewModel)
-                        }
-                        // Region Filter
-                        item{
-                            RegionFilter(filterState = filterState, viewModel = viewModel)
-                        }
-//                        item{
-//                            Spacer(modifier = Modifier.weight(0.25f))
-//                        }
-                        // Release Date Filter
-                        item{
-                            ReleaseDateFilter(filterState = filterState, viewModel = viewModel)
-                        }
-                        // Min release Date
-                        item{
-                            MinDateFilter(filterState = filterState, viewModel = viewModel)
-                        }
-                        // Max release Date
-                        item{
-                            MaxDateFilter(filterState = filterState, viewModel = viewModel)
-                        }
-//                        // Adding a gap to push the button fixed to the bottom
-//                        Spacer(modifier = Modifier.weight(1f))
-                    }
-
-                },
-                confirmButton = {
-
-                    Button(
-                        onClick = {
-                            funcToCall()
-                            showDialog.value = false
-                        },
-                        //modifier = Modifier.fillMaxHeight()
-                    ) {
-                        Text(text = stringResource(id = R.string.confirm_button))
-                    }
-                },
-                dismissButton = {
-                    Button(
-                        onClick = {
-                            // Handle Cancel button action
-                            onDismiss()
-                            showDialog.value = false
-                        }
-                    ) {
-                        Text(text = stringResource(id = R.string.cancel_button))
-                    }
-                }
-            )
-        }
+    ) {
+        FilterDialog(funcToCall, onDismiss, filterState, viewModel)
+    }
 }
+
+//@OptIn(ExperimentalAnimationApi::class)
+//@Composable
+//fun FilterButton(
+//    funcToCall: () -> Unit,
+//    onDismiss: () -> Unit,
+//    filterState: FilterState,
+//    viewModel: MovieListViewModel = hiltViewModel()
+//) {
+//    val showDialog = remember { mutableStateOf(true) }
+//    remember { mutableStateListOf("Action", "Science Fiction", "Horror") }
+//
+//    AnimatedVisibility(
+//        visible = showDialog.value,
+//        enter = scaleIn(
+//            initialScale = 0.8f,
+//            animationSpec = tween(durationMillis = 300)
+//        ) + fadeIn(),
+//        exit = scaleOut(
+//            targetScale = 0.8f,
+//            animationSpec = tween(durationMillis = 300)
+//        ) + fadeOut()
+//    ){
+//            AlertDialog(
+//                onDismissRequest = {
+//                    onDismiss()
+//                    showDialog.value = false
+//                },
+//                modifier = Modifier
+//                    .height(400.dp)
+//                    .padding(10.dp),
+//
+//                title = {
+//                    Text(
+//                        text = stringResource(id = R.string.filter_title),
+//                        style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp),
+//                        textAlign = TextAlign.Center,
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .padding(top = 20.dp)
+//                    )
+//                },
+//                text = {
+//                    LazyColumn() {
+////                    item { TrendingFilter(filterState = filterState, viewModel = viewModel) }
+////                    item { FavoriteFilter(filterState = filterState, viewModel = viewModel) }
+//                        // Trending Filter
+//                        item{
+//                            TrendingFilter(filterState = filterState, viewModel = viewModel)
+//                        }
+//                        // Favorite Filter
+//                        item{
+//                            FavoriteFilter(filterState = filterState, viewModel = viewModel)
+//                        }
+//                        // Adult Content Filter
+//                        item{
+//                            AdultConTentFilter(filterState = filterState, viewModel = viewModel)
+//                        }
+//                        // Region Filter
+//                        item{
+//                            RegionFilter(filterState = filterState, viewModel = viewModel)
+//                        }
+////                        item{
+////                            Spacer(modifier = Modifier.weight(0.25f))
+////                        }
+//                        // Release Date Filter
+//                        item{
+//                            ReleaseDateFilter(filterState = filterState, viewModel = viewModel)
+//                        }
+//                        // Min release Date
+//                        item{
+//                            MinDateFilter(filterState = filterState, viewModel = viewModel)
+//                        }
+//                        // Max release Date
+//                        item{
+//                            MaxDateFilter(filterState = filterState, viewModel = viewModel)
+//                        }
+////                        // Adding a gap to push the button fixed to the bottom
+////                        Spacer(modifier = Modifier.weight(1f))
+//                    }
+//
+//                },
+//                confirmButton = {
+//
+//                    Button(
+//                        onClick = {
+//                            funcToCall()
+//                            showDialog.value = false
+//                        },
+//                        //modifier = Modifier.fillMaxHeight()
+//                    ) {
+//                        Text(text = stringResource(id = R.string.confirm_button))
+//                    }
+//                },
+//                dismissButton = {
+//                    Button(
+//                        onClick = {
+//                            // Handle Cancel button action
+//                            onDismiss()
+//                            showDialog.value = false
+//                        }
+//                    ) {
+//                        Text(text = stringResource(id = R.string.cancel_button))
+//                    }
+//                }
+//            )
+//        }
+//}
 
 @Composable
 fun SortButton(
