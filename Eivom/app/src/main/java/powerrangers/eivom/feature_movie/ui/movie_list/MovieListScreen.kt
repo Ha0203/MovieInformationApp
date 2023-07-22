@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -93,6 +94,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -712,7 +714,14 @@ fun RegionFilter(
                 },
 
             ) {
-                Text(text = regionSelected.ifEmpty { "Select Region" })
+                Text(
+                    text = regionSelected.ifEmpty { "Select Region" },
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .widthIn(min = 60.dp)
+                        .height(20.dp),
+
+                )
 
                 DropdownMenu(
                     expanded = regionSelected.isEmpty(),
@@ -720,7 +729,7 @@ fun RegionFilter(
                         viewModel.resetRegionSelect()
                         //showMenu.value = false
                     },
-                    //modifier = Modifier.border(2.dp, Color.LightGray)
+                    modifier = Modifier.border(2.dp, Color.LightGray)
                 ) {
                     Column(
                         modifier = Modifier
@@ -806,18 +815,31 @@ fun ReleaseDateFilter(
             value = newRD,
             onValueChange = { newValue ->
                 val filteredValue = newValue.filter { it.isDigit() }
-                viewModel.updateReleaseDate(filteredValue)
+                if (newValue.length <= 4) {
+                    viewModel.updateReleaseDate(filteredValue)
+                }
+                else {
+                    viewModel.updateReleaseDate("")
+                }
             },
             keyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Number
             ),
             visualTransformation = VisualTransformation.None,
             textStyle = TextStyle(
-                fontSize = 12.sp,
+                fontSize = 9.5.sp,
                 fontWeight = FontWeight.ExtraBold,
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.Left,
                 //background = Color.White
             ),
+            trailingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_year) , contentDescription = null,
+                    modifier = Modifier
+                        .size(15.dp),
+                    tint = MaterialTheme.colors.primary,
+                )
+            },
             shape = RoundedCornerShape(5.dp),
             colors = TextFieldDefaults.textFieldColors(
                 focusedIndicatorColor = Color.Transparent,
@@ -832,11 +854,11 @@ fun ReleaseDateFilter(
                 Text(
                     text = LocalDate.now().year.toString(),
                     style = TextStyle(
-                        fontSize = 12.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Light,
                         fontStyle = FontStyle.Italic,
                         color = Color.LightGray,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Left
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -845,8 +867,8 @@ fun ReleaseDateFilter(
             },
 
             modifier = Modifier
-                .size(width = 70.dp, height = 45.dp)
-                .border(1.dp, Color.LightGray, shape = RoundedCornerShape(4.dp)),
+                .size(width = 90.dp, height = 45.dp)
+                .border(0.5.dp, Color.LightGray, shape = RoundedCornerShape(4.dp)),
         )
     }
 }
@@ -905,7 +927,10 @@ fun MinDateFilter(
                         ).show()
                   },
                 ) {
-                    Icon(Icons.Default.DateRange, contentDescription = "Select a date")
+                    Icon(
+                        Icons.Default.DateRange, contentDescription = "Select a date",
+                        tint = MaterialTheme.colors.primary
+                    )
                 }
             },
             readOnly = true,
@@ -971,7 +996,6 @@ fun MaxDateFilter(
                                 newcalendar.set(year, month, dayOfMonth)
                                 val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                                 viewModel.updateMinReleaseDate(dateFormat.format(newcalendar.time))
-                                //viewModel.reverseDatePicker()
                             },
                             calendar.get(Calendar.YEAR),
                             calendar.get(Calendar.MONTH),
@@ -979,7 +1003,10 @@ fun MaxDateFilter(
                         ).show()
                     },
                 ) {
-                    Icon(Icons.Default.DateRange, contentDescription = "Select a date")
+                    Icon(
+                        Icons.Default.DateRange, contentDescription = "Select a date",
+                        tint = MaterialTheme.colors.primary
+                    )
                 }
             },
             readOnly = true,
@@ -1018,10 +1045,19 @@ fun MinRating(
         Spacer(modifier = Modifier.weight(1f))
 
         OutlinedTextField(
-            value = newFloat ?: "",
+            value = newFloat?: "",
             onValueChange = { newValue ->
-                val filteredValue = newValue.filter { it.isDigit() }
-                viewModel.updateMinRating(filteredValue)
+                // Validate the input to ensure it falls within the desired range
+                if ( newValue.length < 3 ||
+                    (
+                            newValue.length == 3 && newValue.toFloat() in 1.0f..5.0f
+                    )
+                ){
+                    viewModel.updateMinRating(newValue)
+                } else {
+                    // If the input is not a valid float within the range, do not update the value
+                    viewModel.updateMinRating("")
+                }
             },
             keyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Number
@@ -1030,13 +1066,14 @@ fun MinRating(
             textStyle = TextStyle(
                 fontSize = 10.sp,
                 fontWeight = FontWeight.ExtraBold,
-                textAlign = TextAlign.Start,
+                textAlign = TextAlign.Left,
+
                 //background = Color.White
             ),
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.Star, contentDescription = null,
-                    modifier = Modifier.size(10.dp)
+                    modifier = Modifier.size(15.dp), tint = MaterialTheme.colors.primary
                 )
             },
             shape = RoundedCornerShape(5.dp),
@@ -1053,7 +1090,7 @@ fun MinRating(
                 Text(
                     text = "1.0",
                     style = TextStyle(
-                        fontSize = 10.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Light,
                         fontStyle = FontStyle.Italic,
                         color = Color.LightGray,
@@ -1065,8 +1102,90 @@ fun MinRating(
                 )
             },
             modifier = Modifier
-                .size(width = 80.dp, height = 45.dp)
-                .border(1.dp, Color.LightGray, shape = RoundedCornerShape(4.dp)),
+                .size(width = 90.dp, height = 45.dp)
+                .border(0.5.dp, Color.LightGray, shape = RoundedCornerShape(4.dp)),
+        )
+    }
+}
+
+@Composable
+fun MaxRating(
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+) {
+    val newFloat by remember { viewModel.maxRating }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(id = R.string.MaximumRating_FilterState),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+
+        OutlinedTextField(
+            value = newFloat?: "",
+            onValueChange = { newValue ->
+                // Validate the input to ensure it falls within the desired range
+                if ( newValue.length < 3 ||
+                    (
+                            newValue.length == 3 && newValue.toFloat() in 1.0f..5.0f
+                    )
+                ){
+                    viewModel.updateMaxRating(newValue)
+                } else {
+                    // If the input is not a valid float within the range, do not update the value
+                    viewModel.updateMaxRating("")
+                }
+            },
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Number
+            ),
+            visualTransformation = VisualTransformation.None,
+            textStyle = TextStyle(
+                fontSize = 10.sp,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Left,
+
+                //background = Color.White
+            ),
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Star, contentDescription = null,
+                    modifier = Modifier.size(15.dp), tint = MaterialTheme.colors.primary
+                )
+            },
+            shape = RoundedCornerShape(5.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor =  Color.Gray,
+                placeholderColor = MaterialTheme.colors.primary,
+                textColor = MaterialTheme.colors.primary,
+                backgroundColor = Color.White,
+
+                ),
+            placeholder = {
+                Text(
+                    text = "5.0",
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Light,
+                        fontStyle = FontStyle.Italic,
+                        color = Color.LightGray,
+                        textAlign = TextAlign.Start
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                )
+            },
+            modifier = Modifier
+                .size(width = 90.dp, height = 45.dp)
+                .border(0.5.dp, Color.LightGray, shape = RoundedCornerShape(4.dp)),
         )
     }
 }
@@ -1113,36 +1232,45 @@ fun FilterDialog(
                     item{
                         TrendingFilter(filterState = filterState, viewModel = viewModel)
                     }
+                    item { Spacer(modifier = Modifier.height(5.dp)) }
                     // Favorite Filter
                     item{
                         FavoriteFilter(filterState = filterState, viewModel = viewModel)
                     }
+                    item { Spacer(modifier = Modifier.height(5.dp)) }
                     // Adult Content Filter
                     item{
                         AdultConTentFilter(filterState = filterState, viewModel = viewModel)
                     }
+                    item { Spacer(modifier = Modifier.height(5.dp)) }
                     // Region Filter
                     item{
                         RegionFilter(filterState = filterState, viewModel = viewModel)
                     }
-                    item{
-                        Spacer(modifier = Modifier.weight(0.25f))
-                    }
+                    item { Spacer(modifier = Modifier.height(10.dp)) }
                     // Release Date Filter
                     item{
                         ReleaseDateFilter(filterState = filterState, viewModel = viewModel)
                     }
+                    item { Spacer(modifier = Modifier.height(10.dp)) }
                     // Min release Date
                     item{
                         MinDateFilter(filterState = filterState, viewModel = viewModel)
                     }
+                    item { Spacer(modifier = Modifier.height(10.dp)) }
                     // Max release Date
                     item{
                         MaxDateFilter(filterState = filterState, viewModel = viewModel)
                     }
+                    item { Spacer(modifier = Modifier.height(10.dp)) }
                     // Min Rating Point
                     item{
                         MinRating(filterState = filterState, viewModel = viewModel)
+                    }
+                    item { Spacer(modifier = Modifier.height(10.dp)) }
+                    // Max Rating Point
+                    item{
+                        MaxRating(filterState = filterState, viewModel = viewModel)
                     }
                     // Add other filter items here
                 }

@@ -62,7 +62,10 @@ class MovieListViewModel @Inject constructor(
         private set
     var showDatePicker = mutableStateOf(false)
         private set
-    var minRating = mutableStateOf<String?>("")
+    var minRating = mutableStateOf<String?>(null)
+        private set
+    var maxRating = mutableStateOf<String?>(null)
+        private set
     init {
         viewModelScope.launch {
             userPreferences.value = UserPreferences(
@@ -195,9 +198,12 @@ class MovieListViewModel @Inject constructor(
     fun reverseDatePicker(){
         showDatePicker.value = !showDatePicker.value
     }
-    fun updateMinRating(newVal: String)
-    {
+    fun updateMinRating(newVal: String) {
         minRating.value = newVal
+    }
+    fun updateMaxRating(newVal: String)
+    {
+        maxRating.value = newVal
     }
     fun isFavoriteMovie(movieId: Int): Boolean = movieDatabaseUseCase.isFavoriteMovie(movieId)
     fun isWatchedMovie(movieId: Int): Boolean = movieDatabaseUseCase.isWatchedMovie(movieId)
