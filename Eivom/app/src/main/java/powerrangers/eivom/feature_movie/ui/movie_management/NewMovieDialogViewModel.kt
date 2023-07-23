@@ -2,31 +2,54 @@ package powerrangers.eivom.feature_movie.ui.movie_management
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import powerrangers.eivom.domain.use_case.GoogleAuthClient
+import kotlinx.coroutines.launch
+import powerrangers.eivom.domain.use_case.UserPreferencesUseCase
 import powerrangers.eivom.feature_movie.domain.model.Collection
 import powerrangers.eivom.feature_movie.domain.model.Company
 import powerrangers.eivom.feature_movie.domain.model.Video
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
+import powerrangers.eivom.feature_movie.ui.utility.UserPreferences
 import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
 class NewMovieDialogViewModel @Inject constructor(
-    private val googleAuthClient: GoogleAuthClient
+    private val userPreferencesUseCase: UserPreferencesUseCase
 ): ViewModel() {
+    var userPreferences = mutableStateOf(UserPreferences())
+        private set
+
     var movieKey = mutableStateOf("")
         private set
     var newMovieState = mutableStateOf(SponsoredMovieState())
+        private set
+    var collectionState = mutableStateOf<CollectionState?>(null)
         private set
 
     val genreList = TranslateCode.GENRE.toList()
     val languageList = TranslateCode.ISO_639_1.toList()
 
+    init {
+        viewModelScope.launch {
+            userPreferences.value =
+                UserPreferences(
+                    backgroundColor = userPreferencesUseCase.getBackgroundColor(),
+                    dateFormat = userPreferencesUseCase.getDateFormat()
+                )
+        }
+    }
+
     // Update new movie state functions
-    fun updateNewMovieState(key: String, movieState: SponsoredMovieState) {
+    fun updateNewMovieState(
+        key: String,
+        movieState: SponsoredMovieState,
+        movieCollectionState: CollectionState?
+    ) {
         movieKey.value = key
         newMovieState.value = movieState
+        collectionState.value = movieCollectionState
     }
 
     fun updateMovieKey(key: String) {
@@ -59,10 +82,36 @@ class NewMovieDialogViewModel @Inject constructor(
         )
     }
 
-    fun updateMovieCollection(collection: Collection) {
-        newMovieState.value = newMovieState.value.copy(
-            collection = collection
+    fun addMovieCollection() {
+        collectionState.value = CollectionState()
+    }
+
+    fun updateMovieCollectionName(name: String) {
+        collectionState.value = collectionState.value?.copy(
+            name = name
+        ) ?: CollectionState(
+            name = name
         )
+    }
+
+    fun updateMovieCollectionPosterUrl(posterUrl: String) {
+        collectionState.value = collectionState.value?.copy(
+            posterUrl = posterUrl
+        ) ?: CollectionState(
+            posterUrl = posterUrl
+        )
+    }
+
+    fun updateMovieCollectionBackdropUrl(backdropUrl: String) {
+        collectionState.value = collectionState.value?.copy(
+            backdropUrl = backdropUrl
+        ) ?: CollectionState(
+            backdropUrl = backdropUrl
+        )
+    }
+
+    fun deleteMovieCollection() {
+        collectionState.value = null
     }
 
     fun updateMovieBudget(budget: Long) {
@@ -159,9 +208,9 @@ class NewMovieDialogViewModel @Inject constructor(
         )
     }
 
-    fun updateMovieReleaseDate(date: LocalDate) {
+    fun updateMovieReleaseDate(year: Int, month: Int, dayOfMonth: Int) {
         newMovieState.value = newMovieState.value.copy(
-            releaseDate = date
+            releaseDate = LocalDate.of(year, month, dayOfMonth)
         )
     }
 

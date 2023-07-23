@@ -20,6 +20,8 @@ class MovieManagementViewModel @Inject constructor(
         private set
     var newMovieState = mutableStateOf(SponsoredMovieState())
         private set
+    var collectionState = mutableStateOf<CollectionState?>(null)
+        private set
 
     // Get user
     fun getUser() {
@@ -31,8 +33,13 @@ class MovieManagementViewModel @Inject constructor(
         isAddingMovie.value = isAdding
     }
 
-    fun updateNewMovieState(key: String, movieState: SponsoredMovieState) {
+    fun updateNewMovieState(
+        key: String,
+        movieState: SponsoredMovieState,
+        movieCollectionState: CollectionState?
+    ) {
         movieKey.value = key
         newMovieState.value = movieState
+        collectionState.value = movieCollectionState
     }
 }

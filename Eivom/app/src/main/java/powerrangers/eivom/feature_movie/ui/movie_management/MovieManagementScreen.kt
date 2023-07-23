@@ -1,5 +1,9 @@
 package powerrangers.eivom.feature_movie.ui.movie_management
 
+import android.app.DatePickerDialog
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,6 +30,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,7 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -54,7 +59,7 @@ import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.FloatingAddButton
 import powerrangers.eivom.ui.component.TopBar
-import kotlin.math.roundToInt
+import java.time.LocalDate
 
 @Composable
 fun MovieManagementScreen(
@@ -134,15 +139,17 @@ fun MovieManagementBody(
             modifier = modifier,
             key = movieManagementViewModel.movieKey.value,
             movieState = movieManagementViewModel.newMovieState.value,
+            movieCollectionState = movieManagementViewModel.collectionState.value,
             updateAddingState = {
                 movieManagementViewModel.updateAddingState(
                     isAdding = it
                 )
             },
-            updateNewMovieState = { key, movieState ->
+            updateNewMovieState = { key, movieState, movieCollectionState ->
                 movieManagementViewModel.updateNewMovieState(
                     key = key,
-                    movieState = movieState
+                    movieState = movieState,
+                    movieCollectionState = movieCollectionState
                 )
             }
         )
@@ -155,24 +162,24 @@ fun AddMovieDialog(
     newMovieDialogViewModel: NewMovieDialogViewModel = hiltViewModel(),
     key: String,
     movieState: SponsoredMovieState,
+    movieCollectionState: CollectionState?,
     updateAddingState: (Boolean) -> Unit,
-    updateNewMovieState: (String, SponsoredMovieState) -> Unit
+    updateNewMovieState: (String, SponsoredMovieState, CollectionState?) -> Unit
 ) {
     newMovieDialogViewModel.updateNewMovieState(
         key = key,
-        movieState = movieState
+        movieState = movieState,
+        movieCollectionState = movieCollectionState
     )
+    val userPreferences by remember { newMovieDialogViewModel.userPreferences }
     val movieKey by remember { newMovieDialogViewModel.movieKey }
     val newMovieState by remember { newMovieDialogViewModel.newMovieState }
-
-    val coroutineScope = rememberCoroutineScope()
-    val scrollState = rememberScrollState()
-    var scrollToPosition by remember { mutableStateOf(0F) }
+    val collectionState by remember { newMovieDialogViewModel.collectionState }
 
     Dialog(
         onDismissRequest = {
             updateAddingState(false)
-            updateNewMovieState(movieKey, newMovieState)
+            updateNewMovieState(movieKey, newMovieState, collectionState)
         }
     ) {
         Card(
@@ -194,7 +201,7 @@ fun AddMovieDialog(
                 Column(
                     modifier = modifier
                         .height(450.dp)
-                        .verticalScroll(scrollState),
+                        .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
                     // Movie Key Field
@@ -378,98 +385,102 @@ fun AddMovieDialog(
                         modifier = modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        val density = LocalDensity.current
+                        var dropdownMenuWidth by remember { mutableStateOf(0.dp) }
+                        var isLanguageDropdownExpanded by remember { mutableStateOf(false) }
+
                         Text(
                             modifier = modifier.weight(1f),
                             text = stringResource(id = R.string.spoken_language_label)
                         )
-                        SelectButton(
-                            modifier = modifier.weight(1f),
-                            enabled = false,
-                            text = TranslateCode.ISO_639_1[newMovieState.originalLanguage]
-                                ?: stringResource(id = R.string.unknown),
-                            isSelected = newMovieState.originalLanguage != null,
-                            onSelect = {}
-                        )
-                    }
-                    Row(
-                        modifier = modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        val density = LocalDensity.current
-
-                        var isLanguageDropdownExpanded by remember { mutableStateOf(false) }
-                        var dropdownMenuWidth by remember { mutableStateOf(0.dp) }
-
-                        Spacer(modifier = modifier.weight(1f))
-                        
-                        Column(
-                            modifier = modifier.weight(1f)
-                        ) {
-                            newMovieState.spokenLanguages.forEach { language ->
-                                SelectButton(
-                                    modifier = modifier.fillMaxWidth(),
-                                    text = TranslateCode.ISO_639_1[language] ?: stringResource(id = R.string.unknown),
-                                    isSelected = false,
-                                    onSelect = {
-                                        newMovieDialogViewModel.removeMovieSpokenLanguage(language)
-                                    }
-                                )
+                        AddOrDeleteButton(
+                            modifier = modifier
+                                .weight(1f)
+                                .onGloballyPositioned { coordinates ->
+                                    dropdownMenuWidth =
+                                        (coordinates.size.width / density.density).dp
+                                },
+                            isAddButton = true,
+                            contentDescription = stringResource(id = R.string.add_spoken_language_content_description),
+                            onClick = {
+                                isLanguageDropdownExpanded =
+                                    !isLanguageDropdownExpanded
                             }
-                            AddButton(
-                                modifier = modifier
-                                    .fillMaxWidth()
-                                    .onGloballyPositioned { coordinates ->
-                                        dropdownMenuWidth =
-                                            (coordinates.size.width / density.density).dp
-                                    },
-                                contentDescription = stringResource(id = R.string.add_spoken_language_content_description),
-                                onSelect = {
-                                    isLanguageDropdownExpanded =
-                                        !isLanguageDropdownExpanded
-                                }
-                            )
-                            DropdownMenu(
-                                modifier = modifier
-                                    .height(200.dp)
-                                    .width(dropdownMenuWidth),
-                                expanded = isLanguageDropdownExpanded,
-                                onDismissRequest = {
-                                    isLanguageDropdownExpanded = false
-                                }
-                            ) {
-                                newMovieDialogViewModel.languageList.forEach { language ->
-                                    if (language.first != newMovieState.originalLanguage && language.first !in newMovieState.spokenLanguages) {
-                                        DropdownMenuItem(
-                                            onClick = {
-                                                coroutineScope.launch {
-                                                    newMovieDialogViewModel.addMovieSpokenLanguage(
-                                                        language.first
-                                                    )
-                                                    isLanguageDropdownExpanded = false
-                                                    scrollState.animateScrollTo(scrollToPosition.roundToInt())
-                                                }
-                                            }
-                                        ) {
-                                            Text(
-                                                modifier = modifier.fillMaxWidth(),
-                                                text = language.second,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis,
-                                                textAlign = TextAlign.Center
+                        )
+                        DropdownMenu(
+                            modifier = modifier
+                                .height(200.dp)
+                                .width(dropdownMenuWidth),
+                            expanded = isLanguageDropdownExpanded,
+                            onDismissRequest = {
+                                isLanguageDropdownExpanded = false
+                            }
+                        ) {
+                            newMovieDialogViewModel.languageList.forEach { language ->
+                                if (language.first != newMovieState.originalLanguage && language.first !in newMovieState.spokenLanguages) {
+                                    DropdownMenuItem(
+                                        onClick = {
+                                            newMovieDialogViewModel.addMovieSpokenLanguage(
+                                                language.first
                                             )
+                                            isLanguageDropdownExpanded = false
                                         }
+                                    ) {
+                                        Text(
+                                            modifier = modifier.fillMaxWidth(),
+                                            text = language.second,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                            textAlign = TextAlign.Center
+                                        )
                                     }
                                 }
                             }
                         }
                     }
+                    Row(
+                        modifier = modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Spacer(modifier = modifier.weight(1f))
+
+                        Column(
+                            modifier = modifier
+                                .weight(1f)
+                                .animateContentSize(
+                                    animationSpec = spring(
+                                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                                        stiffness = Spring.StiffnessLow
+                                    )
+                                )
+                        ) {
+                            SelectButton(
+                                modifier = modifier.fillMaxWidth(),
+                                enabled = false,
+                                text = TranslateCode.ISO_639_1[newMovieState.originalLanguage]
+                                    ?: stringResource(id = R.string.unknown),
+                                isSelected = newMovieState.originalLanguage != null,
+                                onSelect = {}
+                            )
+                            for (i in newMovieState.spokenLanguages.size - 1 downTo 0) {
+                                SelectButton(
+                                    modifier = modifier.fillMaxWidth(),
+                                    text = TranslateCode.ISO_639_1[newMovieState.spokenLanguages[i]] ?: stringResource(
+                                        id = R.string.unknown
+                                    ),
+                                    isSelected = false,
+                                    onSelect = {
+                                        newMovieDialogViewModel.removeMovieSpokenLanguage(
+                                            newMovieState.spokenLanguages[i]
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    }
                     // Length
                     OutlinedTextField(
-                        modifier = modifier
-                            .fillMaxWidth()
-                            .onGloballyPositioned { coordinates ->
-                                scrollToPosition = coordinates.positionInParent().y
-                            },
+                        modifier = modifier.fillMaxWidth(),
                         value = newMovieState.length?.toString() ?: "",
                         keyboardOptions = KeyboardOptions.Default.copy(
                             keyboardType = KeyboardType.Number
@@ -489,7 +500,115 @@ fun AddMovieDialog(
                         maxLines = 1
                     )
                     // Release Date
+                    Row(
+                        modifier = modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val context = LocalContext.current
+                        val currentDate = LocalDate.now()
+
+                        Text(
+                            modifier = modifier.weight(1f),
+                            text = stringResource(id = R.string.release_date_label)
+                        )
+                        SelectButton(
+                            modifier = modifier.weight(1f),
+                            text = newMovieState.releaseDate?.format(userPreferences.dateFormat) ?: stringResource(id = R.string.unknown),
+                            isSelected = newMovieState.releaseDate != null,
+                            onSelect = {
+                                DatePickerDialog(
+                                    context,
+                                    { _, year, month, dayOfMonth ->
+                                        newMovieDialogViewModel.updateMovieReleaseDate(
+                                            year = year,
+                                            month = month + 1,
+                                            dayOfMonth = dayOfMonth
+                                        )
+                                    },
+                                    newMovieState.releaseDate?.year ?: currentDate.year,
+                                    (newMovieState.releaseDate?.monthValue ?: currentDate.monthValue) - 1,
+                                    newMovieState.releaseDate?.dayOfMonth ?: currentDate.dayOfMonth
+                                ).show()
+                            }
+                        )
+                    }
                     // Collection
+                    Column(
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .animateContentSize(
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessLow
+                                )
+                            )
+                    ) {
+                        Row(
+                            modifier = modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                modifier = modifier.weight(1f),
+                                text = stringResource(id = R.string.collection_label)
+                            )
+                            AddOrDeleteButton(
+                                modifier = modifier.weight(1f),
+                                isAddButton = collectionState == null,
+                                contentDescription = stringResource(id = R.string.collection_content_description),
+                                onClick = {
+                                    if (collectionState == null) {
+                                        newMovieDialogViewModel.addMovieCollection()
+                                    } else {
+                                        newMovieDialogViewModel.deleteMovieCollection()
+                                    }
+                                }
+                            )
+                        }
+                        if (collectionState != null) {
+                            OutlinedTextField(
+                                modifier = modifier.fillMaxWidth(),
+                                value = collectionState?.name ?: "",
+                                onValueChange = {
+                                    newMovieDialogViewModel.updateMovieCollectionName(it)
+                                },
+                                label = {
+                                    Text(text = stringResource(id = R.string.collection_name_label))
+                                },
+                                placeholder = {
+                                    Text(text = stringResource(id = R.string.collection_name_placeholder))
+                                },
+                                maxLines = 2
+                            )
+                            OutlinedTextField(
+                                modifier = modifier.fillMaxWidth(),
+                                value = collectionState?.posterUrl ?: "",
+                                onValueChange = {
+                                    newMovieDialogViewModel.updateMovieCollectionPosterUrl(it)
+                                },
+                                label = {
+                                    Text(text = stringResource(id = R.string.collection_poster_url_label))
+                                },
+                                placeholder = {
+                                    Text(text = stringResource(id = R.string.collection_poster_url_placeholder))
+                                },
+                                maxLines = 1
+                            )
+                            OutlinedTextField(
+                                modifier = modifier.fillMaxWidth(),
+                                value = collectionState?.backdropUrl ?: "",
+                                onValueChange = {
+                                    newMovieDialogViewModel.updateMovieCollectionBackdropUrl(it)
+                                },
+                                label = {
+                                    Text(text = stringResource(id = R.string.collection_backdrop_url_label))
+                                },
+                                placeholder = {
+                                    Text(text = stringResource(id = R.string.collection_backdrop_url_placeholder))
+                                },
+                                maxLines = 1
+                            )
+                        }
+                    }
                     // Company
                     // Country
                     // Logo Urls
@@ -502,8 +621,8 @@ fun AddMovieDialog(
                     // Status
                     // Budget
                     // Revenue
-                    // Button
                 }
+                // Button
                 Row(
                     modifier = modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -512,7 +631,7 @@ fun AddMovieDialog(
                     Button(
                         onClick = {
                             updateAddingState(false)
-                            updateNewMovieState(movieKey, newMovieState)
+                            updateNewMovieState(movieKey, newMovieState, collectionState)
                         }
                     ) {
                         Text(text = stringResource(id = R.string.cancel_button))
@@ -556,19 +675,22 @@ fun SelectButton(
 }
 
 @Composable
-fun AddButton(
+fun AddOrDeleteButton(
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
+    isAddButton: Boolean,
     contentDescription: String,
-    onSelect: () -> Unit
+    onClick: () -> Unit
 ) {
     Button(
         modifier = modifier,
-        enabled = enabled,
-        onClick = onSelect
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = if (isAddButton) MaterialTheme.colors.primary else MaterialTheme.colors.surface,
+            contentColor = if (isAddButton) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onSurface
+        )
     ) {
         Icon(
-            imageVector = Icons.Filled.Add,
+            imageVector = if (isAddButton) Icons.Filled.Add else Icons.Filled.Delete,
             contentDescription = contentDescription
         )
     }

@@ -80,6 +80,15 @@
     <string name="length_field_label">Length</string>
     <string name="length_field_placeholder">Your movie length</string>
     <string name="length_unit">min</string>
+    <string name="release_date_label">Release Date *</string>
+    <string name="collection_label">Collection</string>
+    <string name="collection_content_description">Add movie collection</string>
+    <string name="collection_name_label">Collection Name</string>
+    <string name="collection_name_placeholder">Your collection name</string>
+    <string name="collection_poster_url_label">Collection Poster URL</string>
+    <string name="collection_poster_url_placeholder">Your collection poster URL</string>
+    <string name="collection_backdrop_url_label">Collection Backdrop URL</string>
+    <string name="collection_backdrop_url_placeholder">Your collection backdrop URL</string>
 
     <!-- Settings -->
     <string name="producer_sign_in_title">Producer</string>
