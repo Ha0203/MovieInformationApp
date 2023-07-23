@@ -11,7 +11,7 @@ data class SponsoredMovieState(
     val landscapeImageUrls: List<String> = emptyList(),
     val collection: Collection? = null,
     val budget: Long? = null,
-    val genres: List<String> = emptyList(),
+    val genres: List<Int> = emptyList(),
     val homepageUrl: String? = null,
     val originalLanguage: String? = null,
     val originalTitle: String? = null,
