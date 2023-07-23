@@ -117,6 +117,25 @@
     <string name="movie_backdrop_url_placeholder">Your movie backdrop URL</string>
     <string name="movie_homepage_label">Homepage URL</string>
     <string name="movie_homepage_placeholder">Your movie homepage URL</string>
+    <string name="video_label">Video</string>
+    <string name="add_video_content_description">Add movie video</string>
+    <string name="remove_video_button">Remove Video:</string>
+    <string name="video_name_label">Video Name</string>
+    <string name="video_name_placeholder">Your video name</string>
+    <string name="video_url_label">Video URL</string>
+    <string name="video_url_placeholder">Your video URL</string>
+    <string name="video_language_label">Video Language</string>
+    <string name="video_country_label">Video Country</string>
+    <string name="video_site_label">Video Site</string>
+    <string name="video_site_placeholder">Your video site</string>
+    <string name="video_type_label">Video Type</string>
+    <string name="status_label">Status</string>
+    <string name="status_placeholder">Your movie status</string>
+    <string name="budget_label">Budget</string>
+    <string name="budget_placeholder">Your movie budget</string>
+    <string name="currency_unit">$</string>
+    <string name="revenue_label">Revenue</string>
+    <string name="revenue_placeholder">Your movie revenue</string>
 
     <!-- Settings -->
     <string name="producer_sign_in_title">Producer</string>

@@ -161,6 +161,7 @@ fun AddMovieDialog(
     val movieLogoUrlList = remember { newMovieDialogViewModel.movieLogoUrlList }
     val moviePosterUrlList = remember { newMovieDialogViewModel.moviePosterUrlList }
     val movieBackdropUrlList = remember { newMovieDialogViewModel.movieBackdropUrlList }
+    val videoStateList = remember { newMovieDialogViewModel.videoStateList }
 
     Dialog(
         onDismissRequest = {
@@ -268,12 +269,15 @@ fun AddMovieDialog(
                     // Genres
                     Row(
                         modifier = modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = stringResource(id = R.string.genre_label))
-                        Spacer(modifier = modifier.width(8.dp))
-                        LazyRow {
+                        Text(
+                            modifier = modifier.weight(1f),
+                            text = stringResource(id = R.string.genre_label)
+                        )
+                        LazyRow(
+                            modifier = modifier.weight(2f)
+                        ) {
                             items(newMovieDialogViewModel.genreList) { genre ->
                                 val isGenreSelected = newMovieDialogViewModel.isGenreSelected(genre.first)
                                 SelectButton(
@@ -1056,9 +1060,342 @@ fun AddMovieDialog(
                         maxLines = 1
                     )
                     // Video
+                    Column(
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .animateContentSize(
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessLow
+                                )
+                            )
+                    ) {
+                        Row(
+                            modifier = modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                modifier = modifier.weight(1f),
+                                text = stringResource(id = R.string.video_label)
+                            )
+                            AddOrDeleteButton(
+                                modifier = modifier.weight(1f),
+                                isAddButton = true,
+                                contentDescription = stringResource(id = R.string.add_video_content_description),
+                                onClick = {
+                                    newMovieDialogViewModel.addMovieVideo()
+                                }
+                            )
+                        }
+                        for (i in videoStateList.lastIndex downTo 0) {
+                            SelectButton(
+                                modifier = modifier.fillMaxWidth(),
+                                text = stringResource(id = R.string.remove_video_button) + " " + if (videoStateList[i].name.isNullOrBlank()) stringResource(id = R.string.unknown) else videoStateList[i].name,
+                                isSelected = false,
+                                onSelect = {
+                                    newMovieDialogViewModel.removeMovieVideo(
+                                        index = i
+                                    )
+                                }
+                            )
+                            OutlinedTextField(
+                                modifier = modifier.fillMaxWidth(),
+                                value = videoStateList[i].name ?: "",
+                                onValueChange = {
+                                    newMovieDialogViewModel.updateMovieVideoName(
+                                        index = i,
+                                        name = it
+                                    )
+                                },
+                                label = {
+                                    Text(text = stringResource(id = R.string.video_name_label))
+                                },
+                                placeholder = {
+                                    Text(text = stringResource(id = R.string.video_name_placeholder))
+                                },
+                                maxLines = 2
+                            )
+                            OutlinedTextField(
+                                modifier = modifier.fillMaxWidth(),
+                                value = videoStateList[i].url ?: "",
+                                onValueChange = {
+                                    newMovieDialogViewModel.updateMovieVideoUrl(
+                                        index = i,
+                                        url = it
+                                    )
+                                },
+                                label = {
+                                    Text(text = stringResource(id = R.string.video_url_label))
+                                },
+                                placeholder = {
+                                    Text(text = stringResource(id = R.string.video_url_placeholder))
+                                },
+                                maxLines = 1
+                            )
+                            Row(
+                                modifier = modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                val density = LocalDensity.current
+
+                                var isLanguageDropdownExpanded by remember { mutableStateOf(false) }
+                                var dropdownMenuWidth by remember { mutableStateOf(0.dp) }
+
+                                Text(
+                                    modifier = modifier.weight(1f),
+                                    text = stringResource(id = R.string.video_language_label)
+                                )
+                                Column(
+                                    modifier = modifier.weight(1f)
+                                ) {
+                                    SelectButton(
+                                        modifier = modifier
+                                            .fillMaxWidth()
+                                            .onGloballyPositioned { coordinates ->
+                                                dropdownMenuWidth =
+                                                    (coordinates.size.width / density.density).dp
+                                            },
+                                        text = TranslateCode.ISO_639_1[videoStateList[i].language]
+                                            ?: stringResource(id = R.string.unknown),
+                                        isSelected = videoStateList[i].language != null,
+                                        onSelect = {
+                                            isLanguageDropdownExpanded =
+                                                !isLanguageDropdownExpanded
+                                        }
+                                    )
+                                    DropdownMenu(
+                                        modifier = modifier
+                                            .height(200.dp)
+                                            .width(dropdownMenuWidth),
+                                        expanded = isLanguageDropdownExpanded,
+                                        onDismissRequest = {
+                                            isLanguageDropdownExpanded = false
+                                        }
+                                    ) {
+                                        newMovieDialogViewModel.languageList.forEach { language ->
+                                            DropdownMenuItem(
+                                                onClick = {
+                                                    newMovieDialogViewModel.updateMovieVideoLanguage(
+                                                        index = i,
+                                                        language = language.first
+                                                    )
+                                                    isLanguageDropdownExpanded = false
+                                                }
+                                            ) {
+                                                Text(
+                                                    modifier = modifier.fillMaxWidth(),
+                                                    text = language.second,
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis,
+                                                    textAlign = TextAlign.Center
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            Row(
+                                modifier = modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                val density = LocalDensity.current
+
+                                var isCountryDropdownExpanded by remember { mutableStateOf(false) }
+                                var dropdownMenuWidth by remember { mutableStateOf(0.dp) }
+
+                                Text(
+                                    modifier = modifier.weight(1f),
+                                    text = stringResource(id = R.string.video_country_label)
+                                )
+                                Column(
+                                    modifier = modifier.weight(1f)
+                                ) {
+                                    SelectButton(
+                                        modifier = modifier
+                                            .fillMaxWidth()
+                                            .onGloballyPositioned { coordinates ->
+                                                dropdownMenuWidth =
+                                                    (coordinates.size.width / density.density).dp
+                                            },
+                                        text = TranslateCode.ISO_3166_1[videoStateList[i].country]
+                                            ?: stringResource(id = R.string.unknown),
+                                        isSelected = videoStateList[i].country != null,
+                                        onSelect = {
+                                            isCountryDropdownExpanded =
+                                                !isCountryDropdownExpanded
+                                        }
+                                    )
+                                    DropdownMenu(
+                                        modifier = modifier
+                                            .height(200.dp)
+                                            .width(dropdownMenuWidth),
+                                        expanded = isCountryDropdownExpanded,
+                                        onDismissRequest = {
+                                            isCountryDropdownExpanded = false
+                                        }
+                                    ) {
+                                        newMovieDialogViewModel.countryList.forEach { country ->
+                                            DropdownMenuItem(
+                                                onClick = {
+                                                    newMovieDialogViewModel.updateMovieVideoCountry(
+                                                        index = i,
+                                                        country = country.first
+                                                    )
+                                                    isCountryDropdownExpanded = false
+                                                }
+                                            ) {
+                                                Text(
+                                                    modifier = modifier.fillMaxWidth(),
+                                                    text = country.second,
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis,
+                                                    textAlign = TextAlign.Center
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            OutlinedTextField(
+                                modifier = modifier.fillMaxWidth(),
+                                value = videoStateList[i].site ?: "",
+                                onValueChange = {
+                                    newMovieDialogViewModel.updateMovieVideoSite(
+                                        index = i,
+                                        site = it
+                                    )
+                                },
+                                label = {
+                                    Text(text = stringResource(id = R.string.video_site_label))
+                                },
+                                placeholder = {
+                                    Text(text = stringResource(id = R.string.video_site_placeholder))
+                                },
+                                maxLines = 1
+                            )
+                            Row(
+                                modifier = modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                val density = LocalDensity.current
+
+                                var isVideoTypeDropdownExpanded by remember { mutableStateOf(false) }
+                                var dropdownMenuWidth by remember { mutableStateOf(0.dp) }
+
+                                Text(
+                                    modifier = modifier.weight(1f),
+                                    text = stringResource(id = R.string.video_type_label)
+                                )
+                                Column(
+                                    modifier = modifier.weight(1f)
+                                ) {
+                                    SelectButton(
+                                        modifier = modifier
+                                            .fillMaxWidth()
+                                            .onGloballyPositioned { coordinates ->
+                                                dropdownMenuWidth =
+                                                    (coordinates.size.width / density.density).dp
+                                            },
+                                        text = videoStateList[i].type
+                                            ?: stringResource(id = R.string.unknown),
+                                        isSelected = videoStateList[i].type != null,
+                                        onSelect = {
+                                            isVideoTypeDropdownExpanded =
+                                                !isVideoTypeDropdownExpanded
+                                        }
+                                    )
+                                    DropdownMenu(
+                                        modifier = modifier
+                                            .height(200.dp)
+                                            .width(dropdownMenuWidth),
+                                        expanded = isVideoTypeDropdownExpanded,
+                                        onDismissRequest = {
+                                            isVideoTypeDropdownExpanded = false
+                                        }
+                                    ) {
+                                        newMovieDialogViewModel.videoType.forEach { type ->
+                                            DropdownMenuItem(
+                                                onClick = {
+                                                    newMovieDialogViewModel.updateMovieVideoType(
+                                                        index = i,
+                                                        type = type
+                                                    )
+                                                    isVideoTypeDropdownExpanded = false
+                                                }
+                                            ) {
+                                                Text(
+                                                    modifier = modifier.fillMaxWidth(),
+                                                    text = type,
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis,
+                                                    textAlign = TextAlign.Center
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                     // Status
+                    OutlinedTextField(
+                        modifier = modifier.fillMaxWidth(),
+                        value = newMovieState.status ?: "",
+                        onValueChange = {
+                            newMovieDialogViewModel.updateMovieStatus(
+                                status = it
+                            )
+                        },
+                        label = {
+                            Text(text = stringResource(id = R.string.status_label))
+                        },
+                        placeholder = {
+                            Text(text = stringResource(id = R.string.status_placeholder))
+                        },
+                        maxLines = 1
+                    )
                     // Budget
+                    OutlinedTextField(
+                        modifier = modifier.fillMaxWidth(),
+                        value = newMovieState.budget?.toString() ?: "",
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
+                        ),
+                        onValueChange = {
+                            newMovieDialogViewModel.updateMovieBudget(it)
+                        },
+                        label = {
+                            Text(text = stringResource(id = R.string.budget_label))
+                        },
+                        placeholder = {
+                            Text(text = stringResource(id = R.string.budget_placeholder))
+                        },
+                        trailingIcon = {
+                            Text(text = stringResource(id = R.string.currency_unit))
+                        },
+                        maxLines = 1
+                    )
                     // Revenue
+                    OutlinedTextField(
+                        modifier = modifier.fillMaxWidth(),
+                        value = newMovieState.revenue?.toString() ?: "",
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
+                        ),
+                        onValueChange = {
+                            newMovieDialogViewModel.updateMovieRevenue(it)
+                        },
+                        label = {
+                            Text(text = stringResource(id = R.string.revenue_label))
+                        },
+                        placeholder = {
+                            Text(text = stringResource(id = R.string.revenue_placeholder))
+                        },
+                        trailingIcon = {
+                            Text(text = stringResource(id = R.string.currency_unit))
+                        },
+                        maxLines = 1
+                    )
                 }
                 // Button
                 Row(
@@ -1078,7 +1415,7 @@ fun AddMovieDialog(
                             newMovieDialogViewModel.clearNewMovieState()
                             updateAddingState(false)
                         },
-                        enabled = movieKey.isNotBlank() && newMovieState.isValid() && (collectionState?.isValid() ?: true) && newMovieDialogViewModel.isMovieCompanyListValid()
+                        enabled = movieKey.isNotBlank() && newMovieState.isValid() && (collectionState?.isValid() ?: true) && newMovieDialogViewModel.isMovieCompanyListValid() && newMovieDialogViewModel.isMovieVideoListValid()
                     ) {
                         Text(text = stringResource(id = R.string.save_button_title))
                     }

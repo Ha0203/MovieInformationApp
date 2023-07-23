@@ -7,9 +7,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import powerrangers.eivom.domain.use_case.UserPreferencesUseCase
-import powerrangers.eivom.feature_movie.domain.model.Collection
-import powerrangers.eivom.feature_movie.domain.model.Company
-import powerrangers.eivom.feature_movie.domain.model.Video
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
 import powerrangers.eivom.feature_movie.ui.utility.UserPreferences
 import java.time.LocalDate
@@ -36,10 +33,13 @@ class NewMovieDialogViewModel @Inject constructor(
         private set
     var movieBackdropUrlList = mutableStateListOf<String>()
         private set
+    var videoStateList = mutableStateListOf<VideoState>()
+        private set
 
     val genreList = TranslateCode.GENRE.toList()
     val languageList = TranslateCode.ISO_639_1.toList()
     val countryList = TranslateCode.ISO_3166_1.toList()
+    val videoType = listOf("Teaser", "Trailer", "Featurette", "Clip", "Behind the Scenes", "Other")
 
     init {
         viewModelScope.launch {
@@ -59,6 +59,7 @@ class NewMovieDialogViewModel @Inject constructor(
         movieLogoUrlList.clear()
         moviePosterUrlList.clear()
         movieBackdropUrlList.clear()
+        videoStateList.clear()
     }
 
     // Update new movie state functions
@@ -122,9 +123,9 @@ class NewMovieDialogViewModel @Inject constructor(
         collectionState.value = null
     }
 
-    fun updateMovieBudget(budget: Long) {
+    fun updateMovieBudget(budget: String) {
         newMovieState.value = newMovieState.value.copy(
-            budget = budget
+            budget = if (budget.isNotBlank()) if (budget.length <= 18) budget.toLong() else 999999999999999999 else null
         )
     }
 
@@ -245,9 +246,9 @@ class NewMovieDialogViewModel @Inject constructor(
         )
     }
 
-    fun updateMovieRevenue(revenue: Long) {
+    fun updateMovieRevenue(revenue: String) {
         newMovieState.value = newMovieState.value.copy(
-            revenue = revenue
+            revenue = if (revenue.isNotBlank()) if (revenue.length <= 18) revenue.toLong() else 999999999999999999 else null
         )
     }
 
@@ -295,17 +296,60 @@ class NewMovieDialogViewModel @Inject constructor(
         )
     }
 
-    fun addMovieVideo(video: Video) {
-        val videos = newMovieState.value.videos + video
-        newMovieState.value = newMovieState.value.copy(
-            videos = videos
+    fun addMovieVideo() {
+        videoStateList.add(VideoState())
+    }
+
+    fun updateMovieVideoName(index: Int, name: String) {
+        videoStateList[index] = videoStateList[index].copy(
+            name = name
         )
     }
 
-    fun removeMovieVideo(video: Video) {
-        val videos = newMovieState.value.videos - video
-        newMovieState.value = newMovieState.value.copy(
-            videos = videos
+    fun updateMovieVideoUrl(index: Int, url: String) {
+        videoStateList[index] = videoStateList[index].copy(
+            url = url
         )
+    }
+
+    fun updateMovieVideoLanguage(index: Int, language: String) {
+        videoStateList[index] = videoStateList[index].copy(
+            language = language
+        )
+    }
+
+    fun updateMovieVideoCountry(index: Int, country: String) {
+        videoStateList[index] = videoStateList[index].copy(
+            country = country
+        )
+    }
+
+    fun updateMovieVideoSite(index: Int, site: String) {
+        videoStateList[index] = videoStateList[index].copy(
+            site = site
+        )
+    }
+
+    fun updateMovieVideoType(index: Int, type: String) {
+        videoStateList[index] = videoStateList[index].copy(
+            type = type
+        )
+    }
+
+    fun removeMovieVideo(index: Int) {
+        videoStateList.removeAt(index)
+    }
+
+    fun isMovieVideoListValid(): Boolean {
+        if (videoStateList.isEmpty()) {
+            return true
+        } else {
+            for (video in videoStateList) {
+                if (!video.isValid()) {
+                    return false
+                }
+            }
+            return true
+        }
     }
 }

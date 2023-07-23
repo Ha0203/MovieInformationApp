@@ -1,6 +1,5 @@
 package powerrangers.eivom.feature_movie.ui.movie_management
 
-import powerrangers.eivom.feature_movie.domain.model.Video
 import java.time.LocalDate
 
 data class SponsoredMovieState(
@@ -19,8 +18,7 @@ data class SponsoredMovieState(
     val length: Int? = null,
     val spokenLanguages: List<String> = emptyList(),
     val status: String? = null,
-    val title: String? = null,
-    val videos: List<Video> = emptyList()
+    val title: String? = null
 )
 
 fun SponsoredMovieState.isValid(): Boolean =
