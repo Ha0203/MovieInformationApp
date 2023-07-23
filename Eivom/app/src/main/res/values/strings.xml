@@ -97,6 +97,26 @@
     <string name="company_logo_url_label">Company Logo URL</string>
     <string name="company_logo_url_placeholder">Your company logo URL</string>
     <string name="company_country_label">Company Country</string>
+    <string name="production_country_label">Production Country</string>
+    <string name="add_production_country_content_description">Add production country</string>
+    <string name="movie_logo_url_label">Logo URL</string>
+    <string name="add_movie_logo_url_content_description">Add movie logo URL</string>
+    <string name="delete_movie_logo_url_content_description">Delete movie logo URL</string>
+    <string name="movie_logo_url_placeholder">Your movie logo URL</string>
+    <string name="movie_main_poster_label">Main Poster URL *</string>
+    <string name="movie_main_poster_placeholder">Your movie main poster URL</string>
+    <string name="movie_poster_url_label">Poster URL</string>
+    <string name="add_movie_poster_url_content_description">Add movie poster URL</string>
+    <string name="delete_movie_poster_url_content_description">Delete movie poster URL</string>
+    <string name="movie_poster_url_placeholder">Your movie poster URL</string>
+    <string name="movie_main_backdrop_label">Main Backdrop URL</string>
+    <string name="movie_main_backdrop_placeholder">Your movie main backdrop URL</string>
+    <string name="movie_backdrop_url_label">Backdrop URL</string>
+    <string name="add_movie_backdrop_url_content_description">Add movie backdrop URL</string>
+    <string name="delete_movie_backdrop_url_content_description">Delete movie backdrop URL</string>
+    <string name="movie_backdrop_url_placeholder">Your movie backdrop URL</string>
+    <string name="movie_homepage_label">Homepage URL</string>
+    <string name="movie_homepage_placeholder">Your movie homepage URL</string>
 
     <!-- Settings -->
     <string name="producer_sign_in_title">Producer</string>

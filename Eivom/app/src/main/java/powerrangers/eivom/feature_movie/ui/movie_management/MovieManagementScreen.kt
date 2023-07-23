@@ -24,6 +24,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
@@ -137,21 +138,9 @@ fun MovieManagementBody(
     if (isAddingMovie) {
         AddMovieDialog(
             modifier = modifier,
-            key = movieManagementViewModel.movieKey.value,
-            movieState = movieManagementViewModel.newMovieState.value,
-            movieCollectionState = movieManagementViewModel.collectionState.value,
-            movieCompanyStateList = movieManagementViewModel.companyStateList,
             updateAddingState = {
                 movieManagementViewModel.updateAddingState(
                     isAdding = it
-                )
-            },
-            updateNewMovieState = { key, movieState, movieCollectionState, movieCompanyStateList ->
-                movieManagementViewModel.updateNewMovieState(
-                    key = key,
-                    movieState = movieState,
-                    movieCollectionState = movieCollectionState,
-                    movieCompanyStateList = movieCompanyStateList
                 )
             }
         )
@@ -162,29 +151,20 @@ fun MovieManagementBody(
 fun AddMovieDialog(
     modifier: Modifier,
     newMovieDialogViewModel: NewMovieDialogViewModel = hiltViewModel(),
-    key: String,
-    movieState: SponsoredMovieState,
-    movieCollectionState: CollectionState?,
-    movieCompanyStateList: List<CompanyState>,
-    updateAddingState: (Boolean) -> Unit,
-    updateNewMovieState: (String, SponsoredMovieState, CollectionState?, List<CompanyState>) -> Unit
+    updateAddingState: (Boolean) -> Unit
 ) {
-    newMovieDialogViewModel.updateNewMovieState(
-        key = key,
-        movieState = movieState,
-        movieCollectionState = movieCollectionState,
-        movieCompanyStateList = movieCompanyStateList
-    )
     val userPreferences by remember { newMovieDialogViewModel.userPreferences }
     val movieKey by remember { newMovieDialogViewModel.movieKey }
     val newMovieState by remember { newMovieDialogViewModel.newMovieState }
     val collectionState by remember { newMovieDialogViewModel.collectionState }
     val companyStateList = remember { newMovieDialogViewModel.companyStateList }
+    val movieLogoUrlList = remember { newMovieDialogViewModel.movieLogoUrlList }
+    val moviePosterUrlList = remember { newMovieDialogViewModel.moviePosterUrlList }
+    val movieBackdropUrlList = remember { newMovieDialogViewModel.movieBackdropUrlList }
 
     Dialog(
         onDismissRequest = {
             updateAddingState(false)
-            updateNewMovieState(movieKey, newMovieState, collectionState, companyStateList)
         }
     ) {
         Card(
@@ -295,11 +275,16 @@ fun AddMovieDialog(
                         Spacer(modifier = modifier.width(8.dp))
                         LazyRow {
                             items(newMovieDialogViewModel.genreList) { genre ->
+                                val isGenreSelected = newMovieDialogViewModel.isGenreSelected(genre.first)
                                 SelectButton(
                                     text = genre.second,
-                                    isSelected = newMovieDialogViewModel.isGenreSelected(genre.first),
+                                    isSelected = isGenreSelected,
                                     onSelect = {
-                                        newMovieDialogViewModel.addMovieGenre(genre.first)
+                                        if (isGenreSelected) {
+                                            newMovieDialogViewModel.removeMovieGenre(genre.first)
+                                        } else {
+                                            newMovieDialogViewModel.addMovieGenre(genre.first)
+                                        }
                                     }
                                 )
                             }
@@ -752,12 +737,324 @@ fun AddMovieDialog(
                         }
                     }
                     // Country
+                    Row(
+                        modifier = modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val density = LocalDensity.current
+                        var dropdownMenuWidth by remember { mutableStateOf(0.dp) }
+                        var isCountryDropdownExpanded by remember { mutableStateOf(false) }
+
+                        Text(
+                            modifier = modifier.weight(1f),
+                            text = stringResource(id = R.string.production_country_label)
+                        )
+                        AddOrDeleteButton(
+                            modifier = modifier
+                                .weight(1f)
+                                .onGloballyPositioned { coordinates ->
+                                    dropdownMenuWidth =
+                                        (coordinates.size.width / density.density).dp
+                                },
+                            isAddButton = true,
+                            contentDescription = stringResource(id = R.string.add_production_country_content_description),
+                            onClick = {
+                                isCountryDropdownExpanded =
+                                    !isCountryDropdownExpanded
+                            }
+                        )
+                        DropdownMenu(
+                            modifier = modifier
+                                .height(200.dp)
+                                .width(dropdownMenuWidth),
+                            expanded = isCountryDropdownExpanded,
+                            onDismissRequest = {
+                                isCountryDropdownExpanded = false
+                            }
+                        ) {
+                            newMovieDialogViewModel.countryList.forEach { country ->
+                                DropdownMenuItem(
+                                    onClick = {
+                                        newMovieDialogViewModel.addMovieProductionCountry(
+                                            country.first
+                                        )
+                                        isCountryDropdownExpanded = false
+                                    }
+                                ) {
+                                    Text(
+                                        modifier = modifier.fillMaxWidth(),
+                                        text = country.second,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    Row(
+                        modifier = modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Spacer(modifier = modifier.weight(1f))
+
+                        Column(
+                            modifier = modifier
+                                .weight(1f)
+                                .animateContentSize(
+                                    animationSpec = spring(
+                                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                                        stiffness = Spring.StiffnessLow
+                                    )
+                                )
+                        ) {
+                            for (i in newMovieState.productionCountries.size - 1 downTo 0) {
+                                SelectButton(
+                                    modifier = modifier.fillMaxWidth(),
+                                    text = TranslateCode.ISO_3166_1[newMovieState.productionCountries[i]] ?: stringResource(
+                                        id = R.string.unknown
+                                    ),
+                                    isSelected = false,
+                                    onSelect = {
+                                        newMovieDialogViewModel.removeMovieProductionCountry(
+                                            newMovieState.productionCountries[i]
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    }
                     // Logo Urls
+                    Column(
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .animateContentSize(
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessLow
+                                )
+                            )
+                    ) {
+                        Row(
+                            modifier = modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                modifier = modifier.weight(1f),
+                                text = stringResource(id = R.string.movie_logo_url_label)
+                            )
+                            AddOrDeleteButton(
+                                modifier = modifier.weight(1f),
+                                isAddButton = true,
+                                contentDescription = stringResource(id = R.string.add_movie_logo_url_content_description),
+                                onClick = {
+                                    newMovieDialogViewModel.addMovieLogoUrl()
+                                }
+                            )
+                        }
+                        for (i in movieLogoUrlList.size - 1 downTo 0) {
+                            OutlinedTextField(
+                                modifier = modifier.fillMaxWidth(),
+                                value = movieLogoUrlList[i],
+                                onValueChange = {
+                                    newMovieDialogViewModel.updateMovieLogoUrl(
+                                        index = i,
+                                        url = it
+                                    )
+                                },
+                                label = {
+                                    Text(text = stringResource(id = R.string.movie_logo_url_label))
+                                },
+                                placeholder = {
+                                    Text(text = stringResource(id = R.string.movie_logo_url_placeholder))
+                                },
+                                maxLines = 1,
+                                trailingIcon = {
+                                    IconButton(
+                                        onClick = {
+                                            newMovieDialogViewModel.removeMovieLogoUrl(i)
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Delete,
+                                            contentDescription = stringResource(id = R.string.delete_movie_logo_url_content_description)
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
                     // Main Poster Url
+                    OutlinedTextField(
+                        modifier = modifier.fillMaxWidth(),
+                        value = newMovieState.posterUrl ?: "",
+                        onValueChange = {
+                            newMovieDialogViewModel.updateMoviePosterUrl(
+                                url = it
+                            )
+                        },
+                        label = {
+                            Text(text = stringResource(id = R.string.movie_main_poster_label))
+                        },
+                        placeholder = {
+                            Text(text = stringResource(id = R.string.movie_main_poster_placeholder))
+                        },
+                        maxLines = 1
+                    )
                     // Poster Urls
+                    Column(
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .animateContentSize(
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessLow
+                                )
+                            )
+                    ) {
+                        Row(
+                            modifier = modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                modifier = modifier.weight(1f),
+                                text = stringResource(id = R.string.movie_poster_url_label)
+                            )
+                            AddOrDeleteButton(
+                                modifier = modifier.weight(1f),
+                                isAddButton = true,
+                                contentDescription = stringResource(id = R.string.add_movie_poster_url_content_description),
+                                onClick = {
+                                    newMovieDialogViewModel.addMoviePosterUrl()
+                                }
+                            )
+                        }
+                        for (i in moviePosterUrlList.size - 1 downTo 0) {
+                            OutlinedTextField(
+                                modifier = modifier.fillMaxWidth(),
+                                value = moviePosterUrlList[i],
+                                onValueChange = {
+                                    newMovieDialogViewModel.updateMoviePosterUrl(
+                                        index = i,
+                                        url = it
+                                    )
+                                },
+                                label = {
+                                    Text(text = stringResource(id = R.string.movie_poster_url_label))
+                                },
+                                placeholder = {
+                                    Text(text = stringResource(id = R.string.movie_poster_url_placeholder))
+                                },
+                                maxLines = 1,
+                                trailingIcon = {
+                                    IconButton(
+                                        onClick = {
+                                            newMovieDialogViewModel.removeMoviePosterUrl(i)
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Delete,
+                                            contentDescription = stringResource(id = R.string.delete_movie_poster_url_content_description)
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
                     // Main Backdrop Url
+                    OutlinedTextField(
+                        modifier = modifier.fillMaxWidth(),
+                        value = newMovieState.landscapeImageUrl ?: "",
+                        onValueChange = {
+                            newMovieDialogViewModel.updateMovieLandscapeImageUrl(
+                                url = it
+                            )
+                        },
+                        label = {
+                            Text(text = stringResource(id = R.string.movie_main_backdrop_label))
+                        },
+                        placeholder = {
+                            Text(text = stringResource(id = R.string.movie_main_backdrop_placeholder))
+                        },
+                        maxLines = 1
+                    )
                     // Backdrop Urls
+                    Column(
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .animateContentSize(
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessLow
+                                )
+                            )
+                    ) {
+                        Row(
+                            modifier = modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                modifier = modifier.weight(1f),
+                                text = stringResource(id = R.string.movie_backdrop_url_label)
+                            )
+                            AddOrDeleteButton(
+                                modifier = modifier.weight(1f),
+                                isAddButton = true,
+                                contentDescription = stringResource(id = R.string.add_movie_backdrop_url_content_description),
+                                onClick = {
+                                    newMovieDialogViewModel.addMovieLandscapeImageUrl()
+                                }
+                            )
+                        }
+                        for (i in movieBackdropUrlList.size - 1 downTo 0) {
+                            OutlinedTextField(
+                                modifier = modifier.fillMaxWidth(),
+                                value = movieBackdropUrlList[i],
+                                onValueChange = {
+                                    newMovieDialogViewModel.updateMovieLandscapeImageUrl(
+                                        index = i,
+                                        url = it
+                                    )
+                                },
+                                label = {
+                                    Text(text = stringResource(id = R.string.movie_backdrop_url_label))
+                                },
+                                placeholder = {
+                                    Text(text = stringResource(id = R.string.movie_backdrop_url_placeholder))
+                                },
+                                maxLines = 1,
+                                trailingIcon = {
+                                    IconButton(
+                                        onClick = {
+                                            newMovieDialogViewModel.removeMovieLandscapeImageUrl(i)
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Delete,
+                                            contentDescription = stringResource(id = R.string.delete_movie_backdrop_url_content_description)
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
                     // Homepage Url
+                    OutlinedTextField(
+                        modifier = modifier.fillMaxWidth(),
+                        value = newMovieState.homepageUrl ?: "",
+                        onValueChange = {
+                            newMovieDialogViewModel.updateMovieHomepage(
+                                url = it
+                            )
+                        },
+                        label = {
+                            Text(text = stringResource(id = R.string.movie_homepage_label))
+                        },
+                        placeholder = {
+                            Text(text = stringResource(id = R.string.movie_homepage_placeholder))
+                        },
+                        maxLines = 1
+                    )
                     // Video
                     // Status
                     // Budget
@@ -772,14 +1069,16 @@ fun AddMovieDialog(
                     Button(
                         onClick = {
                             updateAddingState(false)
-                            updateNewMovieState(movieKey, newMovieState, collectionState, companyStateList)
                         }
                     ) {
                         Text(text = stringResource(id = R.string.cancel_button))
                     }
                     Button(
-                        onClick = {},
-                        enabled = newMovieState.isValid() && (collectionState?.isValid() ?: true) && newMovieDialogViewModel.isMovieCompanyListValid()
+                        onClick = {
+                            newMovieDialogViewModel.clearNewMovieState()
+                            updateAddingState(false)
+                        },
+                        enabled = movieKey.isNotBlank() && newMovieState.isValid() && (collectionState?.isValid() ?: true) && newMovieDialogViewModel.isMovieCompanyListValid()
                     ) {
                         Text(text = stringResource(id = R.string.save_button_title))
                     }

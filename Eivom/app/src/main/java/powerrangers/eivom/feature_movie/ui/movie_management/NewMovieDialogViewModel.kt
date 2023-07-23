@@ -30,6 +30,12 @@ class NewMovieDialogViewModel @Inject constructor(
         private set
     var companyStateList = mutableStateListOf<CompanyState>()
         private set
+    var movieLogoUrlList = mutableStateListOf<String>()
+        private set
+    var moviePosterUrlList = mutableStateListOf<String>()
+        private set
+    var movieBackdropUrlList = mutableStateListOf<String>()
+        private set
 
     val genreList = TranslateCode.GENRE.toList()
     val languageList = TranslateCode.ISO_639_1.toList()
@@ -45,20 +51,17 @@ class NewMovieDialogViewModel @Inject constructor(
         }
     }
 
-    // Update new movie state functions
-    fun updateNewMovieState(
-        key: String,
-        movieState: SponsoredMovieState,
-        movieCollectionState: CollectionState?,
-        movieCompanyStateList: List<CompanyState>
-    ) {
-        movieKey.value = key
-        newMovieState.value = movieState
-        collectionState.value = movieCollectionState
+    fun clearNewMovieState() {
+        movieKey.value = ""
+        newMovieState.value = SponsoredMovieState()
+        collectionState.value = null
         companyStateList.clear()
-        companyStateList.addAll(movieCompanyStateList)
+        movieLogoUrlList.clear()
+        moviePosterUrlList.clear()
+        movieBackdropUrlList.clear()
     }
 
+    // Update new movie state functions
     fun updateMovieKey(key: String) {
         movieKey.value = key.uppercase()
     }
@@ -75,18 +78,16 @@ class NewMovieDialogViewModel @Inject constructor(
         )
     }
 
-    fun addMovieLandscapeImageUrl(url: String) {
-        val urls = newMovieState.value.landscapeImageUrls + url
-        newMovieState.value = newMovieState.value.copy(
-            landscapeImageUrls = urls
-        )
+    fun addMovieLandscapeImageUrl() {
+        movieBackdropUrlList.add("")
     }
 
-    fun removeMovieLandscapeImageUrl(url: String) {
-        val urls = newMovieState.value.landscapeImageUrls - url
-        newMovieState.value = newMovieState.value.copy(
-            landscapeImageUrls = urls
-        )
+    fun updateMovieLandscapeImageUrl(index: Int, url: String) {
+        movieBackdropUrlList[index] = url
+    }
+
+    fun removeMovieLandscapeImageUrl(index: Int) {
+        movieBackdropUrlList.removeAt(index)
     }
 
     fun addMovieCollection() {
@@ -173,18 +174,16 @@ class NewMovieDialogViewModel @Inject constructor(
         )
     }
 
-    fun addMoviePosterUrl(url: String) {
-        val urls = newMovieState.value.posterUrls + url
-        newMovieState.value = newMovieState.value.copy(
-            posterUrls = urls
-        )
+    fun addMoviePosterUrl() {
+        moviePosterUrlList.add("")
     }
 
-    fun removeMoviePosterUrl(url: String) {
-        val urls = newMovieState.value.posterUrls - url
-        newMovieState.value = newMovieState.value.copy(
-            posterUrls = urls
-        )
+    fun updateMoviePosterUrl(index: Int, url: String) {
+        moviePosterUrlList[index] = url
+    }
+
+    fun removeMoviePosterUrl(index: Int) {
+        moviePosterUrlList.removeAt(index)
     }
 
     fun addMovieCompany() {
@@ -226,14 +225,14 @@ class NewMovieDialogViewModel @Inject constructor(
         }
     }
 
-    fun addMovieProductionCountries(country: String) {
+    fun addMovieProductionCountry(country: String) {
         val countries = newMovieState.value.productionCountries + country
         newMovieState.value = newMovieState.value.copy(
             productionCountries = countries
         )
     }
 
-    fun removeMovieProductionCountries(country: String) {
+    fun removeMovieProductionCountry(country: String) {
         val countries = newMovieState.value.productionCountries - country
         newMovieState.value = newMovieState.value.copy(
             productionCountries = countries
@@ -258,18 +257,16 @@ class NewMovieDialogViewModel @Inject constructor(
         )
     }
 
-    fun addMovieLogoUrl(url: String) {
-        val urls = newMovieState.value.logoImageUrls + url
-        newMovieState.value = newMovieState.value.copy(
-            logoImageUrls = urls
-        )
+    fun addMovieLogoUrl() {
+        movieLogoUrlList.add("")
     }
 
-    fun removeMovieLogoUrl(url: String) {
-        val urls = newMovieState.value.logoImageUrls - url
-        newMovieState.value = newMovieState.value.copy(
-            logoImageUrls = urls
-        )
+    fun updateMovieLogoUrl(index: Int, url: String) {
+        movieLogoUrlList[index] = url
+    }
+
+    fun removeMovieLogoUrl(index: Int) {
+        movieLogoUrlList.removeAt(index)
     }
 
     fun addMovieSpokenLanguage(language: String) {
