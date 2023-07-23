@@ -21,6 +21,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -36,6 +37,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -63,13 +65,16 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowCircleDown
 import androidx.compose.material.icons.filled.ArrowCircleUp
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Filter
+import androidx.compose.material.icons.filled.RadioButtonChecked
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.filled.Star
@@ -92,7 +97,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -103,8 +110,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import androidx.compose.ui.window.Dialog
@@ -765,109 +774,6 @@ fun DropdownMenuHeight(visibleItems: Int): Dp {
     return (visibleItems * itemHeight) + ((visibleItems - 1) * padding)
 }
 
-@OptIn(ExperimentalAnimationApi::class)
-@Composable
-fun GenreFilter(
-    filterState: FilterState,
-    viewModel: MovieListViewModel = hiltViewModel()
-){
-    val genres = TranslateCode.GENRE.values.toList()
-    val allGenres: List<GenreItems> = genres.map { GenreItems(name = it) }
-    val selectedGenres = remember{ viewModel.selectedGenres }
-    val isGenre by remember { viewModel.isGenres }
-
-    Column(
-        modifier = Modifier
-            .animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
-            )
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(id = R.string.Region_FilterState),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 4.dp)
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            // Edit more
-            IconButton(onClick = {viewModel.reverseIsGenres()} ) {
-                if (!isGenre)
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = null,
-                        modifier = Modifier.size(30.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
-                else Icon(
-                    imageVector = Icons.Default.ArrowDropUp,
-                    contentDescription = null,
-                    modifier = Modifier.size(30.dp),
-                    tint = MaterialTheme.colors.primary
-                )
-            }
-        }
-
-        if (isGenre) {
-            GenreSelectMenu(genres = allGenres, selectedGenres = selectedGenres)
-        }
-    }
-
-}
-
-
-@Composable
-fun GenreSelectMenu(
-    genres: List<GenreItems>,
-    selectedGenres: MutableList<GenreItems>
-) {
-    LazyVerticalGrid( columns = GridCells.Adaptive(20.dp) ) {
-        items(genres) { genre ->
-            GenreCard(genre, selectedGenres)
-        }
-    }
-}
-
-@Composable
-fun GenreCard(
-    genre: GenreItems,
-    selectedGenres: MutableList<GenreItems>
-) {
-    Card(
-        modifier = Modifier
-            .padding(2.dp)
-            .clickable {
-                genre.isSelected.value = !genre.isSelected.value
-                if (genre.isSelected.value) {
-                    selectedGenres.add(genre)
-                } else {
-                    selectedGenres.remove(genre)
-                }
-            }
-            .size(30.dp),
-        backgroundColor = if (genre.isSelected.value) MaterialTheme.colors.primary else Color.LightGray,
-        //shape = RoundedCornerShape(8.dp)
-    ) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = Color.Transparent
-        ) {
-            Text(
-                text = genre.name,
-                modifier = Modifier.padding(5.dp),
-                color = if (genre.isSelected.value) Color.White else Color.Black
-            )
-        }
-    }
-}
-
 @Composable
 fun AdultConTentFilter(
     filterState: FilterState,
@@ -1299,6 +1205,144 @@ fun MaxRating(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun GenreFilter(
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+){
+    val genres = TranslateCode.GENRE.values.toList()
+    val allGenres: List<GenreItems> = genres.map { GenreItems(name = it) }
+    val selectedGenres = remember{ viewModel.selectedGenres }
+    val isGenre by remember { viewModel.isGenres }
+
+    Column(
+        modifier = Modifier
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(id = R.string.Region_FilterState),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Edit more
+            IconButton(onClick = {viewModel.reverseIsGenres()} ) {
+                if (!isGenre)
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = null,
+                        modifier = Modifier.size(30.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                else Icon(
+                    imageVector = Icons.Default.ArrowDropUp,
+                    contentDescription = null,
+                    modifier = Modifier.size(30.dp),
+                    tint = MaterialTheme.colors.primary
+                )
+            }
+        }
+
+        if (isGenre) {
+            GenreSelectMenu(genres = allGenres, selectedGenres = selectedGenres)
+        }
+    }
+
+}
+
+
+@Composable
+fun GenreSelectMenu(
+    genres: List<GenreItems>,
+    selectedGenres: MutableList<GenreItems>
+) {
+    val rows = genres.chunked(3) // Group genres into rows with three items each
+    Column {
+        for (rowGenres in rows) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                for (genre in rowGenres) {
+                    GenreCard(genre, selectedGenres)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun GenreCard(
+    genre: GenreItems,
+    selectedGenres: MutableList<GenreItems>
+) {
+    Box(
+        modifier = Modifier
+            .padding(2.dp)
+            .clickable {
+                genre.isSelected.value = !genre.isSelected.value
+                if (genre.isSelected.value) {
+                    selectedGenres.add(genre)
+                } else {
+                    selectedGenres.remove(genre)
+                }
+            }
+            .background(
+                color = if (genre.isSelected.value) MaterialTheme.colors.primary else Color.LightGray,
+                shape = RoundedCornerShape(8.dp)
+            )
+    ) {
+        Row (
+            modifier = Modifier
+                .padding(10.dp)
+                .wrapContentSize(align = Alignment.Center)
+                .widthIn(min = 60.dp, max = 120.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ){
+            if (genre.isSelected.value) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = null,
+                    modifier = Modifier
+                        //.padding(start = 4.dp)
+                        .size(10.dp),
+                    tint = Color.White
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null,
+                    modifier = Modifier
+                        //.padding(start = 4.dp)
+                        .size(10.dp),
+                    tint = Color.Black
+                )
+            }
+
+            Text(
+                text = genre.name,
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp,
+                color = if (genre.isSelected.value) Color.White else Color.Black,
+                textAlign = TextAlign.Center // Center the text horizontally within the card
+            )
+        }
+
+    }
+}
 
 
 @OptIn(ExperimentalAnimationApi::class)

@@ -16,8 +16,9 @@ object TranslateCode {
         10402 to "Music",
         9648 to "Mystery",
         10749 to "Romance",
-        878 to "Science Fiction",
-        10770 to "TV Movie",
+//        878 to "Science Fiction",
+        878 to "Sci-Fi",
+        10770 to "TV-Series",
         53 to "Thriller",
         10752 to "War",
         37 to "Western"
