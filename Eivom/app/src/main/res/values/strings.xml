@@ -89,6 +89,14 @@
     <string name="collection_poster_url_placeholder">Your collection poster URL</string>
     <string name="collection_backdrop_url_label">Collection Backdrop URL</string>
     <string name="collection_backdrop_url_placeholder">Your collection backdrop URL</string>
+    <string name="company_label">Production Company</string>
+    <string name="add_company_content_description">Add movie production company</string>
+    <string name="remove_company_button">Remove Company:</string>
+    <string name="company_name_label">Company Name</string>
+    <string name="company_name_placeholder">Your company name</string>
+    <string name="company_logo_url_label">Company Logo URL</string>
+    <string name="company_logo_url_placeholder">Your company logo URL</string>
+    <string name="company_country_label">Company Country</string>
 
     <!-- Settings -->
     <string name="producer_sign_in_title">Producer</string>

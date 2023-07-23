@@ -140,16 +140,18 @@ fun MovieManagementBody(
             key = movieManagementViewModel.movieKey.value,
             movieState = movieManagementViewModel.newMovieState.value,
             movieCollectionState = movieManagementViewModel.collectionState.value,
+            movieCompanyStateList = movieManagementViewModel.companyStateList,
             updateAddingState = {
                 movieManagementViewModel.updateAddingState(
                     isAdding = it
                 )
             },
-            updateNewMovieState = { key, movieState, movieCollectionState ->
+            updateNewMovieState = { key, movieState, movieCollectionState, movieCompanyStateList ->
                 movieManagementViewModel.updateNewMovieState(
                     key = key,
                     movieState = movieState,
-                    movieCollectionState = movieCollectionState
+                    movieCollectionState = movieCollectionState,
+                    movieCompanyStateList = movieCompanyStateList
                 )
             }
         )
@@ -163,23 +165,26 @@ fun AddMovieDialog(
     key: String,
     movieState: SponsoredMovieState,
     movieCollectionState: CollectionState?,
+    movieCompanyStateList: List<CompanyState>,
     updateAddingState: (Boolean) -> Unit,
-    updateNewMovieState: (String, SponsoredMovieState, CollectionState?) -> Unit
+    updateNewMovieState: (String, SponsoredMovieState, CollectionState?, List<CompanyState>) -> Unit
 ) {
     newMovieDialogViewModel.updateNewMovieState(
         key = key,
         movieState = movieState,
-        movieCollectionState = movieCollectionState
+        movieCollectionState = movieCollectionState,
+        movieCompanyStateList = movieCompanyStateList
     )
     val userPreferences by remember { newMovieDialogViewModel.userPreferences }
     val movieKey by remember { newMovieDialogViewModel.movieKey }
     val newMovieState by remember { newMovieDialogViewModel.newMovieState }
     val collectionState by remember { newMovieDialogViewModel.collectionState }
+    val companyStateList = remember { newMovieDialogViewModel.companyStateList }
 
     Dialog(
         onDismissRequest = {
             updateAddingState(false)
-            updateNewMovieState(movieKey, newMovieState, collectionState)
+            updateNewMovieState(movieKey, newMovieState, collectionState, companyStateList)
         }
     ) {
         Card(
@@ -610,6 +615,142 @@ fun AddMovieDialog(
                         }
                     }
                     // Company
+                    Column(
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .animateContentSize(
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessLow
+                                )
+                            )
+                    ) {
+                        Row(
+                            modifier = modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                modifier = modifier.weight(1f),
+                                text = stringResource(id = R.string.company_label)
+                            )
+                            AddOrDeleteButton(
+                                modifier = modifier.weight(1f),
+                                isAddButton = true,
+                                contentDescription = stringResource(id = R.string.add_company_content_description),
+                                onClick = {
+                                    newMovieDialogViewModel.addMovieCompany()
+                                }
+                            )
+                        }
+                        for (i in companyStateList.size - 1 downTo 0) {
+                            SelectButton(
+                                modifier = modifier.fillMaxWidth(),
+                                text = stringResource(id = R.string.remove_company_button) + " " + if (companyStateList[i].name.isNullOrBlank()) stringResource(id = R.string.unknown) else companyStateList[i].name,
+                                isSelected = false,
+                                onSelect = {
+                                    newMovieDialogViewModel.deleteMovieCompany(
+                                        index = i
+                                    )
+                                }
+                            )
+                            OutlinedTextField(
+                                modifier = modifier.fillMaxWidth(),
+                                value = companyStateList[i].name ?: "",
+                                onValueChange = {
+                                    newMovieDialogViewModel.updateMovieCompanyName(
+                                        index = i,
+                                        name = it
+                                    )
+                                },
+                                label = {
+                                    Text(text = stringResource(id = R.string.company_name_label))
+                                },
+                                placeholder = {
+                                    Text(text = stringResource(id = R.string.company_name_placeholder))
+                                },
+                                maxLines = 2
+                            )
+                            OutlinedTextField(
+                                modifier = modifier.fillMaxWidth(),
+                                value = companyStateList[i].logoUrl ?: "",
+                                onValueChange = {
+                                    newMovieDialogViewModel.updateMovieCompanyLogoUrl(
+                                        index = i,
+                                        logoUrl = it
+                                    )
+                                },
+                                label = {
+                                    Text(text = stringResource(id = R.string.company_logo_url_label))
+                                },
+                                placeholder = {
+                                    Text(text = stringResource(id = R.string.company_logo_url_placeholder))
+                                },
+                                maxLines = 1
+                            )
+                            Row(
+                                modifier = modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                val density = LocalDensity.current
+
+                                var isCountryDropdownExpanded by remember { mutableStateOf(false) }
+                                var dropdownMenuWidth by remember { mutableStateOf(0.dp) }
+
+                                Text(
+                                    modifier = modifier.weight(1f),
+                                    text = stringResource(id = R.string.company_country_label)
+                                )
+                                Column(
+                                    modifier = modifier.weight(1f)
+                                ) {
+                                    SelectButton(
+                                        modifier = modifier
+                                            .fillMaxWidth()
+                                            .onGloballyPositioned { coordinates ->
+                                                dropdownMenuWidth =
+                                                    (coordinates.size.width / density.density).dp
+                                            },
+                                        text = TranslateCode.ISO_3166_1[companyStateList[i].originCountry]
+                                            ?: stringResource(id = R.string.unknown),
+                                        isSelected = companyStateList[i].originCountry != null,
+                                        onSelect = {
+                                            isCountryDropdownExpanded =
+                                                !isCountryDropdownExpanded
+                                        }
+                                    )
+                                    DropdownMenu(
+                                        modifier = modifier
+                                            .height(200.dp)
+                                            .width(dropdownMenuWidth),
+                                        expanded = isCountryDropdownExpanded,
+                                        onDismissRequest = {
+                                            isCountryDropdownExpanded = false
+                                        }
+                                    ) {
+                                        newMovieDialogViewModel.countryList.forEach { country ->
+                                            DropdownMenuItem(
+                                                onClick = {
+                                                    newMovieDialogViewModel.updateMovieCompanyOriginCountry(
+                                                        index = i,
+                                                        originCountry = country.first
+                                                    )
+                                                    isCountryDropdownExpanded = false
+                                                }
+                                            ) {
+                                                Text(
+                                                    modifier = modifier.fillMaxWidth(),
+                                                    text = country.second,
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis,
+                                                    textAlign = TextAlign.Center
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                     // Country
                     // Logo Urls
                     // Main Poster Url
@@ -631,14 +772,14 @@ fun AddMovieDialog(
                     Button(
                         onClick = {
                             updateAddingState(false)
-                            updateNewMovieState(movieKey, newMovieState, collectionState)
+                            updateNewMovieState(movieKey, newMovieState, collectionState, companyStateList)
                         }
                     ) {
                         Text(text = stringResource(id = R.string.cancel_button))
                     }
                     Button(
                         onClick = {},
-                        enabled = newMovieState.isValid()
+                        enabled = newMovieState.isValid() && (collectionState?.isValid() ?: true) && newMovieDialogViewModel.isMovieCompanyListValid()
                     ) {
                         Text(text = stringResource(id = R.string.save_button_title))
                     }

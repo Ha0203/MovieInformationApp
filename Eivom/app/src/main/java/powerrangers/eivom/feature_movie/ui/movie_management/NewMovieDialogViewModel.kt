@@ -1,5 +1,6 @@
 package powerrangers.eivom.feature_movie.ui.movie_management
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -27,9 +28,12 @@ class NewMovieDialogViewModel @Inject constructor(
         private set
     var collectionState = mutableStateOf<CollectionState?>(null)
         private set
+    var companyStateList = mutableStateListOf<CompanyState>()
+        private set
 
     val genreList = TranslateCode.GENRE.toList()
     val languageList = TranslateCode.ISO_639_1.toList()
+    val countryList = TranslateCode.ISO_3166_1.toList()
 
     init {
         viewModelScope.launch {
@@ -45,11 +49,14 @@ class NewMovieDialogViewModel @Inject constructor(
     fun updateNewMovieState(
         key: String,
         movieState: SponsoredMovieState,
-        movieCollectionState: CollectionState?
+        movieCollectionState: CollectionState?,
+        movieCompanyStateList: List<CompanyState>
     ) {
         movieKey.value = key
         newMovieState.value = movieState
         collectionState.value = movieCollectionState
+        companyStateList.clear()
+        companyStateList.addAll(movieCompanyStateList)
     }
 
     fun updateMovieKey(key: String) {
@@ -180,18 +187,43 @@ class NewMovieDialogViewModel @Inject constructor(
         )
     }
 
-    fun addMovieProductionCompany(company: Company) {
-        val companies = newMovieState.value.productionCompanies + company
-        newMovieState.value = newMovieState.value.copy(
-            productionCompanies = companies
+    fun addMovieCompany() {
+        companyStateList.add(CompanyState())
+    }
+
+    fun updateMovieCompanyName(index: Int, name: String) {
+        companyStateList[index] = companyStateList[index].copy(
+            name = name
         )
     }
 
-    fun removeMovieProductionCompany(company: Company) {
-        val companies = newMovieState.value.productionCompanies - company
-        newMovieState.value = newMovieState.value.copy(
-            productionCompanies = companies
+    fun updateMovieCompanyLogoUrl(index: Int, logoUrl: String) {
+        companyStateList[index] = companyStateList[index].copy(
+            logoUrl = logoUrl
         )
+    }
+
+    fun updateMovieCompanyOriginCountry(index: Int, originCountry: String) {
+        companyStateList[index] = companyStateList[index].copy(
+            originCountry = originCountry
+        )
+    }
+
+    fun deleteMovieCompany(index: Int) {
+        companyStateList.removeAt(index)
+    }
+
+    fun isMovieCompanyListValid(): Boolean {
+        if (companyStateList.isEmpty()) {
+            return true
+        } else {
+            for (company in companyStateList) {
+                if (!company.isValid()) {
+                    return false
+                }
+            }
+            return true
+        }
     }
 
     fun addMovieProductionCountries(country: String) {

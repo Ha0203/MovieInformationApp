@@ -1,7 +1,5 @@
 package powerrangers.eivom.feature_movie.ui.movie_management
 
-import powerrangers.eivom.feature_movie.domain.model.Collection
-import powerrangers.eivom.feature_movie.domain.model.Company
 import powerrangers.eivom.feature_movie.domain.model.Video
 import java.time.LocalDate
 
@@ -9,7 +7,6 @@ data class SponsoredMovieState(
     val adult: Boolean? = null,
     val landscapeImageUrl: String? = null,
     val landscapeImageUrls: List<String> = emptyList(),
-    val collection: Collection? = null,
     val budget: Long? = null,
     val genres: List<Int> = emptyList(),
     val homepageUrl: String? = null,
@@ -18,7 +15,6 @@ data class SponsoredMovieState(
     val overview: String? = null,
     val posterUrl: String? = null,
     val posterUrls: List<String> = emptyList(),
-    val productionCompanies: List<Company> = emptyList(),
     val productionCountries: List<String> = emptyList(),
     val releaseDate: LocalDate? = null,
     val revenue: Long? = null,

@@ -5,3 +5,5 @@ data class CollectionState(
     val posterUrl: String? = null,
     val backdropUrl: String? = null
 )
+
+fun CollectionState.isValid(): Boolean = !name.isNullOrBlank()
