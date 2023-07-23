@@ -66,6 +66,10 @@ class MovieListViewModel @Inject constructor(
         private set
     var maxRating = mutableStateOf<String?>(null)
         private set
+    var isGenres = mutableStateOf(false)
+        private set
+    var selectedGenres = mutableListOf<GenreItems>()
+        private set
     init {
         viewModelScope.launch {
             userPreferences.value = UserPreferences(
@@ -201,9 +205,18 @@ class MovieListViewModel @Inject constructor(
     fun updateMinRating(newVal: String) {
         minRating.value = newVal
     }
-    fun updateMaxRating(newVal: String)
-    {
+    fun updateMaxRating(newVal: String){
         maxRating.value = newVal
+    }
+    fun reverseIsGenres(){
+        isGenres.value = !isGenres.value
+    }
+
+    fun addGenre(item: GenreItems){
+        selectedGenres.add(item)
+    }
+    fun removeGenre(item: GenreItems){
+        selectedGenres.remove(item)
     }
     fun isFavoriteMovie(movieId: Int): Boolean = movieDatabaseUseCase.isFavoriteMovie(movieId)
     fun isWatchedMovie(movieId: Int): Boolean = movieDatabaseUseCase.isWatchedMovie(movieId)

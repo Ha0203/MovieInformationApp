@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -48,6 +49,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.Card
+import androidx.compose.material.Checkbox
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -57,9 +59,14 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowCircleDown
+import androidx.compose.material.icons.filled.ArrowCircleUp
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Filter
@@ -727,7 +734,6 @@ fun RegionFilter(
                     expanded = regionSelected.isEmpty(),
                     onDismissRequest = {
                         viewModel.resetRegionSelect()
-                        //showMenu.value = false
                     },
                     modifier = Modifier.border(2.dp, Color.LightGray)
                 ) {
@@ -757,6 +763,109 @@ fun DropdownMenuHeight(visibleItems: Int): Dp {
     val padding = 8.dp // Vertical padding between items
 
     return (visibleItems * itemHeight) + ((visibleItems - 1) * padding)
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun GenreFilter(
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+){
+    val genres = TranslateCode.GENRE.values.toList()
+    val allGenres: List<GenreItems> = genres.map { GenreItems(name = it) }
+    val selectedGenres = remember{ viewModel.selectedGenres }
+    val isGenre by remember { viewModel.isGenres }
+
+    Column(
+        modifier = Modifier
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(id = R.string.Region_FilterState),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Edit more
+            IconButton(onClick = {viewModel.reverseIsGenres()} ) {
+                if (!isGenre)
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = null,
+                        modifier = Modifier.size(30.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                else Icon(
+                    imageVector = Icons.Default.ArrowDropUp,
+                    contentDescription = null,
+                    modifier = Modifier.size(30.dp),
+                    tint = MaterialTheme.colors.primary
+                )
+            }
+        }
+
+        if (isGenre) {
+            GenreSelectMenu(genres = allGenres, selectedGenres = selectedGenres)
+        }
+    }
+
+}
+
+
+@Composable
+fun GenreSelectMenu(
+    genres: List<GenreItems>,
+    selectedGenres: MutableList<GenreItems>
+) {
+    LazyVerticalGrid( columns = GridCells.Adaptive(20.dp) ) {
+        items(genres) { genre ->
+            GenreCard(genre, selectedGenres)
+        }
+    }
+}
+
+@Composable
+fun GenreCard(
+    genre: GenreItems,
+    selectedGenres: MutableList<GenreItems>
+) {
+    Card(
+        modifier = Modifier
+            .padding(2.dp)
+            .clickable {
+                genre.isSelected.value = !genre.isSelected.value
+                if (genre.isSelected.value) {
+                    selectedGenres.add(genre)
+                } else {
+                    selectedGenres.remove(genre)
+                }
+            }
+            .size(30.dp),
+        backgroundColor = if (genre.isSelected.value) MaterialTheme.colors.primary else Color.LightGray,
+        //shape = RoundedCornerShape(8.dp)
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = Color.Transparent
+        ) {
+            Text(
+                text = genre.name,
+                modifier = Modifier.padding(5.dp),
+                color = if (genre.isSelected.value) Color.White else Color.Black
+            )
+        }
+    }
 }
 
 @Composable
@@ -1191,6 +1300,7 @@ fun MaxRating(
 }
 
 
+
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun FilterDialog(
@@ -1271,6 +1381,10 @@ fun FilterDialog(
                     // Max Rating Point
                     item{
                         MaxRating(filterState = filterState, viewModel = viewModel)
+                    }
+                    // Genre Filter
+                    item { 
+                        GenreFilter(filterState = filterState, viewModel = viewModel)
                     }
                     // Add other filter items here
                 }

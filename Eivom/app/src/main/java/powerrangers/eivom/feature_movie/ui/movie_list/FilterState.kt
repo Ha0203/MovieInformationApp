@@ -22,5 +22,4 @@ data class FilterState(
     val MinimumLength: Int? = null,
     val MaximumLength: Int? = null,
     val WithoutGenre: String? = null,
-
 )
