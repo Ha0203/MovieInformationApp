@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import powerrangers.eivom.domain.use_case.GoogleAuthClient
 import powerrangers.eivom.domain.use_case.UserPreferencesUseCase
 import powerrangers.eivom.feature_movie.domain.use_case.SponsoredMovieFirebaseUseCase
 import powerrangers.eivom.feature_movie.domain.utility.MovieKey
@@ -17,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NewMovieDialogViewModel @Inject constructor(
     private val userPreferencesUseCase: UserPreferencesUseCase,
+    private val googleAuthClient: GoogleAuthClient,
     private val sponsoredMovieFirebaseUseCase: SponsoredMovieFirebaseUseCase
 ): ViewModel() {
     var userPreferences = mutableStateOf(UserPreferences())
@@ -58,9 +60,34 @@ class NewMovieDialogViewModel @Inject constructor(
         }
     }
 
+    // Interact to database
     suspend fun getMovieKey() {
         movieKey.value = sponsoredMovieFirebaseUseCase.getMovieKey(movieKeyField.value)
         isKeyChecked.value = true
+    }
+
+    fun saveSponsoredMovie(): Boolean {
+        return try {
+            if (!isMovieInformationValid()) {
+                return false
+            }
+            sponsoredMovieFirebaseUseCase.saveSponsoredMovie(
+                movieKey = movieKey.value!!,
+                movie = newMovieState.value.toSponsoredMovie(
+                    userId = googleAuthClient.getSignedInUser().data!!.userId,
+                    keyId = movieKey.value!!.id,
+                    collectionState = collectionState.value,
+                    companyStateList = companyStateList,
+                    landscapeImageUrls = movieBackdropUrlList,
+                    posterUrls = moviePosterUrlList,
+                    logoUrls = movieLogoUrlList,
+                    videoStateList = videoStateList
+                )
+            )
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
     fun clearNewMovieState() {

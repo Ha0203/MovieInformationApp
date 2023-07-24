@@ -1,6 +1,7 @@
 package powerrangers.eivom.feature_movie.ui.movie_management
 
 import android.app.DatePickerDialog
+import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -1445,6 +1446,7 @@ fun AddMovieDialog(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+                    val context = LocalContext.current
                     Button(
                         onClick = {
                             updateAddingState(false)
@@ -1454,8 +1456,21 @@ fun AddMovieDialog(
                     }
                     Button(
                         onClick = {
-                            newMovieDialogViewModel.clearNewMovieState()
-                            updateAddingState(false)
+                            if (newMovieDialogViewModel.saveSponsoredMovie()) {
+                                newMovieDialogViewModel.clearNewMovieState()
+                                updateAddingState(false)
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.add_sponsored_movie_success_notification),
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.add_sponsored_movie_error_notification),
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
                         },
                         enabled = newMovieDialogViewModel.isMovieInformationValid()
                     ) {

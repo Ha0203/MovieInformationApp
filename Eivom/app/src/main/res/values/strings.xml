@@ -138,6 +138,8 @@
     <string name="currency_unit">$</string>
     <string name="revenue_label">Revenue</string>
     <string name="revenue_placeholder">Your movie revenue</string>
+    <string name="add_sponsored_movie_success_notification">Add movie successfully</string>
+    <string name="add_sponsored_movie_error_notification">An error occurs</string>
 
     <!-- Settings -->
     <string name="producer_sign_in_title">Producer</string>
