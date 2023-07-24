@@ -448,15 +448,17 @@ fun AddMovieDialog(
                                     )
                                 )
                         ) {
-                            SelectButton(
-                                modifier = modifier.fillMaxWidth(),
-                                enabled = false,
-                                text = TranslateCode.ISO_639_1[newMovieState.originalLanguage]
-                                    ?: stringResource(id = R.string.unknown),
-                                isSelected = newMovieState.originalLanguage != null,
-                                onSelect = {}
-                            )
-                            for (i in newMovieState.spokenLanguages.size - 1 downTo 0) {
+                            if (newMovieState.originalLanguage != null) {
+                                SelectButton(
+                                    modifier = modifier.fillMaxWidth(),
+                                    enabled = false,
+                                    text = TranslateCode.ISO_639_1[newMovieState.originalLanguage]
+                                        ?: stringResource(id = R.string.unknown),
+                                    isSelected = true,
+                                    onSelect = {}
+                                )
+                            }
+                            for (i in newMovieState.spokenLanguages.lastIndex downTo 0) {
                                 SelectButton(
                                     modifier = modifier.fillMaxWidth(),
                                     text = TranslateCode.ISO_639_1[newMovieState.spokenLanguages[i]] ?: stringResource(
@@ -631,7 +633,7 @@ fun AddMovieDialog(
                                 }
                             )
                         }
-                        for (i in companyStateList.size - 1 downTo 0) {
+                        for (i in companyStateList.lastIndex downTo 0) {
                             SelectButton(
                                 modifier = modifier.fillMaxWidth(),
                                 text = stringResource(id = R.string.remove_company_button) + " " + if (companyStateList[i].name.isNullOrBlank()) stringResource(id = R.string.unknown) else companyStateList[i].name,
@@ -812,7 +814,7 @@ fun AddMovieDialog(
                                     )
                                 )
                         ) {
-                            for (i in newMovieState.productionCountries.size - 1 downTo 0) {
+                            for (i in newMovieState.productionCountries.lastIndex downTo 0) {
                                 SelectButton(
                                     modifier = modifier.fillMaxWidth(),
                                     text = TranslateCode.ISO_3166_1[newMovieState.productionCountries[i]] ?: stringResource(
@@ -856,7 +858,7 @@ fun AddMovieDialog(
                                 }
                             )
                         }
-                        for (i in movieLogoUrlList.size - 1 downTo 0) {
+                        for (i in movieLogoUrlList.lastIndex downTo 0) {
                             OutlinedTextField(
                                 modifier = modifier.fillMaxWidth(),
                                 value = movieLogoUrlList[i],
@@ -933,7 +935,7 @@ fun AddMovieDialog(
                                 }
                             )
                         }
-                        for (i in moviePosterUrlList.size - 1 downTo 0) {
+                        for (i in moviePosterUrlList.lastIndex downTo 0) {
                             OutlinedTextField(
                                 modifier = modifier.fillMaxWidth(),
                                 value = moviePosterUrlList[i],
@@ -1010,7 +1012,7 @@ fun AddMovieDialog(
                                 }
                             )
                         }
-                        for (i in movieBackdropUrlList.size - 1 downTo 0) {
+                        for (i in movieBackdropUrlList.lastIndex downTo 0) {
                             OutlinedTextField(
                                 modifier = modifier.fillMaxWidth(),
                                 value = movieBackdropUrlList[i],

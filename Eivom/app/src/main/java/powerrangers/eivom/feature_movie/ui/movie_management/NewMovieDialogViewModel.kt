@@ -124,9 +124,13 @@ class NewMovieDialogViewModel @Inject constructor(
     }
 
     fun updateMovieBudget(budget: String) {
-        newMovieState.value = newMovieState.value.copy(
-            budget = if (budget.isNotBlank()) if (budget.length <= 18) budget.toLong() else 999999999999999999 else null
-        )
+        try {
+            newMovieState.value = newMovieState.value.copy(
+                budget = if (budget.isNotBlank()) budget.toLong() else null
+            )
+        } catch (e: Exception) {
+            return
+        }
     }
 
     fun isGenreSelected(genre: Int): Boolean = genre in newMovieState.value.genres
@@ -247,15 +251,23 @@ class NewMovieDialogViewModel @Inject constructor(
     }
 
     fun updateMovieRevenue(revenue: String) {
-        newMovieState.value = newMovieState.value.copy(
-            revenue = if (revenue.isNotBlank()) if (revenue.length <= 18) revenue.toLong() else 999999999999999999 else null
-        )
+        try {
+            newMovieState.value = newMovieState.value.copy(
+                revenue = if (revenue.isNotBlank()) revenue.toLong() else null
+            )
+        } catch (e: Exception) {
+            return
+        }
     }
 
     fun updateMovieLength(length: String) {
-        newMovieState.value = newMovieState.value.copy(
-            length = if (length.isNotBlank()) if (length.length <= 6) length.toInt() else 999999 else null
-        )
+        try {
+            newMovieState.value = newMovieState.value.copy(
+                length = if (length.isNotBlank()) length.toInt() else null
+            )
+        } catch (e: Exception) {
+            return
+        }
     }
 
     fun addMovieLogoUrl() {
