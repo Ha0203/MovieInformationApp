@@ -63,7 +63,9 @@
     <string name="add_sponsored_movie_button_content_description">Add sponsored movie</string>
     <string name="add_sponsored_movie_title">Add Sponsored Movie</string>
     <string name="key_field_label">Movie Key *</string>
-    <string name="key_field_placeholder">AB123CDE45</string>
+    <string name="key_field_placeholder">CDAIDB00</string>
+    <string name="key_valid">Movie key is valid</string>
+    <string name="key_not_valid">Movie key is not valid or used</string>
     <string name="adult_label">Adult content *</string>
     <string name="adult_yes">Yes</string>
     <string name="adult_no">No</string>

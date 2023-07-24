@@ -108,4 +108,8 @@ object AppModule {
         context = context,
         oneTapClient = Identity.getSignInClient(context)
     )
+
+    @Provides
+    @Singleton
+    fun provideSponsoredMovieFirebaseUseCase(): SponsoredMovieFirebaseUseCase = SponsoredMovieFirebaseUseCase()
 }

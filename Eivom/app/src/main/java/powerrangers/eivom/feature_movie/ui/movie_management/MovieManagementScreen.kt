@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
@@ -31,6 +32,8 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
@@ -42,10 +45,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -154,7 +159,9 @@ fun AddMovieDialog(
     updateAddingState: (Boolean) -> Unit
 ) {
     val userPreferences by remember { newMovieDialogViewModel.userPreferences }
-    val movieKey by remember { newMovieDialogViewModel.movieKey }
+
+    val isKeyChecked by remember { newMovieDialogViewModel.isKeyChecked }
+    val movieKeyField by remember { newMovieDialogViewModel.movieKeyField }
     val newMovieState by remember { newMovieDialogViewModel.newMovieState }
     val collectionState by remember { newMovieDialogViewModel.collectionState }
     val companyStateList = remember { newMovieDialogViewModel.companyStateList }
@@ -162,6 +169,8 @@ fun AddMovieDialog(
     val moviePosterUrlList = remember { newMovieDialogViewModel.moviePosterUrlList }
     val movieBackdropUrlList = remember { newMovieDialogViewModel.movieBackdropUrlList }
     val videoStateList = remember { newMovieDialogViewModel.videoStateList }
+
+    val coroutineScope = rememberCoroutineScope()
 
     Dialog(
         onDismissRequest = {
@@ -192,10 +201,18 @@ fun AddMovieDialog(
                 ) {
                     // Movie Key Field
                     OutlinedTextField(
-                        modifier = modifier.fillMaxWidth(),
-                        value = movieKey,
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .onFocusChanged { focusState ->
+                                if (!focusState.isFocused) {
+                                    coroutineScope.launch {
+                                        newMovieDialogViewModel.getMovieKey()
+                                    }
+                                }
+                            },
+                        value = movieKeyField,
                         onValueChange = {
-                            newMovieDialogViewModel.updateMovieKey(it)
+                            newMovieDialogViewModel.updateMovieKeyField(it)
                         },
                         label = {
                             Text(text = stringResource(id = R.string.key_field_label))
@@ -203,7 +220,30 @@ fun AddMovieDialog(
                         placeholder = {
                             Text(text = stringResource(id = R.string.key_field_placeholder))
                         },
-                        maxLines = 1
+                        maxLines = 1,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone =
+                            {
+                                coroutineScope.launch {
+                                    newMovieDialogViewModel.getMovieKey()
+                                }
+                            }
+                        ),
+                        trailingIcon = {
+                            if (movieKeyField.isNotBlank() && isKeyChecked) {
+                                if (newMovieDialogViewModel.isMovieKeyValid()) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Check,
+                                        contentDescription = stringResource(id = R.string.key_valid)
+                                    )
+                                } else {
+                                    Icon(
+                                        imageVector = Icons.Filled.Close,
+                                        contentDescription = stringResource(id = R.string.key_not_valid)
+                                    )
+                                }
+                            }
+                        }
                     )
                     // Adult
                     Row(
@@ -1417,7 +1457,7 @@ fun AddMovieDialog(
                             newMovieDialogViewModel.clearNewMovieState()
                             updateAddingState(false)
                         },
-                        enabled = movieKey.isNotBlank() && newMovieState.isValid() && (collectionState?.isValid() ?: true) && newMovieDialogViewModel.isMovieCompanyListValid() && newMovieDialogViewModel.isMovieVideoListValid()
+                        enabled = newMovieDialogViewModel.isMovieInformationValid()
                     ) {
                         Text(text = stringResource(id = R.string.save_button_title))
                     }

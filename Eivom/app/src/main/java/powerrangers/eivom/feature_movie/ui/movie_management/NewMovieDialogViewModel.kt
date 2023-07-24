@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import powerrangers.eivom.domain.use_case.UserPreferencesUseCase
+import powerrangers.eivom.feature_movie.domain.use_case.SponsoredMovieFirebaseUseCase
+import powerrangers.eivom.feature_movie.domain.utility.MovieKey
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
 import powerrangers.eivom.feature_movie.ui.utility.UserPreferences
 import java.time.LocalDate
@@ -14,12 +16,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewMovieDialogViewModel @Inject constructor(
-    private val userPreferencesUseCase: UserPreferencesUseCase
+    private val userPreferencesUseCase: UserPreferencesUseCase,
+    private val sponsoredMovieFirebaseUseCase: SponsoredMovieFirebaseUseCase
 ): ViewModel() {
     var userPreferences = mutableStateOf(UserPreferences())
         private set
 
-    var movieKey = mutableStateOf("")
+    private var movieKey = mutableStateOf<MovieKey?>(null)
+
+    var isKeyChecked = mutableStateOf(false)
+        private set
+    var movieKeyField = mutableStateOf("")
         private set
     var newMovieState = mutableStateOf(SponsoredMovieState())
         private set
@@ -51,8 +58,13 @@ class NewMovieDialogViewModel @Inject constructor(
         }
     }
 
+    suspend fun getMovieKey() {
+        movieKey.value = sponsoredMovieFirebaseUseCase.getMovieKey(movieKeyField.value)
+        isKeyChecked.value = true
+    }
+
     fun clearNewMovieState() {
-        movieKey.value = ""
+        movieKeyField.value = ""
         newMovieState.value = SponsoredMovieState()
         collectionState.value = null
         companyStateList.clear()
@@ -62,9 +74,41 @@ class NewMovieDialogViewModel @Inject constructor(
         videoStateList.clear()
     }
 
+    // Validate functions
+    fun isMovieKeyValid(): Boolean = movieKey.value?.addEnabled ?: false
+
+    private fun isMovieCompanyListValid(): Boolean {
+        if (companyStateList.isEmpty()) {
+            return true
+        } else {
+            for (company in companyStateList) {
+                if (!company.isValid()) {
+                    return false
+                }
+            }
+            return true
+        }
+    }
+
+    private fun isMovieVideoListValid(): Boolean {
+        if (videoStateList.isEmpty()) {
+            return true
+        } else {
+            for (video in videoStateList) {
+                if (!video.isValid()) {
+                    return false
+                }
+            }
+            return true
+        }
+    }
+
+    fun isMovieInformationValid(): Boolean = isKeyChecked.value && isMovieKeyValid() && newMovieState.value.isValid() && (collectionState.value?.isValid() ?: true) && isMovieCompanyListValid() && isMovieVideoListValid()
+
     // Update new movie state functions
-    fun updateMovieKey(key: String) {
-        movieKey.value = key.uppercase()
+    fun updateMovieKeyField(key: String) {
+        movieKeyField.value = key.uppercase()
+        isKeyChecked.value = false
     }
 
     fun updateAdultOfMovie(isAdult: Boolean) {
@@ -217,19 +261,6 @@ class NewMovieDialogViewModel @Inject constructor(
         companyStateList.removeAt(index)
     }
 
-    fun isMovieCompanyListValid(): Boolean {
-        if (companyStateList.isEmpty()) {
-            return true
-        } else {
-            for (company in companyStateList) {
-                if (!company.isValid()) {
-                    return false
-                }
-            }
-            return true
-        }
-    }
-
     fun addMovieProductionCountry(country: String) {
         val countries = newMovieState.value.productionCountries + country
         newMovieState.value = newMovieState.value.copy(
@@ -350,18 +381,5 @@ class NewMovieDialogViewModel @Inject constructor(
 
     fun removeMovieVideo(index: Int) {
         videoStateList.removeAt(index)
-    }
-
-    fun isMovieVideoListValid(): Boolean {
-        if (videoStateList.isEmpty()) {
-            return true
-        } else {
-            for (video in videoStateList) {
-                if (!video.isValid()) {
-                    return false
-                }
-            }
-            return true
-        }
     }
 }
