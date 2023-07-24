@@ -2,7 +2,6 @@ package powerrangers.eivom.feature_movie.ui.movie_list
 
 import android.app.DatePickerDialog
 import android.graphics.drawable.Drawable
-import android.widget.DatePicker
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
@@ -21,7 +20,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -35,13 +33,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -50,8 +45,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.Checkbox
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -61,26 +54,21 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowCircleDown
-import androidx.compose.material.icons.filled.ArrowCircleUp
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Filter
-import androidx.compose.material.icons.filled.RadioButtonChecked
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -97,9 +85,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -108,12 +94,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import androidx.compose.ui.window.Dialog
@@ -124,9 +107,9 @@ import coil.request.ImageRequest
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import powerrangers.eivom.R
-import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 import powerrangers.eivom.domain.utility.Resource
 import powerrangers.eivom.domain.utility.ResourceErrorMessage
+import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
 import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
@@ -134,7 +117,6 @@ import powerrangers.eivom.ui.component.TopBar
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 
 
@@ -692,7 +674,6 @@ fun FavoriteFilter(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun RegionFilter(
     filterState: FilterState,
@@ -749,10 +730,10 @@ fun RegionFilter(
                     Column(
                         modifier = Modifier
                             .width(IntrinsicSize.Min)
-                            .heightIn(max = DropdownMenuHeight(visibleItems = 5))
+                            .heightIn(max = dropdownMenuHeight(visibleItems = 5))
                             .verticalScroll(rememberScrollState())
                     ){
-                        regions.forEach() { region ->
+                        regions.forEach { region ->
                             DropdownMenuItem(onClick = { viewModel.changeRegionSelect(region) }) {
                                 Text(text = region)
                             }
@@ -767,7 +748,7 @@ fun RegionFilter(
 }
 
 @Composable
-fun DropdownMenuHeight(visibleItems: Int): Dp {
+fun dropdownMenuHeight(visibleItems: Int): Dp {
     val itemHeight = 48.dp // Height of each item in the dropdown menu
     val padding = 8.dp // Vertical padding between items
 
@@ -924,7 +905,7 @@ fun MinDateFilter(
                         val calendar = Calendar.getInstance()
                         newMinRD?.let {
                             val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                            calendar.time = dateFormat.parse(newMinRD) ?: calendar.time
+                            calendar.time = newMinRD?.let { it1 -> dateFormat.parse(it1) } ?: calendar.time
                         }
 
                         DatePickerDialog(
@@ -1001,7 +982,7 @@ fun MaxDateFilter(
                         val calendar = Calendar.getInstance()
                         newMaxRD?.let {
                             val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                            calendar.time = dateFormat.parse(newMaxRD) ?: calendar.time
+                            calendar.time = newMaxRD?.let { it1 -> dateFormat.parse(it1) } ?: calendar.time
                         }
 
                         DatePickerDialog(
@@ -1205,7 +1186,6 @@ fun MaxRating(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun GenreFilter(
     filterState: FilterState,
@@ -1229,7 +1209,7 @@ fun GenreFilter(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(id = R.string.Region_FilterState),
+                text = stringResource(id = R.string.Genre_FilterState),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(vertical = 4.dp)
@@ -1288,31 +1268,33 @@ fun GenreCard(
     genre: GenreItems,
     selectedGenres: MutableList<GenreItems>
 ) {
+    var isExist = selectedGenres.any{ Selectitem -> Selectitem.name == genre.name }
     Box(
         modifier = Modifier
             .padding(2.dp)
             .clickable {
                 genre.isSelected.value = !genre.isSelected.value
                 if (genre.isSelected.value) {
-                    selectedGenres.add(genre)
+                    if (!isExist) selectedGenres.add(genre)
                 } else {
-                    selectedGenres.remove(genre)
+                    if (isExist) selectedGenres.remove(genre)
+                    isExist = false
                 }
             }
             .background(
-                color = if (genre.isSelected.value) MaterialTheme.colors.primary else Color.LightGray,
+                color = if (isExist) MaterialTheme.colors.primary else Color.LightGray,
                 shape = RoundedCornerShape(8.dp)
             )
     ) {
         Row (
             modifier = Modifier
                 .padding(10.dp)
-                .wrapContentSize(align = Alignment.Center)
+                .wrapContentSize(align = Center)
                 .widthIn(min = 60.dp, max = 120.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ){
-            if (genre.isSelected.value) {
+            if (isExist) {
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
@@ -1336,7 +1318,7 @@ fun GenreCard(
                 text = genre.name,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp,
-                color = if (genre.isSelected.value) Color.White else Color.Black,
+                color = if (isExist || genre.isSelected.value) Color.White else Color.Black,
                 textAlign = TextAlign.Center // Center the text horizontally within the card
             )
         }
@@ -1345,7 +1327,137 @@ fun GenreCard(
 }
 
 
-@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun WithoutGenreFilter(
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+){
+    val genres = TranslateCode.GENRE.values.toList()
+    val allGenres: List<GenreItems> = genres.map { GenreItems(name = it) }
+    val selectedWithoutGenres = remember { viewModel.selectedWithoutGenres }
+    val isWithoutGenre by remember { viewModel.isWithoutGenres }
+
+    Column(
+        modifier = Modifier
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(id = R.string.WithoutGenre_FilterState),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Edit more
+            IconButton(onClick = {viewModel.reverseIsWithoutGenres()} ) {
+                if (!isWithoutGenre)
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = null,
+                        modifier = Modifier.size(30.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                else Icon(
+                    imageVector = Icons.Default.ArrowDropUp,
+                    contentDescription = null,
+                    modifier = Modifier.size(30.dp),
+                    tint = MaterialTheme.colors.primary
+                )
+            }
+        }
+
+        if (isWithoutGenre) {
+            WithoutGenreSelectMenu(genres = allGenres, selectedWithoutGenres = selectedWithoutGenres, selectedGenres = viewModel.selectedGenres)
+        }
+    }
+
+}
+
+
+@Composable
+fun WithoutGenreSelectMenu(
+    genres: List<GenreItems>,
+    selectedWithoutGenres: MutableList<GenreItems>,
+    selectedGenres: MutableList<GenreItems>
+) {
+    val rows = genres.chunked(3) // Group genres into rows with three items each
+    Column {
+        for (rowGenres in rows) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                for (genre in rowGenres) {
+                    WithoutGenreCard(genre, selectedWithoutGenres, selectedGenres)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun WithoutGenreCard(
+    genre: GenreItems,
+    selectedWithoutGenres: MutableList<GenreItems>,
+    selectedGenres: MutableList<GenreItems>
+) {
+    val checkExist = selectedGenres.any{ genreItems -> genreItems.name == genre.name }
+    Box(
+        modifier = Modifier
+            .padding(2.dp)
+            .clickable {
+                if (!checkExist) {
+                    genre.isSelected.value = !genre.isSelected.value
+                    if (genre.isSelected.value) {
+                        selectedWithoutGenres.add(genre)
+                    } else {
+                        selectedWithoutGenres.remove(genre)
+                    }
+                }
+            }
+            .background(
+                color = if (genre.isSelected.value && !checkExist) MaterialTheme.colors.primary else Color.LightGray,
+                shape = RoundedCornerShape(8.dp)
+            )
+    ) {
+        Row (
+            modifier = Modifier
+                .padding(10.dp)
+                .wrapContentSize(align = Center)
+                .widthIn(min = 60.dp, max = 120.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ){
+
+            Text(
+                text = genre.name,
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp,
+                color = if (genre.isSelected.value) {
+                            Color.White
+                        }
+                        else if (checkExist){
+                            Color.Gray
+                        }
+                        else Color.Black,
+                textAlign = TextAlign.Center // Center the text horizontally within the card
+            )
+        }
+
+    }
+}
+
+
 @Composable
 fun FilterDialog(
     funcToCall: () -> Unit,
@@ -1429,6 +1541,10 @@ fun FilterDialog(
                     // Genre Filter
                     item { 
                         GenreFilter(filterState = filterState, viewModel = viewModel)
+                    }
+                    // Without Genre Filter
+                    item {
+                        WithoutGenreFilter(filterState = filterState, viewModel = viewModel)
                     }
                     // Add other filter items here
                 }

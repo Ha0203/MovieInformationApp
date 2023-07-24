@@ -68,7 +68,11 @@ class MovieListViewModel @Inject constructor(
         private set
     var isGenres = mutableStateOf(false)
         private set
+    var isWithoutGenres = mutableStateOf(false)
+    private set
     var selectedGenres = mutableListOf<GenreItems>()
+        private set
+    var selectedWithoutGenres = mutableListOf<GenreItems>()
         private set
     init {
         viewModelScope.launch {
@@ -210,6 +214,9 @@ class MovieListViewModel @Inject constructor(
     }
     fun reverseIsGenres(){
         isGenres.value = !isGenres.value
+    }
+    fun reverseIsWithoutGenres(){
+        isWithoutGenres.value = !isWithoutGenres.value
     }
 
     fun addGenre(item: GenreItems){
