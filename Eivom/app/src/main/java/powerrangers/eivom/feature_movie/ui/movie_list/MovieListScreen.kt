@@ -1268,7 +1268,8 @@ fun GenreCard(
     genre: GenreItems,
     selectedGenres: MutableList<GenreItems>
 ) {
-    var isExist = selectedGenres.any{ Selectitem -> Selectitem.name == genre.name }
+    val isExist = selectedGenres.any{ Selectitem -> Selectitem.name == genre.name }
+    if (isExist) genre.isSelected.value = true
     Box(
         modifier = Modifier
             .padding(2.dp)
@@ -1278,11 +1279,10 @@ fun GenreCard(
                     if (!isExist) selectedGenres.add(genre)
                 } else {
                     if (isExist) selectedGenres.remove(genre)
-                    isExist = false
                 }
             }
             .background(
-                color = if (isExist) MaterialTheme.colors.primary else Color.LightGray,
+                color = if (genre.isSelected.value) MaterialTheme.colors.primary else Color.LightGray,
                 shape = RoundedCornerShape(8.dp)
             )
     ) {
@@ -1294,7 +1294,7 @@ fun GenreCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ){
-            if (isExist) {
+            if (genre.isSelected.value) {
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
@@ -1318,7 +1318,7 @@ fun GenreCard(
                 text = genre.name,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp,
-                color = if (isExist || genre.isSelected.value) Color.White else Color.Black,
+                color = if (genre.isSelected.value) Color.White else Color.Black,
                 textAlign = TextAlign.Center // Center the text horizontally within the card
             )
         }
