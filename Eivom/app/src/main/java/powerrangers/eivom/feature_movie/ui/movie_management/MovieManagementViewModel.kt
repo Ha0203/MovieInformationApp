@@ -1,6 +1,5 @@
 package powerrangers.eivom.feature_movie.ui.movie_management
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,15 +15,6 @@ class MovieManagementViewModel @Inject constructor(
 
     // New movie state
     var isAddingMovie = mutableStateOf(false)
-        private set
-    var movieKey = mutableStateOf("")
-        private set
-    var newMovieState = mutableStateOf(SponsoredMovieState())
-        private set
-    var collectionState = mutableStateOf<CollectionState?>(null)
-        private set
-    var companyStateList = mutableStateListOf<CompanyState>()
-        private set
 
     // Get user
     fun getUser() {
@@ -34,18 +24,5 @@ class MovieManagementViewModel @Inject constructor(
     // Update new movie state functions
     fun updateAddingState(isAdding: Boolean) {
         isAddingMovie.value = isAdding
-    }
-
-    fun updateNewMovieState(
-        key: String,
-        movieState: SponsoredMovieState,
-        movieCollectionState: CollectionState?,
-        movieCompanyStateList: List<CompanyState>
-    ) {
-        movieKey.value = key
-        newMovieState.value = movieState
-        collectionState.value = movieCollectionState
-        companyStateList.clear()
-        companyStateList.addAll(movieCompanyStateList)
     }
 }

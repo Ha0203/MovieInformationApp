@@ -7,9 +7,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import powerrangers.eivom.domain.use_case.UserPreferencesUseCase
-import powerrangers.eivom.feature_movie.domain.model.Collection
-import powerrangers.eivom.feature_movie.domain.model.Company
-import powerrangers.eivom.feature_movie.domain.model.Video
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
 import powerrangers.eivom.feature_movie.ui.utility.UserPreferences
 import java.time.LocalDate
@@ -30,10 +27,19 @@ class NewMovieDialogViewModel @Inject constructor(
         private set
     var companyStateList = mutableStateListOf<CompanyState>()
         private set
+    var movieLogoUrlList = mutableStateListOf<String>()
+        private set
+    var moviePosterUrlList = mutableStateListOf<String>()
+        private set
+    var movieBackdropUrlList = mutableStateListOf<String>()
+        private set
+    var videoStateList = mutableStateListOf<VideoState>()
+        private set
 
     val genreList = TranslateCode.GENRE.toList()
     val languageList = TranslateCode.ISO_639_1.toList()
     val countryList = TranslateCode.ISO_3166_1.toList()
+    val videoType = listOf("Teaser", "Trailer", "Featurette", "Clip", "Behind the Scenes", "Other")
 
     init {
         viewModelScope.launch {
@@ -45,20 +51,18 @@ class NewMovieDialogViewModel @Inject constructor(
         }
     }
 
-    // Update new movie state functions
-    fun updateNewMovieState(
-        key: String,
-        movieState: SponsoredMovieState,
-        movieCollectionState: CollectionState?,
-        movieCompanyStateList: List<CompanyState>
-    ) {
-        movieKey.value = key
-        newMovieState.value = movieState
-        collectionState.value = movieCollectionState
+    fun clearNewMovieState() {
+        movieKey.value = ""
+        newMovieState.value = SponsoredMovieState()
+        collectionState.value = null
         companyStateList.clear()
-        companyStateList.addAll(movieCompanyStateList)
+        movieLogoUrlList.clear()
+        moviePosterUrlList.clear()
+        movieBackdropUrlList.clear()
+        videoStateList.clear()
     }
 
+    // Update new movie state functions
     fun updateMovieKey(key: String) {
         movieKey.value = key.uppercase()
     }
@@ -75,18 +79,16 @@ class NewMovieDialogViewModel @Inject constructor(
         )
     }
 
-    fun addMovieLandscapeImageUrl(url: String) {
-        val urls = newMovieState.value.landscapeImageUrls + url
-        newMovieState.value = newMovieState.value.copy(
-            landscapeImageUrls = urls
-        )
+    fun addMovieLandscapeImageUrl() {
+        movieBackdropUrlList.add("")
     }
 
-    fun removeMovieLandscapeImageUrl(url: String) {
-        val urls = newMovieState.value.landscapeImageUrls - url
-        newMovieState.value = newMovieState.value.copy(
-            landscapeImageUrls = urls
-        )
+    fun updateMovieLandscapeImageUrl(index: Int, url: String) {
+        movieBackdropUrlList[index] = url
+    }
+
+    fun removeMovieLandscapeImageUrl(index: Int) {
+        movieBackdropUrlList.removeAt(index)
     }
 
     fun addMovieCollection() {
@@ -121,10 +123,14 @@ class NewMovieDialogViewModel @Inject constructor(
         collectionState.value = null
     }
 
-    fun updateMovieBudget(budget: Long) {
-        newMovieState.value = newMovieState.value.copy(
-            budget = budget
-        )
+    fun updateMovieBudget(budget: String) {
+        try {
+            newMovieState.value = newMovieState.value.copy(
+                budget = if (budget.isNotBlank()) budget.toLong() else null
+            )
+        } catch (e: Exception) {
+            return
+        }
     }
 
     fun isGenreSelected(genre: Int): Boolean = genre in newMovieState.value.genres
@@ -173,18 +179,16 @@ class NewMovieDialogViewModel @Inject constructor(
         )
     }
 
-    fun addMoviePosterUrl(url: String) {
-        val urls = newMovieState.value.posterUrls + url
-        newMovieState.value = newMovieState.value.copy(
-            posterUrls = urls
-        )
+    fun addMoviePosterUrl() {
+        moviePosterUrlList.add("")
     }
 
-    fun removeMoviePosterUrl(url: String) {
-        val urls = newMovieState.value.posterUrls - url
-        newMovieState.value = newMovieState.value.copy(
-            posterUrls = urls
-        )
+    fun updateMoviePosterUrl(index: Int, url: String) {
+        moviePosterUrlList[index] = url
+    }
+
+    fun removeMoviePosterUrl(index: Int) {
+        moviePosterUrlList.removeAt(index)
     }
 
     fun addMovieCompany() {
@@ -226,14 +230,14 @@ class NewMovieDialogViewModel @Inject constructor(
         }
     }
 
-    fun addMovieProductionCountries(country: String) {
+    fun addMovieProductionCountry(country: String) {
         val countries = newMovieState.value.productionCountries + country
         newMovieState.value = newMovieState.value.copy(
             productionCountries = countries
         )
     }
 
-    fun removeMovieProductionCountries(country: String) {
+    fun removeMovieProductionCountry(country: String) {
         val countries = newMovieState.value.productionCountries - country
         newMovieState.value = newMovieState.value.copy(
             productionCountries = countries
@@ -246,30 +250,36 @@ class NewMovieDialogViewModel @Inject constructor(
         )
     }
 
-    fun updateMovieRevenue(revenue: Long) {
-        newMovieState.value = newMovieState.value.copy(
-            revenue = revenue
-        )
+    fun updateMovieRevenue(revenue: String) {
+        try {
+            newMovieState.value = newMovieState.value.copy(
+                revenue = if (revenue.isNotBlank()) revenue.toLong() else null
+            )
+        } catch (e: Exception) {
+            return
+        }
     }
 
     fun updateMovieLength(length: String) {
-        newMovieState.value = newMovieState.value.copy(
-            length = if (length.isNotBlank()) if (length.length <= 6) length.toInt() else 999999 else null
-        )
+        try {
+            newMovieState.value = newMovieState.value.copy(
+                length = if (length.isNotBlank()) length.toInt() else null
+            )
+        } catch (e: Exception) {
+            return
+        }
     }
 
-    fun addMovieLogoUrl(url: String) {
-        val urls = newMovieState.value.logoImageUrls + url
-        newMovieState.value = newMovieState.value.copy(
-            logoImageUrls = urls
-        )
+    fun addMovieLogoUrl() {
+        movieLogoUrlList.add("")
     }
 
-    fun removeMovieLogoUrl(url: String) {
-        val urls = newMovieState.value.logoImageUrls - url
-        newMovieState.value = newMovieState.value.copy(
-            logoImageUrls = urls
-        )
+    fun updateMovieLogoUrl(index: Int, url: String) {
+        movieLogoUrlList[index] = url
+    }
+
+    fun removeMovieLogoUrl(index: Int) {
+        movieLogoUrlList.removeAt(index)
     }
 
     fun addMovieSpokenLanguage(language: String) {
@@ -298,17 +308,60 @@ class NewMovieDialogViewModel @Inject constructor(
         )
     }
 
-    fun addMovieVideo(video: Video) {
-        val videos = newMovieState.value.videos + video
-        newMovieState.value = newMovieState.value.copy(
-            videos = videos
+    fun addMovieVideo() {
+        videoStateList.add(VideoState())
+    }
+
+    fun updateMovieVideoName(index: Int, name: String) {
+        videoStateList[index] = videoStateList[index].copy(
+            name = name
         )
     }
 
-    fun removeMovieVideo(video: Video) {
-        val videos = newMovieState.value.videos - video
-        newMovieState.value = newMovieState.value.copy(
-            videos = videos
+    fun updateMovieVideoUrl(index: Int, url: String) {
+        videoStateList[index] = videoStateList[index].copy(
+            url = url
         )
+    }
+
+    fun updateMovieVideoLanguage(index: Int, language: String) {
+        videoStateList[index] = videoStateList[index].copy(
+            language = language
+        )
+    }
+
+    fun updateMovieVideoCountry(index: Int, country: String) {
+        videoStateList[index] = videoStateList[index].copy(
+            country = country
+        )
+    }
+
+    fun updateMovieVideoSite(index: Int, site: String) {
+        videoStateList[index] = videoStateList[index].copy(
+            site = site
+        )
+    }
+
+    fun updateMovieVideoType(index: Int, type: String) {
+        videoStateList[index] = videoStateList[index].copy(
+            type = type
+        )
+    }
+
+    fun removeMovieVideo(index: Int) {
+        videoStateList.removeAt(index)
+    }
+
+    fun isMovieVideoListValid(): Boolean {
+        if (videoStateList.isEmpty()) {
+            return true
+        } else {
+            for (video in videoStateList) {
+                if (!video.isValid()) {
+                    return false
+                }
+            }
+            return true
+        }
     }
 }
