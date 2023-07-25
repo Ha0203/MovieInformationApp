@@ -11,7 +11,7 @@ import powerrangers.eivom.domain.use_case.UserPreferencesUseCase
 import powerrangers.eivom.feature_movie.domain.use_case.SponsoredMovieFirebaseUseCase
 import powerrangers.eivom.feature_movie.domain.utility.MovieKey
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
-import powerrangers.eivom.feature_movie.ui.utility.UserPreferences
+import powerrangers.eivom.ui.utility.UserPreferences
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -54,8 +54,23 @@ class NewMovieDialogViewModel @Inject constructor(
         viewModelScope.launch {
             userPreferences.value =
                 UserPreferences(
-                    backgroundColor = userPreferencesUseCase.getBackgroundColor(),
-                    dateFormat = userPreferencesUseCase.getDateFormat()
+                    colorMode = userPreferencesUseCase.getColorMode(),
+                    topbarBackgroundColor = userPreferencesUseCase.getTopbarBackgroundColor(),
+                    sidebarBackgroundColor = userPreferencesUseCase.getSidebarBackgroundColor(),
+                    screenBackgroundColor = userPreferencesUseCase.getScreenBackgroundColor(),
+                    movieNoteBackgroundColor = userPreferencesUseCase.getMovieNoteBackgroundColor(),
+                    dialogBackgroundColor = userPreferencesUseCase.getDialogBackgroundColor(),
+                    topbarTextColor = userPreferencesUseCase.getTopbarTextColor(),
+                    sidebarTextColor = userPreferencesUseCase.getSidebarTextColor(),
+                    screenTextColor = userPreferencesUseCase.getScreenTextColor(),
+                    movieNoteTextColor = userPreferencesUseCase.getMovieNoteTextColor(),
+                    dialogTextColor = userPreferencesUseCase.getDialogTextColor(),
+                    originalTitleDisplay = userPreferencesUseCase.getOriginalTitleDisplay(),
+                    dateFormat = userPreferencesUseCase.getDateFormat(),
+                    notificationBeforeMonth = userPreferencesUseCase.getNotificationBeforeMonth(),
+                    notificationBeforeWeek = userPreferencesUseCase.getNotificationBeforeWeek(),
+                    notificationBeforeDay = userPreferencesUseCase.getNotificationBeforeDay(),
+                    notificationOnDate = userPreferencesUseCase.getNotificationOnDate(),
                 )
         }
     }

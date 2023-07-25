@@ -22,9 +22,9 @@ import powerrangers.eivom.feature_movie.domain.utility.Logic
 import powerrangers.eivom.feature_movie.domain.utility.MovieFilter
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
 import powerrangers.eivom.feature_movie.domain.utility.TrendingTime
-import powerrangers.eivom.feature_movie.ui.utility.UserPreferences
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import powerrangers.eivom.ui.utility.UserPreferences
 import javax.inject.Inject
 
 @HiltViewModel
@@ -95,8 +95,23 @@ class MovieListViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             userPreferences.value = UserPreferences(
-                backgroundColor = userPreferencesUseCase.getBackgroundColor(),
-                dateFormat = userPreferencesUseCase.getDateFormat()
+                colorMode = userPreferencesUseCase.getColorMode(),
+                topbarBackgroundColor = userPreferencesUseCase.getTopbarBackgroundColor(),
+                sidebarBackgroundColor = userPreferencesUseCase.getSidebarBackgroundColor(),
+                screenBackgroundColor = userPreferencesUseCase.getScreenBackgroundColor(),
+                movieNoteBackgroundColor = userPreferencesUseCase.getMovieNoteBackgroundColor(),
+                dialogBackgroundColor = userPreferencesUseCase.getDialogBackgroundColor(),
+                topbarTextColor = userPreferencesUseCase.getTopbarTextColor(),
+                sidebarTextColor = userPreferencesUseCase.getSidebarTextColor(),
+                screenTextColor = userPreferencesUseCase.getScreenTextColor(),
+                movieNoteTextColor = userPreferencesUseCase.getMovieNoteTextColor(),
+                dialogTextColor = userPreferencesUseCase.getDialogTextColor(),
+                originalTitleDisplay = userPreferencesUseCase.getOriginalTitleDisplay(),
+                dateFormat = userPreferencesUseCase.getDateFormat(),
+                notificationBeforeMonth = userPreferencesUseCase.getNotificationBeforeMonth(),
+                notificationBeforeWeek = userPreferencesUseCase.getNotificationBeforeWeek(),
+                notificationBeforeDay = userPreferencesUseCase.getNotificationBeforeDay(),
+                notificationOnDate = userPreferencesUseCase.getNotificationOnDate(),
             )
         }
         loadMoviePaginated()

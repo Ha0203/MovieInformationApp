@@ -12,22 +12,52 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import powerrangers.eivom.data.repository.UserPreferencesRepositoryImpl
+import powerrangers.eivom.domain.repository.UserPreferencesRepository
+import powerrangers.eivom.domain.use_case.GetColorMode
+import powerrangers.eivom.domain.use_case.GetDateFormat
+import powerrangers.eivom.domain.use_case.GetDialogBackgroundColor
+import powerrangers.eivom.domain.use_case.GetDialogTextColor
+import powerrangers.eivom.domain.use_case.GetMovieNoteBackgroundColor
+import powerrangers.eivom.domain.use_case.GetMovieNoteTextColor
+import powerrangers.eivom.domain.use_case.GetNotificationBeforeDay
+import powerrangers.eivom.domain.use_case.GetNotificationBeforeMonth
+import powerrangers.eivom.domain.use_case.GetNotificationBeforeWeek
+import powerrangers.eivom.domain.use_case.GetNotificationOnDate
+import powerrangers.eivom.domain.use_case.GetOriginalTitleDisplay
+import powerrangers.eivom.domain.use_case.GetScreenBackgroundColor
+import powerrangers.eivom.domain.use_case.GetScreenTextColor
+import powerrangers.eivom.domain.use_case.GetSidebarBackgroundColor
+import powerrangers.eivom.domain.use_case.GetSidebarTextColor
+import powerrangers.eivom.domain.use_case.GetTopbarBackgroundColor
+import powerrangers.eivom.domain.use_case.GetTopbarTextColor
 import powerrangers.eivom.domain.use_case.GoogleAuthClient
+import powerrangers.eivom.domain.use_case.SaveColorMode
+import powerrangers.eivom.domain.use_case.SaveDateFormat
+import powerrangers.eivom.domain.use_case.SaveDialogBackgroundColor
+import powerrangers.eivom.domain.use_case.SaveDialogTextColor
+import powerrangers.eivom.domain.use_case.SaveMovieNoteBackgroundColor
+import powerrangers.eivom.domain.use_case.SaveMovieNoteTextColor
+import powerrangers.eivom.domain.use_case.SaveNotificationBeforeDay
+import powerrangers.eivom.domain.use_case.SaveNotificationBeforeMonth
+import powerrangers.eivom.domain.use_case.SaveNotificationBeforeWeek
+import powerrangers.eivom.domain.use_case.SaveNotificationOnDate
+import powerrangers.eivom.domain.use_case.SaveOriginalTitleDisplay
+import powerrangers.eivom.domain.use_case.SaveScreenBackgroundColor
+import powerrangers.eivom.domain.use_case.SaveScreenTextColor
+import powerrangers.eivom.domain.use_case.SaveSidebarBackgroundColor
+import powerrangers.eivom.domain.use_case.SaveSidebarTextColor
+import powerrangers.eivom.domain.use_case.SaveTopbarBackgroundColor
+import powerrangers.eivom.domain.use_case.SaveTopbarTextColor
+import powerrangers.eivom.domain.use_case.UserPreferencesUseCase
 import powerrangers.eivom.feature_movie.data.database.LocalMovieDatabase
 import powerrangers.eivom.feature_movie.data.database.LocalMovieItemDao
 import powerrangers.eivom.feature_movie.data.network.MovieDatabaseApi
 import powerrangers.eivom.feature_movie.data.repository.LocalMovieDatabaseRepositoryImpl
 import powerrangers.eivom.feature_movie.data.repository.MovieDatabaseRepositoryImpl
-import powerrangers.eivom.data.repository.UserPreferencesRepositoryImpl
 import powerrangers.eivom.feature_movie.data.utility.DataSourceRelation
 import powerrangers.eivom.feature_movie.domain.repository.LocalMovieDatabaseRepository
 import powerrangers.eivom.feature_movie.domain.repository.MovieDatabaseRepository
-import powerrangers.eivom.domain.repository.UserPreferencesRepository
-import powerrangers.eivom.domain.use_case.GetBackgroundColor
-import powerrangers.eivom.domain.use_case.GetDateFormat
-import powerrangers.eivom.domain.use_case.SaveBackgroundColor
-import powerrangers.eivom.domain.use_case.SaveDateFormat
-import powerrangers.eivom.domain.use_case.UserPreferencesUseCase
 import powerrangers.eivom.feature_movie.domain.use_case.*
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -52,10 +82,40 @@ object AppModule {
     @Singleton
     fun provideUserPreferencesUseCase(userPreferencesRepository: UserPreferencesRepository): UserPreferencesUseCase =
         UserPreferencesUseCase(
-            saveBackgroundColor = SaveBackgroundColor(userPreferencesRepository),
+            saveColorMode = SaveColorMode(userPreferencesRepository),
+            saveTopbarBackgroundColor = SaveTopbarBackgroundColor(userPreferencesRepository),
+            saveSidebarBackgroundColor = SaveSidebarBackgroundColor(userPreferencesRepository),
+            saveScreenBackgroundColor = SaveScreenBackgroundColor(userPreferencesRepository),
+            saveMovieNoteBackgroundColor = SaveMovieNoteBackgroundColor(userPreferencesRepository),
+            saveDialogBackgroundColor = SaveDialogBackgroundColor(userPreferencesRepository),
+            saveTopbarTextColor = SaveTopbarTextColor(userPreferencesRepository),
+            saveSidebarTextColor = SaveSidebarTextColor(userPreferencesRepository),
+            saveScreenTextColor = SaveScreenTextColor(userPreferencesRepository),
+            saveMovieNoteTextColor = SaveMovieNoteTextColor(userPreferencesRepository),
+            saveDialogTextColor = SaveDialogTextColor(userPreferencesRepository),
+            saveOriginalTitleDisplay = SaveOriginalTitleDisplay(userPreferencesRepository),
             saveDateFormat = SaveDateFormat(userPreferencesRepository),
-            getBackgroundColor = GetBackgroundColor(userPreferencesRepository),
-            getDateFormat = GetDateFormat(userPreferencesRepository)
+            saveNotificationBeforeMonth = SaveNotificationBeforeMonth(userPreferencesRepository),
+            saveNotificationBeforeWeek = SaveNotificationBeforeWeek(userPreferencesRepository),
+            saveNotificationBeforeDay = SaveNotificationBeforeDay(userPreferencesRepository),
+            saveNotificationOnDate = SaveNotificationOnDate(userPreferencesRepository),
+            getColorMode = GetColorMode(userPreferencesRepository),
+            getTopbarBackgroundColor = GetTopbarBackgroundColor(userPreferencesRepository),
+            getSidebarBackgroundColor = GetSidebarBackgroundColor(userPreferencesRepository),
+            getScreenBackgroundColor = GetScreenBackgroundColor(userPreferencesRepository),
+            getMovieNoteBackgroundColor = GetMovieNoteBackgroundColor(userPreferencesRepository),
+            getDialogBackgroundColor = GetDialogBackgroundColor(userPreferencesRepository),
+            getTopbarTextColor = GetTopbarTextColor(userPreferencesRepository),
+            getSidebarTextColor = GetSidebarTextColor(userPreferencesRepository),
+            getScreenTextColor = GetScreenTextColor(userPreferencesRepository),
+            getMovieNoteTextColor = GetMovieNoteTextColor(userPreferencesRepository),
+            getDialogTextColor = GetDialogTextColor(userPreferencesRepository),
+            getOriginalTitleDisplay = GetOriginalTitleDisplay(userPreferencesRepository),
+            getDateFormat = GetDateFormat(userPreferencesRepository),
+            getNotificationBeforeMonth = GetNotificationBeforeMonth(userPreferencesRepository),
+            getNotificationBeforeWeek = GetNotificationBeforeWeek(userPreferencesRepository),
+            getNotificationBeforeDay = GetNotificationBeforeDay(userPreferencesRepository),
+            getNotificationOnDate = GetNotificationOnDate(userPreferencesRepository)
         )
 
     @Provides

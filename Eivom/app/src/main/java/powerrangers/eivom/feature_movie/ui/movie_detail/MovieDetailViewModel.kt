@@ -12,7 +12,7 @@ import powerrangers.eivom.feature_movie.domain.model.MovieItem
 import powerrangers.eivom.feature_movie.domain.use_case.MovieDatabaseUseCase
 import powerrangers.eivom.domain.use_case.UserPreferencesUseCase
 import powerrangers.eivom.domain.utility.Resource
-import powerrangers.eivom.feature_movie.ui.utility.UserPreferences
+import powerrangers.eivom.ui.utility.UserPreferences
 import powerrangers.eivom.navigation.Route
 import javax.inject.Inject
 
@@ -34,8 +34,23 @@ class MovieDetailViewModel @Inject constructor(
         viewModelScope.launch {
             userPreferences.value =
                 UserPreferences(
-                    backgroundColor = userPreferencesUseCase.getBackgroundColor(),
-                    dateFormat = userPreferencesUseCase.getDateFormat()
+                    colorMode = userPreferencesUseCase.getColorMode(),
+                    topbarBackgroundColor = userPreferencesUseCase.getTopbarBackgroundColor(),
+                    sidebarBackgroundColor = userPreferencesUseCase.getSidebarBackgroundColor(),
+                    screenBackgroundColor = userPreferencesUseCase.getScreenBackgroundColor(),
+                    movieNoteBackgroundColor = userPreferencesUseCase.getMovieNoteBackgroundColor(),
+                    dialogBackgroundColor = userPreferencesUseCase.getDialogBackgroundColor(),
+                    topbarTextColor = userPreferencesUseCase.getTopbarTextColor(),
+                    sidebarTextColor = userPreferencesUseCase.getSidebarTextColor(),
+                    screenTextColor = userPreferencesUseCase.getScreenTextColor(),
+                    movieNoteTextColor = userPreferencesUseCase.getMovieNoteTextColor(),
+                    dialogTextColor = userPreferencesUseCase.getDialogTextColor(),
+                    originalTitleDisplay = userPreferencesUseCase.getOriginalTitleDisplay(),
+                    dateFormat = userPreferencesUseCase.getDateFormat(),
+                    notificationBeforeMonth = userPreferencesUseCase.getNotificationBeforeMonth(),
+                    notificationBeforeWeek = userPreferencesUseCase.getNotificationBeforeWeek(),
+                    notificationBeforeDay = userPreferencesUseCase.getNotificationBeforeDay(),
+                    notificationOnDate = userPreferencesUseCase.getNotificationOnDate(),
                 )
             movieInformation.value =
                 movieDatabaseUseCase.getMovieItemResource(
