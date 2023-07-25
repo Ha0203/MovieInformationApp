@@ -18,7 +18,13 @@ import powerrangers.eivom.domain.utility.ResourceErrorMessage
 import powerrangers.eivom.domain.utility.addList
 import powerrangers.eivom.domain.utility.toError
 import powerrangers.eivom.domain.utility.toLoading
+import powerrangers.eivom.feature_movie.domain.utility.Logic
+import powerrangers.eivom.feature_movie.domain.utility.MovieFilter
+import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
+import powerrangers.eivom.feature_movie.domain.utility.TrendingTime
 import powerrangers.eivom.feature_movie.ui.utility.UserPreferences
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,6 +40,7 @@ class MovieListViewModel @Inject constructor(
 
     var movieListItems = mutableStateOf<Resource<List<MovieListItem>>>(Resource.Loading(data = emptyList()))
         private set
+
     //State of tool
     var filterState = mutableStateOf(FilterState())
         private set
@@ -55,7 +62,6 @@ class MovieListViewModel @Inject constructor(
         private set
     var releaseDate = mutableStateOf("")
         private set
-
     var minReleaseDate = mutableStateOf<String?>(null)
         private set
     var maxReleaseDate = mutableStateOf<String?>(null)
@@ -70,9 +76,21 @@ class MovieListViewModel @Inject constructor(
         private set
     var isWithoutGenres = mutableStateOf(false)
     private set
+    var isCountry = mutableStateOf(false)
+        private set
+    var isLanguage = mutableStateOf(false)
+        private set
     var selectedGenres = mutableListOf<GenreItems>()
         private set
     var selectedWithoutGenres = mutableListOf<GenreItems>()
+        private set
+    var selectedCountries = mutableListOf<Countries>()
+        private set
+    var selectedLanguage = mutableListOf<Language>()
+        private set
+    var minLength = mutableStateOf<String?>(null)
+        private set
+    var maxLength = mutableStateOf<String?>(null)
         private set
     init {
         viewModelScope.launch {
@@ -107,9 +125,52 @@ class MovieListViewModel @Inject constructor(
                         landscapeWidth = landscapeWidth,
                         posterWidth = posterWidth,
                         dateFormat = userPreferences.value.dateFormat,
-                        //trending = MovieFilter.Trending(TrendingTime.DAY),
-                        //region = MovieFilter.Region("Viet Nam")
-                        //genre = MovieFilter.Genre()
+                        trending = MovieFilter.Trending(TrendingTime.WEEK),
+                        favorite = MovieFilter.Favorite(filterState.value.isFavorite),
+                        watched = MovieFilter.Watched(filterState.value.isWatched),
+                        region = MovieFilter.Region(filterState.value.Region.toString()),
+                        adultContentIncluded = MovieFilter.AdultContentIncluded(filterState.value.AdultContentIncluded),
+                        primaryReleaseYear = filterState.value.ReleaseYear?.let {
+                            MovieFilter.ReleaseYear(
+                                it.toInt())
+                        },
+                        minimumPrimaryReleaseDate = stringToDate(filterState.value.MinimumReleaseDate.toString())?.let {
+                            MovieFilter.MinimumReleaseDate(it)
+                        },
+                        maximumPrimaryReleaseDate =  stringToDate(filterState.value.MaximumReleaseDate.toString())?.let {
+                            MovieFilter.MaximumReleaseDate(it)
+                        },
+                        genre = filterState.value.Genre?.let {
+                            convertGenreValuesToKeys(it)?.let {
+                                MovieFilter.Genre(it, logic = Logic.OR)
+                            }
+                        },
+                        originCountry = filterState.value.OriginCountry?.let {
+                            convertCountryValuesToKeys(it)?.let {
+                                MovieFilter.OriginCountry(it, logic = Logic.OR)
+                            }
+                        },
+                        originLanguage = filterState.value.OriginLanguage?.let {
+                            convertLanguageValuesToKeys(it)?.let {
+                                MovieFilter.OriginLanguage(it, logic = Logic.OR)
+                            }
+                        },
+                        minimumLength = filterState.value.MinimumLength?.let {
+                            MovieFilter.MinimumLength(
+                                it
+                            )
+                        },
+                        maximumLength = filterState.value.MaximumLength?.let {
+                            MovieFilter.MaximumLength(
+                                it
+                            )
+                        },
+                        withoutGenre = filterState.value.WithoutGenre?.let {
+                            convertGenreValuesToKeys(it)?.let {
+                                MovieFilter.WithoutGenre(it, logic = Logic.OR)
+                            }
+                        },
+
                     )
                 )
 
@@ -127,6 +188,43 @@ class MovieListViewModel @Inject constructor(
         }
     }
 
+    fun convertGenreValuesToKeys(genreItemsList: List<GenreItems>): List<Int> {
+        val genreKeysList = mutableListOf<Int>()
+
+        for ((key, value) in TranslateCode.GENRE) {
+            for (genreItem in genreItemsList) {
+                if (genreItem.name == value) {
+                    genreKeysList.add(key)
+                }
+            }
+        }
+        return genreKeysList
+    }
+    fun convertCountryValuesToKeys(countryItemsList: List<Countries>): List<String> {
+        val countryKeysList = mutableListOf<String>()
+
+        for ((key, value) in TranslateCode.ISO_3166_1) {
+            for (countryItem in countryItemsList) {
+                if (countryItem.name == value) {
+                    countryKeysList.add(key)
+                }
+            }
+        }
+        return countryKeysList
+    }
+    fun convertLanguageValuesToKeys(languageItemsList: List<Language>): List<String> {
+        val languageKeysList = mutableListOf<String>()
+
+        for ((key, value) in TranslateCode.ISO_639_1) {
+            for (languageItem in languageItemsList) {
+                if (languageItem.name == value) {
+                    languageKeysList.add(key)
+                }
+            }
+        }
+        return languageKeysList
+    }
+
     fun handleMovieDominantColor(drawable: Drawable, onFinish: (Color) -> Unit) {
         movieDatabaseUseCase.handleImageDominantColor(drawable = drawable, onFinish = onFinish)
     }
@@ -141,7 +239,6 @@ class MovieListViewModel @Inject constructor(
 
     fun reverseIsSort() {
         isSortVisible.value = !isSortVisible.value
-        //filterState.value = filterState.value.copy(isUpdated = true)
     }
     fun updateUserSearch(userWord: String){
         userSearch = userWord
@@ -164,9 +261,11 @@ class MovieListViewModel @Inject constructor(
     fun reverseIsFavorite(){
         filterState.value = filterState.value.copy(isFavorite = !filterState.value.isFavorite)
     }
-
+    fun reverseIsWatched(){
+        filterState.value = filterState.value.copy(isWatched = !filterState.value.isWatched)
+    }
     // Adult content
-    fun reverseAdultContet(){
+    fun reverseAdultContent(){
         filterState.value = filterState.value.copy(AdultContentIncluded = !filterState.value.AdultContentIncluded)
     }
 
@@ -183,26 +282,21 @@ class MovieListViewModel @Inject constructor(
         lastRegionSelected.value = regionSelected.value
         regionSelected.value = ""
     }
-
     fun resetLastRegion(){
         lastRegionSelected.value = ""
     }
     fun reverseExpanded(){
         isExpanded.value = !isExpanded.value
     }
-
     fun updateReleaseDate(newRD: String){
         releaseDate.value = newRD
     }
-
     fun updateMinReleaseDate(newMin: String){
         minReleaseDate.value = newMin
     }
-
     fun updateMaxReleaseDate(newMax: String){
         minReleaseDate.value = newMax
     }
-
     fun reverseDatePicker(){
         showDatePicker.value = !showDatePicker.value
     }
@@ -212,18 +306,51 @@ class MovieListViewModel @Inject constructor(
     fun updateMaxRating(newVal: String){
         maxRating.value = newVal
     }
+    fun updateMinLen(newVal: String) {
+        minLength.value = newVal
+    }
+    fun updateMaxLen(newVal: String){
+        maxLength.value = newVal
+    }
     fun reverseIsGenres(){
         isGenres.value = !isGenres.value
     }
     fun reverseIsWithoutGenres(){
         isWithoutGenres.value = !isWithoutGenres.value
     }
-
-    fun addGenre(item: GenreItems){
-        selectedGenres.add(item)
+    fun reverseIsCountry(){
+        isCountry.value = !isCountry.value
     }
-    fun removeGenre(item: GenreItems){
-        selectedGenres.remove(item)
+    fun reverseIsLanguage(){
+        isLanguage.value = !isLanguage.value
+    }
+
+    fun stringToDate(dateString: String): LocalDate? {
+        val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+        return try {
+            LocalDate.parse(dateString, formatter)
+        } catch (e: Exception) {
+            null
+        }
+    }
+    fun updateFilterState(){
+        // Except Trending, Favorite, Watched, Adult
+        filterState.value = filterState.value.copy(Region = regionSelected.toString())
+        filterState.value = filterState.value.copy(ReleaseYear = releaseDate.toString().toInt())
+        filterState.value = filterState.value.copy(MinimumReleaseDate = minReleaseDate.toString())
+        filterState.value = filterState.value.copy(MaximumReleaseDate = maxReleaseDate.toString())
+        filterState.value = filterState.value.copy(MinimumRating = minRating.toString().toFloat())
+        filterState.value = filterState.value.copy(MaximumRating = maxRating.toString().toFloat())
+        filterState.value = filterState.value.copy(Genre = selectedGenres)
+        filterState.value = filterState.value.copy(OriginCountry = selectedCountries)
+        filterState.value = filterState.value.copy(OriginLanguage = selectedLanguage)
+        filterState.value = filterState.value.copy(MinimumLength = minLength.toString().toInt())
+        filterState.value = filterState.value.copy(MaximumLength = maxLength.toString().toInt())
+        filterState.value = filterState.value.copy(WithoutGenre = selectedWithoutGenres)
+        filterState.value = filterState.value.copy(isUpdated = !filterState.value.isUpdated)
+    }
+    fun resetUpdateFilter(){
+        filterState.value = filterState.value.copy(isUpdated = false)
     }
     fun isFavoriteMovie(movieId: Int): Boolean = movieDatabaseUseCase.isFavoriteMovie(movieId)
     fun isWatchedMovie(movieId: Int): Boolean = movieDatabaseUseCase.isWatchedMovie(movieId)

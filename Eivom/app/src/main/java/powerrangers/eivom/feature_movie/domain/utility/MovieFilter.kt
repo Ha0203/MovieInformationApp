@@ -18,10 +18,7 @@ sealed class MovieFilter {
     class MaximumRating(val rating: Float): MovieFilter()
     class MinimumVote(val voteCount: Int): MovieFilter()
     class MaximumVote(val voteCount: Int): MovieFilter()
-//    class Cast(value: List<String>): MovieFilter()
-//    class Crew(value: List<String>): MovieFilter()
-//    class People(value: List<String>): MovieFilter()
-//    class Company(value: List<String>): MovieFilter()
+
     class Genre(val genres: List<Int>, val logic: Logic): MovieFilter()
     class OriginCountry(val countries: List<String>, val logic: Logic): MovieFilter()
     class OriginLanguage(val languages: List<String>, val logic: Logic): MovieFilter()

@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -35,9 +36,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -166,8 +169,6 @@ fun MovieListBody(
     val isSortVisible by remember { viewModel.isSortVisible }
 
     val filterState by remember { viewModel.filterState  }
-    //val textSizeState = remember { mutableStateOf(15.sp)}
-    //val userSearch by remember { viewModel.userSearch }
 
     Row(
         modifier = Modifier
@@ -191,8 +192,11 @@ fun MovieListBody(
                 FilterButton(
                     funcToCall = {
                         viewModel.reverseIsFilter()
+                        viewModel.updateFilterState()
                     },
-                    onDismiss = { viewModel.reverseIsFilter() },
+                    onDismiss = {
+                        viewModel.reverseIsFilter()
+                    },
                     filterState = filterState,
                 )
             }
@@ -675,15 +679,47 @@ fun FavoriteFilter(
 }
 
 @Composable
+fun WatchedFilter(
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+)
+{
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(id = R.string.Watched_FilterState),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        IconButton(onClick = { if (!filterState.isTrending ) viewModel.reverseIsWatched()} ) {
+            if (!filterState.isWatched )
+                Icon(
+                    painter = painterResource(R.drawable.unchecked_ic),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colors.primary
+                )
+            else
+                Icon(
+                    painter = painterResource(R.drawable.checked_ic),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colors.primary
+                )
+        }
+    }
+}
+
+@Composable
 fun RegionFilter(
     filterState: FilterState,
     viewModel: MovieListViewModel = hiltViewModel()
-){
-//    val expanded by remember { viewModel.isRegionExpanded }
+) {
     val regions = TranslateCode.ISO_3166_1.values.toList()
     val regionSelected by remember { viewModel.regionSelected }
-    //var showMenu = remember { mutableStateOf(false)}
-
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -771,7 +807,7 @@ fun AdultConTentFilter(
             modifier = Modifier.padding(vertical = 4.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
-        IconButton(onClick = { if (!filterState.isTrending ) viewModel.reverseAdultContet()} ) {
+        IconButton(onClick = { if (!filterState.isTrending ) viewModel.reverseAdultContent()} ) {
             if (!filterState.AdultContentIncluded )
                 Icon(
                     painter = painterResource(R.drawable.unchecked_ic),
@@ -789,6 +825,7 @@ fun AdultConTentFilter(
         }
     }
 }
+
 @Composable
 fun ReleaseDateFilter(
     filterState: FilterState,
@@ -1186,6 +1223,172 @@ fun MaxRating(
     }
 }
 
+
+@Composable
+fun MinLength(
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+) {
+    val newLen by remember { viewModel.minLength }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(id = R.string.MinimumLength_FilterState),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        OutlinedTextField(
+            value = newLen?: "",
+            onValueChange = { newValue ->
+                // Validate the input to ensure it falls within the desired range
+                if ( newValue.length < 3 ||
+                    (
+                            newValue.length == 3 && newValue.toInt() in 60..200
+                    )
+                ){
+                    viewModel.updateMinLen(newValue)
+                } else {
+                    // If the input is not a valid float within the range, do not update the value
+                    viewModel.updateMinLen("")
+                }
+            },
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Number
+            ),
+            visualTransformation = VisualTransformation.None,
+            textStyle = TextStyle(
+                fontSize = 10.sp,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Left,
+            ),
+            trailingIcon = {
+                Icon(
+                    painterResource(id = R.drawable.ic_movielen), contentDescription = null,
+                    modifier = Modifier.size(15.dp)
+                )
+            },
+            shape = RoundedCornerShape(5.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor =  Color.Gray,
+                placeholderColor = MaterialTheme.colors.primary,
+                textColor = MaterialTheme.colors.primary,
+                backgroundColor = Color.White,
+                trailingIconColor = MaterialTheme.colors.primary,
+                disabledTrailingIconColor = Color.Gray
+                ),
+            placeholder = {
+                Text(
+                    text = "90",
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Light,
+                        fontStyle = FontStyle.Italic,
+                        color = Color.LightGray,
+                        textAlign = TextAlign.Start
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                )
+            },
+            modifier = Modifier
+                .size(width = 90.dp, height = 45.dp)
+                .border(0.5.dp, Color.LightGray, shape = RoundedCornerShape(4.dp)),
+        )
+    }
+}
+
+@Composable
+fun MaxLength(
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+) {
+    val newLen by remember { viewModel.maxLength }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(id = R.string.MaximumLength_FilterState),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+
+        OutlinedTextField(
+            value = newLen?: "",
+            onValueChange = { newValue ->
+                // Validate the input to ensure it falls within the desired range
+                if ( newValue.length < 3 ||
+                    (
+                            newValue.length == 3 && newValue.toInt() in 60..200
+                    )
+                ){
+                    viewModel.updateMaxLen(newValue)
+                } else {
+                    // If the input is not a valid float within the range, do not update the value
+                    viewModel.updateMaxLen("")
+                }
+            },
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Number
+            ),
+            visualTransformation = VisualTransformation.None,
+            textStyle = TextStyle(
+                fontSize = 10.sp,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Left,
+            ),
+            trailingIcon = {
+                Icon(
+                    painterResource(id = R.drawable.ic_movielen), contentDescription = null,
+                    modifier = Modifier.size(15.dp)
+                )
+            },
+            shape = RoundedCornerShape(5.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor =  Color.Gray,
+                placeholderColor = MaterialTheme.colors.primary,
+                textColor = MaterialTheme.colors.primary,
+                backgroundColor = Color.White,
+                trailingIconColor = MaterialTheme.colors.primary,
+                disabledTrailingIconColor = Color.Gray
+
+                ),
+            placeholder = {
+                Text(
+                    text = "150",
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Light,
+                        fontStyle = FontStyle.Italic,
+                        color = Color.LightGray,
+                        textAlign = TextAlign.Start
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                )
+            },
+            modifier = Modifier
+                .size(width = 90.dp, height = 45.dp)
+                .border(0.5.dp, Color.LightGray, shape = RoundedCornerShape(4.dp)),
+        )
+    }
+}
+
+
 @Composable
 fun GenreFilter(
     filterState: FilterState,
@@ -1459,12 +1662,281 @@ fun WithoutGenreCard(
 
 
 @Composable
+fun CountryFilter(
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+){
+    val countries = TranslateCode.ISO_639_1.values.toList()
+    val allCountries: List<Countries> = countries.map { Countries(name = it) }
+    val selectedCountries = remember{ viewModel.selectedCountries }
+    val isCountry by remember { viewModel.isCountry }
+
+    Column(
+        modifier = Modifier
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(id = R.string.OriginCountry_FilterState),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Edit more
+            IconButton(onClick = {viewModel.reverseIsCountry()} ) {
+                if (!isCountry)
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = null,
+                        modifier = Modifier.size(30.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                else Icon(
+                    imageVector = Icons.Default.ArrowDropUp,
+                    contentDescription = null,
+                    modifier = Modifier.size(30.dp),
+                    tint = MaterialTheme.colors.primary
+                )
+            }
+        }
+
+        if (isCountry) {
+            CountrySelectMenu(countries = allCountries, selectedCountries = selectedCountries)
+        }
+    }
+
+}
+
+
+@Composable
+fun CountrySelectMenu(
+    countries: List<Countries>,
+    selectedCountries: MutableList<Countries>
+) {
+    val rows = countries.chunked(3) // Group genres into rows with three items each
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(rows) { rowCountries ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                for (country in rowCountries) {
+                    CountryCard(country, selectedCountries)
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun CountryCard(
+    country: Countries,
+    selectedCountries: MutableList<Countries>
+) {
+    val isExist = selectedCountries.any{ Selectitem -> Selectitem.name == country.name }
+    if (isExist) country.isSelected.value = true
+    Box(
+        modifier = Modifier
+            .padding(2.dp)
+            .clickable {
+                country.isSelected.value = !country.isSelected.value
+                if (country.isSelected.value) {
+                    if (!isExist) selectedCountries.add(country)
+                } else {
+                    if (isExist) selectedCountries.remove(country)
+                }
+            }
+            .background(
+                color = if (country.isSelected.value) MaterialTheme.colors.primary else Color.LightGray,
+                shape = RoundedCornerShape(8.dp)
+            )
+    ) {
+        Row (
+            modifier = Modifier
+                .padding(10.dp)
+                .wrapContentSize(align = Center)
+                .widthIn(min = 60.dp, max = 120.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ){
+            if (country.isSelected.value) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = null,
+                    modifier = Modifier
+                        //.padding(start = 4.dp)
+                        .size(10.dp),
+                    tint = Color.White
+                )
+            }
+            Text(
+                text = country.name,
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp,
+                color = if (country.isSelected.value) Color.White else Color.Black,
+                textAlign = TextAlign.Center // Center the text horizontally within the card
+            )
+        }
+
+    }
+}
+
+@Composable
+fun LanguageFilter(
+    filterState: FilterState,
+    viewModel: MovieListViewModel = hiltViewModel()
+){
+    val language = TranslateCode.ISO_3166_1.values.toList()
+    val allLanguages: List<Language> = language.map { Language(name = it) }
+    val selectedLanguages = remember{ viewModel.selectedLanguage }
+    val isLanguage by remember { viewModel.isLanguage }
+
+    Column(
+        modifier = Modifier
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(id = R.string.OriginLanguage_FilterState),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Edit more
+            IconButton(onClick = {viewModel.reverseIsLanguage()} ) {
+                if (!isLanguage)
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = null,
+                        modifier = Modifier.size(30.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                else Icon(
+                    imageVector = Icons.Default.ArrowDropUp,
+                    contentDescription = null,
+                    modifier = Modifier.size(30.dp),
+                    tint = MaterialTheme.colors.primary
+                )
+            }
+        }
+
+        if (isLanguage) {
+            LanguageSelectMenu(languages = allLanguages, selectedLanguages = selectedLanguages )
+        }
+    }
+
+}
+
+
+@Composable
+fun LanguageSelectMenu(
+    languages: List<Language>,
+    selectedLanguages: MutableList<Language>
+) {
+    val rows = languages.chunked(3) // Group genres into rows with three items each
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(rows) { rowLanguages ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                for (language in rowLanguages) {
+                    LanguageCard(language = language, selectedLanguages = selectedLanguages)
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun LanguageCard(
+    language: Language,
+    selectedLanguages: MutableList<Language>
+) {
+    val isExist = selectedLanguages.any{ Selectitem -> Selectitem.name == language.name }
+    if (isExist) language.isSelected.value = true
+    Box(
+        modifier = Modifier
+            .padding(2.dp)
+            .clickable {
+                language.isSelected.value = !language.isSelected.value
+                if (language.isSelected.value) {
+                    if (!isExist) selectedLanguages.add(language)
+                } else {
+                    if (isExist) selectedLanguages.remove(language)
+                }
+            }
+            .background(
+                color = if (language.isSelected.value) MaterialTheme.colors.primary else Color.LightGray,
+                shape = RoundedCornerShape(8.dp)
+            )
+    ) {
+        Row (
+            modifier = Modifier
+                .padding(10.dp)
+                .wrapContentSize(align = Center)
+                .widthIn(min = 60.dp, max = 120.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ){
+            if (language.isSelected.value) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = null,
+                    modifier = Modifier
+                        //.padding(start = 4.dp)
+                        .size(10.dp),
+                    tint = Color.White
+                )
+            }
+            Text(
+                text = language.name,
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp,
+                color = if (language.isSelected.value) Color.White else Color.Black,
+                textAlign = TextAlign.Center // Center the text horizontally within the card
+            )
+        }
+
+    }
+}
+
+@Composable
 fun FilterDialog(
     funcToCall: () -> Unit,
     onDismiss: () -> Unit,
     filterState: FilterState,
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
+
     Dialog(
         onDismissRequest = {
             onDismiss()
@@ -1495,6 +1967,7 @@ fun FilterDialog(
                         .fillMaxWidth()
                         .weight(1f)
                 ) {
+                    // Trending Filter
                     item{
                         TrendingFilter(filterState = filterState, viewModel = viewModel)
                     }
@@ -1502,6 +1975,11 @@ fun FilterDialog(
                     // Favorite Filter
                     item{
                         FavoriteFilter(filterState = filterState, viewModel = viewModel)
+                    }
+                    item { Spacer(modifier = Modifier.height(5.dp)) }
+                    // Watched Filter
+                    item{
+                        WatchedFilter(filterState = filterState, viewModel = viewModel)
                     }
                     item { Spacer(modifier = Modifier.height(5.dp)) }
                     // Adult Content Filter
@@ -1538,15 +2016,36 @@ fun FilterDialog(
                     item{
                         MaxRating(filterState = filterState, viewModel = viewModel)
                     }
+                    item { Spacer(modifier = Modifier.height(10.dp)) }
                     // Genre Filter
                     item { 
                         GenreFilter(filterState = filterState, viewModel = viewModel)
                     }
+                    item { Spacer(modifier = Modifier.height(10.dp)) }
                     // Without Genre Filter
                     item {
                         WithoutGenreFilter(filterState = filterState, viewModel = viewModel)
                     }
-                    // Add other filter items here
+                    item { Spacer(modifier = Modifier.height(10.dp)) }
+                    // Min Length Filter
+                    item {
+                        MinLength(filterState = filterState, viewModel = viewModel)
+                    }
+                    item { Spacer(modifier = Modifier.height(10.dp)) }
+                    // Max Length Filter
+                    item {
+                        MaxLength(filterState = filterState, viewModel = viewModel)
+                    }
+                    item { Spacer(modifier = Modifier.height(10.dp)) }
+                    // Origin Country Filter
+                    item {
+                        CountryFilter(filterState = filterState, viewModel = viewModel)
+                    }
+                    item { Spacer(modifier = Modifier.height(10.dp)) }
+                    // Language Filter
+                    item {
+                        LanguageFilter(filterState = filterState, viewModel = viewModel)
+                    }
                 }
 
                 Row(
@@ -1589,6 +2088,7 @@ fun FilterButton(
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
     val showDialog = remember { mutableStateOf(true) }
+    viewModel.resetUpdateFilter()
 
     AnimatedVisibility(
         visible = showDialog.value,
