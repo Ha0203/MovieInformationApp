@@ -179,6 +179,12 @@ fun MovieListBody(
         }
     }
 
+    LaunchedEffect(key1 = sortState){
+        if (sortState.isUpdate){
+            viewModel.resetMovieList()
+        }
+    }
+
     Row(
         modifier = Modifier
             .fillMaxSize()
@@ -220,13 +226,12 @@ fun MovieListBody(
                     funcToCall = {
                         viewModel.reverseIsSort()
                         viewModel.updateSortState()
-                        //viewModel.updateSortViewModel()
+
                     },
                     onDismiss = {
                         viewModel.reverseIsSort()
 
-                    },
-                    sortState = sortState
+                    }
                 )
             }
 
@@ -1932,7 +1937,7 @@ fun FilterDialog(
     onDismiss: () -> Unit,
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
-
+    viewModel.updateFilterViewModel()
     Dialog(
         onDismissRequest = {
             onDismiss()
@@ -2119,9 +2124,11 @@ fun ReleaseDateSort(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable {
-                viewModel.reverseReleaseDateSort()
-            }
+            modifier = Modifier
+                .clickable {
+                    viewModel.reverseReleaseDateSort()
+                }
+                .padding(end = 15.dp)
         ) {
             Text(
                 text = stringResource(id = R.string.ReleaseDate_SortState),
@@ -2131,6 +2138,248 @@ fun ReleaseDateSort(
             )
             Spacer(modifier = Modifier.weight(1f))
             when (releaseSort) {
+                null -> {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_threedots),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                }
+                Order.ASCENDING -> {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_ascending),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                }
+                else -> {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_decending),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun RatingSort(
+    viewModel: MovieListViewModel = hiltViewModel()
+)
+{
+    val ratingSort by remember { viewModel.ratingSort }
+
+    Column(
+        modifier = Modifier
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .clickable {
+                    viewModel.reverseRatingSort()
+                }
+                .padding(end = 15.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.Rating_SortState),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            when (ratingSort) {
+                null -> {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_threedots),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                }
+                Order.ASCENDING -> {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_ascending),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                }
+                else -> {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_decending),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun VoteSort(
+    viewModel: MovieListViewModel = hiltViewModel()
+)
+{
+    val voteSort by remember { viewModel.voteSort }
+
+    Column(
+        modifier = Modifier
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .clickable {
+                    viewModel.reverseVoteSort()
+                }
+                .padding(end = 15.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.Vote_SortState),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            when (voteSort) {
+                null -> {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_threedots),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                }
+                Order.ASCENDING -> {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_ascending),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                }
+                else -> {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_decending),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun OriginalTitleSort(
+    viewModel: MovieListViewModel = hiltViewModel()
+)
+{
+    val originalTSort by remember { viewModel.originalTitleSort }
+
+    Column(
+        modifier = Modifier
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .clickable {
+                    viewModel.reverseOTitleSort()
+                }
+                .padding(end = 15.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.OriginalTitle),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            when (originalTSort) {
+                null -> {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_threedots),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                }
+                Order.ASCENDING -> {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_ascending),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                }
+                else -> {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_decending),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun TitleSort(
+    viewModel: MovieListViewModel = hiltViewModel()
+)
+{
+    val tilteSort by remember { viewModel.titleSort }
+
+    Column(
+        modifier = Modifier
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .clickable { viewModel.reverseTitleSort() }
+                .padding(end = 15.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.Title),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            when (tilteSort) {
                 null -> {
                     Icon(
                         painter = painterResource(R.drawable.ic_threedots),
@@ -2180,27 +2429,63 @@ fun SortDialog(
                     .background(MaterialTheme.colors.surface)
                     .fillMaxWidth()
                     .width(300.dp)
-                    .height(400.dp)
+                    .height(360.dp)
             ) {
                 Text(
                     text = stringResource(id = R.string.sort_title),
                     style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp),
                     textAlign = TextAlign.Center,
                     modifier = Modifier
-                        .padding(top = 20.dp)
+                        .padding(top = 10.dp)
                         .fillMaxWidth()
-                        .weight(0.2f)
+                        .weight(0.15f)
                 )
 
-                LazyColumn(
+                Column(
                     modifier = Modifier
                         .padding(10.dp)
                         .fillMaxWidth()
-                        .weight(1f)
+                        .weight(0.9f)
                 ) {
-                    item { 
-                        ReleaseDateSort(viewModel = viewModel)
+                    Row(
+                        //horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Options:",
+                            textAlign = TextAlign.Start,
+                            style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp),
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                        Spacer(modifier = Modifier.weight(2f))
+                        IconButton(
+                            onClick = {
+                                viewModel.resetAllSortDefault()
+                                viewModel.updateSortViewModel()
+                            },
+                            modifier = Modifier.padding(start = 10.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_backup), contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colors.primary
+                            )
+                        }
                     }
+                    //ReleaseDate Sort
+                        ReleaseDateSort(viewModel = viewModel)
+                        Spacer(modifier = Modifier.height(10.dp))
+                    //Rating Sort
+                        RatingSort(viewModel = viewModel)
+                        Spacer(modifier = Modifier.height(10.dp))
+                    //Vote Sort
+                        VoteSort(viewModel = viewModel)
+                        Spacer(modifier = Modifier.height(10.dp))
+                    //Original Tilte Sort
+                        OriginalTitleSort(viewModel = viewModel)
+                        Spacer(modifier = Modifier.height(10.dp))
+                    //Tilte Sort
+                        TitleSort(viewModel = viewModel)
                 }
 
                 Row(
@@ -2240,10 +2525,11 @@ fun SortDialog(
 fun SortButton(
     funcToCall: () -> Unit,
     onDismiss: () -> Unit,
-    sortState: SortState,
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
     val showDialog = remember { mutableStateOf(true) }
+    viewModel.resetUpdateSort()
+
     AnimatedVisibility(
         visible = showDialog.value,
         enter = scaleIn(

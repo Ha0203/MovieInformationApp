@@ -1,7 +1,6 @@
 package powerrangers.eivom.feature_movie.ui.movie_list
 
 import android.graphics.drawable.Drawable
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,23 +9,24 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import powerrangers.eivom.feature_movie.domain.model.MovieListItem
-import powerrangers.eivom.feature_movie.domain.use_case.MovieDatabaseUseCase
 import powerrangers.eivom.domain.use_case.UserPreferencesUseCase
-import powerrangers.eivom.feature_movie.domain.utility.DefaultValue
 import powerrangers.eivom.domain.utility.Resource
 import powerrangers.eivom.domain.utility.ResourceErrorMessage
 import powerrangers.eivom.domain.utility.addList
 import powerrangers.eivom.domain.utility.toError
 import powerrangers.eivom.domain.utility.toLoading
+import powerrangers.eivom.feature_movie.domain.model.MovieListItem
+import powerrangers.eivom.feature_movie.domain.use_case.MovieDatabaseUseCase
+import powerrangers.eivom.feature_movie.domain.utility.DefaultValue
 import powerrangers.eivom.feature_movie.domain.utility.Logic
 import powerrangers.eivom.feature_movie.domain.utility.MovieFilter
+import powerrangers.eivom.feature_movie.domain.utility.MovieOrder
 import powerrangers.eivom.feature_movie.domain.utility.Order
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
 import powerrangers.eivom.feature_movie.domain.utility.TrendingTime
+import powerrangers.eivom.ui.utility.UserPreferences
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import powerrangers.eivom.ui.utility.UserPreferences
 import javax.inject.Inject
 
 @HiltViewModel
@@ -177,8 +177,8 @@ class MovieListViewModel @Inject constructor(
                         region =
                             if (filterState.value.Region.isNullOrBlank()) null
                                 else filterState.value.Region?.let{it ->
-                                    convertRegionValuesToKeys(it).let { it ->
-                                        if (it.isNullOrBlank()) null
+                                    convertRegionValuesToKeys(it).let {
+                                        if (it.isBlank()) null
                                             else MovieFilter.Region(it)
                                     }
                             },
@@ -189,7 +189,6 @@ class MovieListViewModel @Inject constructor(
 
                         minimumPrimaryReleaseDate =
                             if (filterState.value.MinimumReleaseDate == null) {
-                                Log.d("VM", filterState.value.MinimumReleaseDate.toString())
                                 null
                             }
                                 else stringToDate(filterState.value.MinimumReleaseDate.toString())?.let {
@@ -254,7 +253,9 @@ class MovieListViewModel @Inject constructor(
                                         MovieFilter.WithoutGenre(it, logic = Logic.OR)
                                 }
                             },
-
+//                        sortBy = if (isSortStateEmpty(sortState = sortState.value)) null else {
+//                            MovieOrder(order = Order.ASCENDING)
+//                        }
                     )
                 )
 
@@ -410,16 +411,16 @@ class MovieListViewModel @Inject constructor(
         showDatePicker.value = !showDatePicker.value
     }
     fun updateMinRating(newVal: String) {
-        minRating.value = if (newVal.isNullOrBlank()) null else newVal
+        minRating.value = newVal.ifBlank { null }
     }
     fun updateMaxRating(newVal: String){
-        maxRating.value = if (newVal.isNullOrBlank()) null else newVal
+        maxRating.value = newVal.ifBlank { null }
     }
     fun updateMinLen(newVal: String) {
-        minLength.value = if (newVal.isNullOrBlank()) null else newVal
+        minLength.value = newVal.ifBlank { null }
     }
     fun updateMaxLen(newVal: String){
-        maxLength.value = if (newVal.isNullOrBlank()) null else newVal
+        maxLength.value = if (newVal.isBlank()) null else newVal
     }
     fun reverseIsGenres(){
         isGenres.value = !isGenres.value
@@ -443,7 +444,7 @@ class MovieListViewModel @Inject constructor(
         }
     }
     fun updateFilterState() {
-        // Except Trending, Favorite, Watched, Adult
+
         if (trendingFilter.value != null){
             filterState.value = filterState.value.copy(Trending = trendingFilter.value)
         } else filterState.value = filterState.value.copy(Trending = null)
@@ -471,9 +472,7 @@ class MovieListViewModel @Inject constructor(
         } else filterState.value = filterState.value.copy(ReleaseYear = null)
 
         if (minReleaseDate.value != null){
-            Log.d("UPDATE", minReleaseDate.value.toString())
             filterState.value = filterState.value.copy(MinimumReleaseDate = minReleaseDate.value)
-            Log.d("UPDATE", filterState.value.MinimumReleaseDate.toString())
         } else filterState.value = filterState.value.copy(MinimumReleaseDate = null)
 
         if (maxReleaseDate.value != null){
@@ -506,7 +505,25 @@ class MovieListViewModel @Inject constructor(
     fun resetUpdateFilter(){
         filterState.value = filterState.value.copy(isUpdated = false)
     }
+    fun updateFilterViewModel(){
+        trendingFilter.value = filterState.value.Trending
+        favoriteFilter.value = filterState.value.Favorite
+        watchedFilter.value = filterState.value.Watched
+        adultFilter.value = filterState.value.AdultContentIncluded
+        regionSelected.value = (if (filterState.value.Region == null) "Select Region" else filterState.value.Region.toString())
+        releaseDate.value = (if (filterState.value.ReleaseYear == null) "" else filterState.value.ReleaseYear.toString())
+        minReleaseDate.value = (if (filterState.value.MinimumReleaseDate == null) null else filterState.value.MinimumReleaseDate)
+        maxReleaseDate.value = (if (filterState.value.MaximumReleaseDate == null) null else filterState.value.MaximumReleaseDate)
+        minRating.value = (if (filterState.value.MinimumRating == null) null else filterState.value.MinimumRating.toString())
+        maxRating.value = (if (filterState.value.MaximumRating == null) null else filterState.value.MaximumRating.toString())
+        selectedGenres = filterState.value.Genre?.toMutableList()?: mutableListOf()
+        selectedWithoutGenres = filterState.value.WithoutGenre?.toMutableList()?: mutableListOf()
+        selectedLanguage = filterState.value.OriginLanguage?.toMutableList()?: mutableListOf()
+        selectedCountries = filterState.value.OriginCountry?.toMutableList()?: mutableListOf()
+        minLength.value = (if (filterState.value.MinimumLength == null) null else filterState.value.MinimumLength.toString())
+        maxRating.value = (if (filterState.value.MaximumLength == null) null else filterState.value.MaximumLength.toString())
 
+    }
     // Sort Func
     fun updateSortState(){
         if (releaseDateSort == null) {
@@ -528,6 +545,11 @@ class MovieListViewModel @Inject constructor(
         if (titleSort == null){
             sortState.value = sortState.value.copy(Title = null)
         } else sortState.value = sortState.value.copy(Title = titleSort.value)
+
+        sortState.value = sortState.value.copy(isUpdate = !sortState.value.isUpdate)
+    }
+    fun resetUpdateSort(){
+        sortState.value = sortState.value.copy(isUpdate = false)
     }
     fun resetAllSortDefault(){
         sortState.value = sortState.value.copy(ReleaseDate = null)
@@ -591,7 +613,21 @@ class MovieListViewModel @Inject constructor(
         originalTitleSort.value = sortState.value.OriginalTitle
         titleSort.value = sortState.value.Title
     }
+    fun isSortStateEmpty(sortState: SortState): Boolean {
+        return sortState.ReleaseDate == null &&
+                sortState.Rating == null &&
+                sortState.Vote == null &&
+                sortState.OriginalTitle == null &&
+                sortState.Title == null
+    }
 
+    fun updateMovieOrder(){
+        if (sortState.value.ReleaseDate != null) MovieOrder.ReleaseDate(sortState.value.ReleaseDate!!)
+        if (sortState.value.Rating != null) MovieOrder.ReleaseDate(sortState.value.Rating!!)
+        if (sortState.value.Vote != null) MovieOrder.ReleaseDate(sortState.value.Vote!!)
+        if (sortState.value.OriginalTitle != null) MovieOrder.ReleaseDate(sortState.value.OriginalTitle!!)
+        if (sortState.value.Title != null) MovieOrder.ReleaseDate(sortState.value.Title!!)
+    }
     fun isFavoriteMovie(movieId: Int): Boolean = movieDatabaseUseCase.isFavoriteMovie(movieId)
     fun isWatchedMovie(movieId: Int): Boolean = movieDatabaseUseCase.isWatchedMovie(movieId)
     fun isSponsoredMovie(movieId: Int): Boolean = movieDatabaseUseCase.isSponsoredMovie(movieId)

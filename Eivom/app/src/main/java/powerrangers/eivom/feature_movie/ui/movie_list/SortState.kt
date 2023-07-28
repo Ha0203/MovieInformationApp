@@ -8,4 +8,5 @@ data class SortState(
     val Vote: Order? = null,
     val OriginalTitle: Order? = null,
     val Title: Order? = null,
+    val isUpdate: Boolean = false,
 )
