@@ -1,13 +1,13 @@
 package powerrangers.eivom.feature_movie.ui.movie_list
 
+import powerrangers.eivom.feature_movie.domain.utility.TrendingTime
+
 data class FilterState(
-    val isTrending: Boolean = false,
-    val isTrendingDay: Boolean = false,
-    val isTrendingWeek: Boolean = false,
-    val isFavorite: Boolean = false,
-    val isWatched: Boolean = false,
+    val Trending: TrendingTime? = null,
+    val Favorite: Boolean? = null,
+    val Watched: Boolean? = null,
     val isUpdated: Boolean = false,
-    val AdultContentIncluded: Boolean = false,
+    val AdultContentIncluded: Boolean? = null,
     val Region: String? = null,
     val ReleaseYear: Int? = null,
     val MinimumReleaseDate: String? = null,

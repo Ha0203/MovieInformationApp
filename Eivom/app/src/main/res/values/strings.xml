@@ -35,7 +35,7 @@
     <string name="favorite_movie_description">Favorite</string>
     <string name="unfavorite_movie_description">UnFavorite</string>
 
-
+    <!-- Movie Filter -->
     <string name="Trending_FilterState">Trending</string>
     <string name="TrendingDay_FilterState">DAY</string>
     <string name="TrendingWeek_FilterState">WEEK</string>
@@ -56,6 +56,13 @@
     <string name="MinimumLength_FilterState">Min Length</string>
     <string name="MaximumLength_FilterState">Max Length</string>
     <string name="WithoutGenre_FilterState">Without Genre</string>
+
+    <!-- Movie Sort -->
+    <string name="ReleaseDate_SortState">Release Date</string>
+    <string name="Rating_SortState">Rating</string>
+    <string name="Vote_SortState">Vote</string>
+    <string name="OriginalTitle">Original Title</string>
+    <string name="Title">Title</string>
 
     <!-- Movie Management -->
     <string name="user_error">User error</string>

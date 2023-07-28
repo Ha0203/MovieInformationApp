@@ -72,8 +72,8 @@ import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -113,7 +113,9 @@ import powerrangers.eivom.R
 import powerrangers.eivom.domain.utility.Resource
 import powerrangers.eivom.domain.utility.ResourceErrorMessage
 import powerrangers.eivom.feature_movie.domain.model.MovieListItem
+import powerrangers.eivom.feature_movie.domain.utility.Order
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
+import powerrangers.eivom.feature_movie.domain.utility.TrendingTime
 import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.TopBar
@@ -169,6 +171,13 @@ fun MovieListBody(
     val isSortVisible by remember { viewModel.isSortVisible }
 
     val filterState by remember { viewModel.filterState  }
+    val sortState by remember { viewModel.sortState }
+
+    LaunchedEffect(key1 = filterState) {
+        if (filterState.isUpdated) {
+            viewModel.resetMovieList()
+        }
+    }
 
     Row(
         modifier = Modifier
@@ -197,7 +206,6 @@ fun MovieListBody(
                     onDismiss = {
                         viewModel.reverseIsFilter()
                     },
-                    filterState = filterState,
                 )
             }
             IconButton(onClick = { viewModel.reverseIsSort() }) {
@@ -211,8 +219,14 @@ fun MovieListBody(
                 SortButton(
                     funcToCall = {
                         viewModel.reverseIsSort()
+                        viewModel.updateSortState()
+                        //viewModel.updateSortViewModel()
                     },
-                    onDismiss = { viewModel.reverseIsSort() }
+                    onDismiss = {
+                        viewModel.reverseIsSort()
+
+                    },
+                    sortState = sortState
                 )
             }
 
@@ -537,10 +551,10 @@ fun RetrySection(
 
 @Composable
 fun TrendingFilter(
-    filterState: FilterState,
     viewModel: MovieListViewModel = hiltViewModel()
 )
 {
+    val trending by remember {viewModel.trendingFilter}
     Column(
         modifier = Modifier
         .animateContentSize(
@@ -561,7 +575,7 @@ fun TrendingFilter(
             )
             Spacer(modifier = Modifier.weight(1f))
             IconButton(onClick = {viewModel.reverseIsTrending()} ) {
-                if (!filterState.isTrending)
+                if (trending == null)
                     Icon(
                         painter = painterResource(R.drawable.unchecked_ic),
                         contentDescription = null,
@@ -577,9 +591,8 @@ fun TrendingFilter(
             }
         }
 
-        if (filterState.isTrending)
+        if (trending != null)
         {
-
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -590,11 +603,8 @@ fun TrendingFilter(
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
                 Spacer( modifier = Modifier.weight(0.10f))
-                IconButton(onClick = {
-                    viewModel.reverseIsTrendingDay()
-                    if (filterState.isTrendingWeek) viewModel.reverseIsTrendingWeek()
-                } ) {
-                    if (!filterState.isTrendingDay)
+                IconButton(onClick = { viewModel.reverseTrendingDayWeek() } ) {
+                    if (trending != TrendingTime.DAY)
                         Icon(
                             painter = painterResource(R.drawable.unchecked_ic),
                             contentDescription = null,
@@ -619,11 +629,8 @@ fun TrendingFilter(
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
                 Spacer( modifier = Modifier.weight(0.10f))
-                IconButton(onClick = {
-                    viewModel.reverseIsTrendingWeek()
-                    if (filterState.isTrendingDay) viewModel.reverseIsTrendingDay()
-                } ) {
-                    if (!filterState.isTrendingWeek)
+                IconButton(onClick = { viewModel.reverseTrendingDayWeek() } ) {
+                    if (trending != TrendingTime.WEEK)
                         Icon(
                             painter = painterResource(R.drawable.unchecked_ic),
                             contentDescription = null,
@@ -639,16 +646,15 @@ fun TrendingFilter(
                 }
             }
         }
-        else viewModel.setAllTrendingDefault()
     }
 }
 
 @Composable
 fun FavoriteFilter(
-    filterState: FilterState,
     viewModel: MovieListViewModel = hiltViewModel()
 )
 {
+    val favorite by remember { viewModel.favoriteFilter }
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -659,8 +665,8 @@ fun FavoriteFilter(
             modifier = Modifier.padding(vertical = 4.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
-        IconButton(onClick = { if (!filterState.isTrending ) viewModel.reverseIsFavorite()} ) {
-            if (!filterState.isFavorite )
+        IconButton(onClick = { if (viewModel.trendingFilter.value == null ) viewModel.reverseIsFavorite()} ) {
+            if (favorite == null)
                 Icon(
                     painter = painterResource(R.drawable.unchecked_ic),
                     contentDescription = null,
@@ -680,10 +686,10 @@ fun FavoriteFilter(
 
 @Composable
 fun WatchedFilter(
-    filterState: FilterState,
     viewModel: MovieListViewModel = hiltViewModel()
 )
 {
+    val watched by remember {viewModel.watchedFilter}
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -694,8 +700,8 @@ fun WatchedFilter(
             modifier = Modifier.padding(vertical = 4.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
-        IconButton(onClick = { if (!filterState.isTrending ) viewModel.reverseIsWatched()} ) {
-            if (!filterState.isWatched )
+        IconButton(onClick = { if (viewModel.trendingFilter.value == null) viewModel.reverseIsWatched()} ) {
+            if (watched == null)
                 Icon(
                     painter = painterResource(R.drawable.unchecked_ic),
                     contentDescription = null,
@@ -715,7 +721,6 @@ fun WatchedFilter(
 
 @Composable
 fun RegionFilter(
-    filterState: FilterState,
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
     val regions = TranslateCode.ISO_3166_1.values.toList()
@@ -793,10 +798,10 @@ fun dropdownMenuHeight(visibleItems: Int): Dp {
 
 @Composable
 fun AdultConTentFilter(
-    filterState: FilterState,
     viewModel: MovieListViewModel = hiltViewModel()
 )
 {
+    val isAdult by remember {viewModel.adultFilter}
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -807,8 +812,8 @@ fun AdultConTentFilter(
             modifier = Modifier.padding(vertical = 4.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
-        IconButton(onClick = { if (!filterState.isTrending ) viewModel.reverseAdultContent()} ) {
-            if (!filterState.AdultContentIncluded )
+        IconButton(onClick = { if (viewModel.trendingFilter.value == null) viewModel.reverseAdultContent()} ) {
+            if (isAdult == null)
                 Icon(
                     painter = painterResource(R.drawable.unchecked_ic),
                     contentDescription = null,
@@ -828,7 +833,6 @@ fun AdultConTentFilter(
 
 @Composable
 fun ReleaseDateFilter(
-    filterState: FilterState,
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
     val newRD by remember { viewModel.releaseDate }
@@ -908,7 +912,6 @@ fun ReleaseDateFilter(
 
 @Composable
 fun MinDateFilter(
-    filterState: FilterState,
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
     val newMinRD by remember { viewModel.minReleaseDate }
@@ -952,7 +955,6 @@ fun MinDateFilter(
                                 newcalendar.set(year, month, dayOfMonth)
                                 val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                                 viewModel.updateMinReleaseDate(dateFormat.format(newcalendar.time))
-                                //viewModel.reverseDatePicker()
                             },
                             calendar.get(Calendar.YEAR),
                             calendar.get(Calendar.MONTH),
@@ -985,7 +987,6 @@ fun MinDateFilter(
 
 @Composable
 fun MaxDateFilter(
-    filterState: FilterState,
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
     val newMaxRD by remember { viewModel.maxReleaseDate }
@@ -1005,7 +1006,7 @@ fun MaxDateFilter(
 
         OutlinedTextField(
             value = newMaxRD ?: "",
-            onValueChange = { viewModel.updateMinReleaseDate(it) },
+            onValueChange = { viewModel.updateMaxReleaseDate(it) },
             label = { Text("Select a date") },
             visualTransformation = VisualTransformation.None,
             textStyle = TextStyle(
@@ -1028,7 +1029,7 @@ fun MaxDateFilter(
                                 val newcalendar = Calendar.getInstance()
                                 newcalendar.set(year, month, dayOfMonth)
                                 val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                                viewModel.updateMinReleaseDate(dateFormat.format(newcalendar.time))
+                                viewModel.updateMaxReleaseDate(dateFormat.format(newcalendar.time))
                             },
                             calendar.get(Calendar.YEAR),
                             calendar.get(Calendar.MONTH),
@@ -1061,7 +1062,6 @@ fun MaxDateFilter(
 
 @Composable
 fun MinRating(
-    filterState: FilterState,
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
     val newFloat by remember { viewModel.minRating }
@@ -1083,7 +1083,7 @@ fun MinRating(
                 // Validate the input to ensure it falls within the desired range
                 if ( newValue.length < 3 ||
                     (
-                            newValue.length == 3 && newValue.toFloat() in 1.0f..5.0f
+                            newValue.length == 3 && newValue.toFloat() in 0.0f..10.0f
                     )
                 ){
                     viewModel.updateMinRating(newValue)
@@ -1093,7 +1093,8 @@ fun MinRating(
                 }
             },
             keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Number
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done // Set the IME action to "Done"
             ),
             visualTransformation = VisualTransformation.None,
             textStyle = TextStyle(
@@ -1106,7 +1107,7 @@ fun MinRating(
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.Star, contentDescription = null,
-                    modifier = Modifier.size(15.dp), tint = MaterialTheme.colors.primary
+                    modifier = Modifier.size(13.dp), tint = MaterialTheme.colors.primary
                 )
             },
             shape = RoundedCornerShape(5.dp),
@@ -1143,7 +1144,6 @@ fun MinRating(
 
 @Composable
 fun MaxRating(
-    filterState: FilterState,
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
     val newFloat by remember { viewModel.maxRating }
@@ -1165,7 +1165,7 @@ fun MaxRating(
                 // Validate the input to ensure it falls within the desired range
                 if ( newValue.length < 3 ||
                     (
-                            newValue.length == 3 && newValue.toFloat() in 1.0f..5.0f
+                            newValue.length == 3 && newValue.toFloat() in 0.0f..10.0f
                     )
                 ){
                     viewModel.updateMaxRating(newValue)
@@ -1175,7 +1175,8 @@ fun MaxRating(
                 }
             },
             keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Number
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done // Set the IME action to "Done"
             ),
             visualTransformation = VisualTransformation.None,
             textStyle = TextStyle(
@@ -1188,7 +1189,7 @@ fun MaxRating(
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.Star, contentDescription = null,
-                    modifier = Modifier.size(15.dp), tint = MaterialTheme.colors.primary
+                    modifier = Modifier.size(13.dp), tint = MaterialTheme.colors.primary
                 )
             },
             shape = RoundedCornerShape(5.dp),
@@ -1226,7 +1227,6 @@ fun MaxRating(
 
 @Composable
 fun MinLength(
-    filterState: FilterState,
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
     val newLen by remember { viewModel.minLength }
@@ -1259,7 +1259,8 @@ fun MinLength(
                 }
             },
             keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Number
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done // Set the IME action to "Done"
             ),
             visualTransformation = VisualTransformation.None,
             textStyle = TextStyle(
@@ -1308,7 +1309,6 @@ fun MinLength(
 
 @Composable
 fun MaxLength(
-    filterState: FilterState,
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
     val newLen by remember { viewModel.maxLength }
@@ -1340,7 +1340,8 @@ fun MaxLength(
                 }
             },
             keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Number
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done // Set the IME action to "Done"
             ),
             visualTransformation = VisualTransformation.None,
             textStyle = TextStyle(
@@ -1391,7 +1392,6 @@ fun MaxLength(
 
 @Composable
 fun GenreFilter(
-    filterState: FilterState,
     viewModel: MovieListViewModel = hiltViewModel()
 ){
     val genres = TranslateCode.GENRE.values.toList()
@@ -1532,7 +1532,6 @@ fun GenreCard(
 
 @Composable
 fun WithoutGenreFilter(
-    filterState: FilterState,
     viewModel: MovieListViewModel = hiltViewModel()
 ){
     val genres = TranslateCode.GENRE.values.toList()
@@ -1663,10 +1662,9 @@ fun WithoutGenreCard(
 
 @Composable
 fun CountryFilter(
-    filterState: FilterState,
     viewModel: MovieListViewModel = hiltViewModel()
 ){
-    val countries = TranslateCode.ISO_639_1.values.toList()
+    val countries = TranslateCode.ISO_3166_1.values.toList()
     val allCountries: List<Countries> = countries.map { Countries(name = it) }
     val selectedCountries = remember{ viewModel.selectedCountries }
     val isCountry by remember { viewModel.isCountry }
@@ -1797,10 +1795,9 @@ fun CountryCard(
 
 @Composable
 fun LanguageFilter(
-    filterState: FilterState,
     viewModel: MovieListViewModel = hiltViewModel()
 ){
-    val language = TranslateCode.ISO_3166_1.values.toList()
+    val language = TranslateCode.ISO_639_1.values.toList()
     val allLanguages: List<Language> = language.map { Language(name = it) }
     val selectedLanguages = remember{ viewModel.selectedLanguage }
     val isLanguage by remember { viewModel.isLanguage }
@@ -1933,7 +1930,6 @@ fun LanguageCard(
 fun FilterDialog(
     funcToCall: () -> Unit,
     onDismiss: () -> Unit,
-    filterState: FilterState,
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
 
@@ -1969,82 +1965,82 @@ fun FilterDialog(
                 ) {
                     // Trending Filter
                     item{
-                        TrendingFilter(filterState = filterState, viewModel = viewModel)
+                        TrendingFilter(viewModel = viewModel)
                     }
                     item { Spacer(modifier = Modifier.height(5.dp)) }
                     // Favorite Filter
                     item{
-                        FavoriteFilter(filterState = filterState, viewModel = viewModel)
+                        FavoriteFilter(viewModel = viewModel)
                     }
                     item { Spacer(modifier = Modifier.height(5.dp)) }
-                    // Watched Filter
-                    item{
-                        WatchedFilter(filterState = filterState, viewModel = viewModel)
-                    }
+                       // Watched Filter
+                       item{
+                            WatchedFilter( viewModel = viewModel)
+                        }
                     item { Spacer(modifier = Modifier.height(5.dp)) }
-                    // Adult Content Filter
-                    item{
-                        AdultConTentFilter(filterState = filterState, viewModel = viewModel)
-                    }
+                        // Adult Content Filter
+                       item{
+                            AdultConTentFilter( viewModel = viewModel)
+                        }
                     item { Spacer(modifier = Modifier.height(5.dp)) }
                     // Region Filter
                     item{
-                        RegionFilter(filterState = filterState, viewModel = viewModel)
+                        RegionFilter(viewModel = viewModel)
                     }
                     item { Spacer(modifier = Modifier.height(10.dp)) }
                     // Release Date Filter
                     item{
-                        ReleaseDateFilter(filterState = filterState, viewModel = viewModel)
+                        ReleaseDateFilter(viewModel = viewModel)
                     }
                     item { Spacer(modifier = Modifier.height(10.dp)) }
                     // Min release Date
                     item{
-                        MinDateFilter(filterState = filterState, viewModel = viewModel)
+                        MinDateFilter(viewModel = viewModel)
                     }
                     item { Spacer(modifier = Modifier.height(10.dp)) }
                     // Max release Date
                     item{
-                        MaxDateFilter(filterState = filterState, viewModel = viewModel)
+                        MaxDateFilter(viewModel = viewModel)
                     }
                     item { Spacer(modifier = Modifier.height(10.dp)) }
                     // Min Rating Point
                     item{
-                        MinRating(filterState = filterState, viewModel = viewModel)
+                        MinRating(viewModel = viewModel)
                     }
                     item { Spacer(modifier = Modifier.height(10.dp)) }
                     // Max Rating Point
                     item{
-                        MaxRating(filterState = filterState, viewModel = viewModel)
+                        MaxRating(viewModel = viewModel)
                     }
                     item { Spacer(modifier = Modifier.height(10.dp)) }
                     // Genre Filter
                     item { 
-                        GenreFilter(filterState = filterState, viewModel = viewModel)
+                        GenreFilter(viewModel = viewModel)
                     }
                     item { Spacer(modifier = Modifier.height(10.dp)) }
                     // Without Genre Filter
                     item {
-                        WithoutGenreFilter(filterState = filterState, viewModel = viewModel)
+                        WithoutGenreFilter(viewModel = viewModel)
                     }
                     item { Spacer(modifier = Modifier.height(10.dp)) }
                     // Min Length Filter
                     item {
-                        MinLength(filterState = filterState, viewModel = viewModel)
+                        MinLength(viewModel = viewModel)
                     }
                     item { Spacer(modifier = Modifier.height(10.dp)) }
                     // Max Length Filter
                     item {
-                        MaxLength(filterState = filterState, viewModel = viewModel)
+                        MaxLength(viewModel = viewModel)
                     }
                     item { Spacer(modifier = Modifier.height(10.dp)) }
                     // Origin Country Filter
                     item {
-                        CountryFilter(filterState = filterState, viewModel = viewModel)
+                        CountryFilter(viewModel = viewModel)
                     }
                     item { Spacer(modifier = Modifier.height(10.dp)) }
                     // Language Filter
                     item {
-                        LanguageFilter(filterState = filterState, viewModel = viewModel)
+                        LanguageFilter(viewModel = viewModel)
                     }
                 }
 
@@ -2084,7 +2080,6 @@ fun FilterDialog(
 fun FilterButton(
     funcToCall: () -> Unit,
     onDismiss: () -> Unit,
-    filterState: FilterState,
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
     val showDialog = remember { mutableStateOf(true) }
@@ -2101,58 +2096,166 @@ fun FilterButton(
             animationSpec = tween(durationMillis = 300)
         ) + fadeOut()
     ) {
-        FilterDialog(funcToCall, onDismiss, filterState, viewModel)
+        FilterDialog(funcToCall, onDismiss, viewModel)
     }
 }
 
 
 @Composable
+fun ReleaseDateSort(
+    viewModel: MovieListViewModel = hiltViewModel()
+)
+{
+    val releaseSort by remember { viewModel.releaseDateSort }
+
+    Column(
+        modifier = Modifier
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable {
+                viewModel.reverseReleaseDateSort()
+            }
+        ) {
+            Text(
+                text = stringResource(id = R.string.ReleaseDate_SortState),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            when (releaseSort) {
+                null -> {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_threedots),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                }
+                Order.ASCENDING -> {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_ascending),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                }
+                else -> {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_decending),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun SortDialog(
+    funcToCall: () -> Unit,
+    onDismiss: () -> Unit,
+    viewModel: MovieListViewModel = hiltViewModel()
+) {
+    viewModel.updateSortViewModel()
+    Dialog(
+        onDismissRequest = {
+            onDismiss()
+        },
+        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = true),
+        content = {
+            Column(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .background(MaterialTheme.colors.surface)
+                    .fillMaxWidth()
+                    .width(300.dp)
+                    .height(400.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.sort_title),
+                    style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .padding(top = 20.dp)
+                        .fillMaxWidth()
+                        .weight(0.2f)
+                )
+
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
+                    item { 
+                        ReleaseDateSort(viewModel = viewModel)
+                    }
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                        .weight(0.2f),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Button(
+                        onClick = {
+                            // Handle Cancel button action
+                            onDismiss()
+                        },
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+                        Text(text = stringResource(id = R.string.cancel_button))
+                    }
+
+                    Button(
+                        onClick = {
+                            funcToCall()
+                        },
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+                        Text(text = stringResource(id = R.string.confirm_button))
+                    }
+                }
+            }
+        }
+    )
+}
+
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
 fun SortButton(
     funcToCall: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    sortState: SortState,
+    viewModel: MovieListViewModel = hiltViewModel()
 ) {
     val showDialog = remember { mutableStateOf(true) }
-    val textList = remember { mutableStateListOf("Name", "Latest Date", "Star") }
-
-    if (showDialog.value) {
-        AlertDialog(
-            onDismissRequest = {
-                onDismiss()
-                showDialog.value = false
-            },
-            title = { Text(text = stringResource(id = R.string.sort_title)) },
-            text = {
-                Column {
-                    textList.forEach { text ->
-                        Text(
-                            text = text,
-                            modifier = Modifier.padding(vertical = 4.dp)
-                        )
-                    }
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        funcToCall()
-                        showDialog.value = false
-                    }
-                ) {
-                    Text(text = stringResource(id = R.string.confirm_button))
-                }
-            },
-            dismissButton = {
-                Button(
-                    onClick = {
-                        // Handle Cancel button action
-                        onDismiss()
-                        showDialog.value = false
-                    }
-                ) {
-                    Text(text = stringResource(id = R.string.cancel_button))
-                }
-            },
-        )
+    AnimatedVisibility(
+        visible = showDialog.value,
+        enter = scaleIn(
+            initialScale = 0.8f,
+            animationSpec = tween(durationMillis = 300)
+        ) + fadeIn(),
+        exit = scaleOut(
+            targetScale = 0.8f,
+            animationSpec = tween(durationMillis = 300)
+        ) + fadeOut()
+    ) {
+        SortDialog(funcToCall, onDismiss, viewModel)
     }
 }
 
