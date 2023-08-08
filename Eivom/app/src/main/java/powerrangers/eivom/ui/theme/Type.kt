@@ -17,6 +17,9 @@ val Margot= FontFamily(
 val PoppinsBold = FontFamily(
     Font(R.font.poppins_bold)
 )
+val PoppinsMedium = FontFamily(
+    Font(R.font.poppins_medium)
+)
 // Set of Material typography styles to start with
 val Typography = Typography(
     h1 = TextStyle(

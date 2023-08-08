@@ -16,10 +16,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -29,6 +31,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,6 +49,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,6 +64,7 @@ import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.TopBar
 import powerrangers.eivom.ui.theme.PoppinsBold
+import powerrangers.eivom.ui.theme.PoppinsMedium
 
 @Composable
 fun MovieDetailScreen(
@@ -123,6 +128,16 @@ fun MovieDetailBody(
                 // Trailer
                 item {
                     Trailer()
+                }
+
+                // Overview
+                item {
+                    Overview()
+                }
+
+                // Genre
+                item {
+                    GenresList()
                 }
             }
         }
@@ -279,6 +294,132 @@ fun Trailer(
             )
         }
     }
+}
+
+@Composable
+fun Overview(
+    modifier: Modifier = Modifier,
+    viewModel: MovieDetailViewModel = hiltViewModel(),
+){
+    val movie by remember { viewModel.movieInformation }
+
+    Column(
+        modifier = Modifier.padding(top = 5.dp)
+    ) {
+        // Overview Tag
+        Row(
+            modifier = Modifier.padding(
+                start = 17.dp,
+                end = 17.dp,
+                top = 25.dp,
+                bottom = 3.dp
+            )
+        ){
+            Text(
+                text = "Overview",
+                fontSize = 26.sp,
+                fontFamily = PoppinsBold,
+                color = MaterialTheme.colors.primary,
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Icon(
+                imageVector = Icons.Filled.Star,
+                contentDescription = null,
+                tint = Color.Yellow,
+                modifier = Modifier
+                    .size(40.dp)
+                    .padding(top = 5.dp)
+                ,
+            )
+
+            Text(
+                text = "${movie.data!!.voteAverage}",
+                fontSize = 20.sp,
+                fontFamily = PoppinsBold,
+                color = Color.LightGray,
+                modifier = Modifier.padding(top = 7.dp)
+            )
+
+        }
+
+        // Overview Detail
+        Text(
+            text = "${movie.data!!.overview}",
+            fontSize = 14.sp,
+            fontFamily = PoppinsMedium,
+            textAlign = TextAlign.Start,
+            color = Color.Black,
+            modifier = Modifier
+                .padding(
+                start = 18.dp,
+                end = 18.dp
+                )
+        )
+    }
+
+}
+
+@Composable
+fun GenresList(
+    modifier: Modifier = Modifier,
+    viewModel: MovieDetailViewModel = hiltViewModel(),
+){
+    val movie by remember { viewModel.movieInformation }
+
+    Row(
+        modifier = Modifier.padding(
+            17.dp
+        )
+    ){
+        Text(
+            text = "Genres",
+            fontSize = 26.sp,
+            fontFamily = PoppinsBold,
+            color = MaterialTheme.colors.primary,
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+        val genreList = movie.data!!.genres
+        LazyRow(
+            modifier = Modifier
+                .height(50.dp)
+                .width(130.dp)
+                .padding(5.dp)
+            ,
+        ){
+            items(genreList) {genre ->
+                GenreBox(genre)
+            }
+        }
+
+    }
+}
+
+@Composable
+fun GenreBox(
+    genre: String
+){
+    Card(
+        backgroundColor = Color.Black,
+        modifier = Modifier
+            .height(30.dp)
+            .padding(5.dp)
+        ,
+        shape = RoundedCornerShape(8.dp)
+
+    ){
+        Text(
+            text = "${genre}",
+            fontSize = 10.sp,
+            fontFamily = PoppinsMedium,
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(4.dp)
+        )
+    }
+
 }
 
 
