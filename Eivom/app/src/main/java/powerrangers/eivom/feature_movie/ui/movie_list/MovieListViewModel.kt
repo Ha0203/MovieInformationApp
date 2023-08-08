@@ -50,7 +50,10 @@ class MovieListViewModel @Inject constructor(
         private set
     var userSearch by mutableStateOf("")
         private set
+    private var query = mutableStateOf("")
     var isExpanded = mutableStateOf(false)
+        private set
+    var isSearchUpdated = mutableStateOf(true)
         private set
 
     //State of Filter
@@ -141,10 +144,22 @@ class MovieListViewModel @Inject constructor(
         loadMoviePaginated()
     }
 
+    fun updateMovieListBySearch() {
+        movieListItems.value = Resource.Loading(data = emptyList())
+        currentPage = 1
+        isSearchUpdated.value = true
+        query.value = userSearch
+        loadMoviePaginated()
+    }
+
     fun resetMovieList() {
         movieListItems.value = Resource.Loading(data = emptyList())
         currentPage = 1
         endReached = false
+        query.value = ""
+        userSearch = ""
+        filterState.value = filterState.value.copy(isUpdated = false)
+        sortState.value = sortState.value.copy(isUpdate = false)
         loadMoviePaginated()
     }
 
@@ -253,9 +268,18 @@ class MovieListViewModel @Inject constructor(
                                         MovieFilter.WithoutGenre(it, logic = Logic.OR)
                                 }
                             },
-//                        sortBy = if (isSortStateEmpty(sortState = sortState.value)) null else {
-//                            MovieOrder(order = Order.ASCENDING)
-//                        }
+                        searchQuery = query.value.ifBlank { null },
+                        sortBy = if (sortState.value.OriginalTitle != null) {
+                            MovieOrder.OriginalTitle(sortState.value.OriginalTitle!!)
+                        } else if (sortState.value.Rating != null) {
+                            MovieOrder.Rating(sortState.value.Rating!!)
+                        } else if (sortState.value.Title != null) {
+                            MovieOrder.Title(sortState.value.Title!!)
+                        } else if (sortState.value.ReleaseDate != null) {
+                            MovieOrder.ReleaseDate(sortState.value.ReleaseDate!!)
+                        } else if (sortState.value.Vote != null) {
+                            MovieOrder.Vote(sortState.value.Vote!!)
+                        } else null
                     )
                 )
 
@@ -335,6 +359,7 @@ class MovieListViewModel @Inject constructor(
     }
     fun updateUserSearch(userWord: String){
         userSearch = userWord
+        isSearchUpdated.value = false
     }
 
     // Trending State
@@ -563,27 +588,45 @@ class MovieListViewModel @Inject constructor(
             releaseDateSort.value = Order.ASCENDING
         }
         else if (releaseDateSort.value == Order.ASCENDING){
+            resetAllSortDefault()
+            updateSortViewModel()
             releaseDateSort.value = Order.DESCENDING
         }
-        else releaseDateSort.value = Order.ASCENDING
+        else {
+            resetAllSortDefault()
+            updateSortViewModel()
+            releaseDateSort.value = Order.ASCENDING
+        }
     }
     fun reverseRatingSort(){
         if (ratingSort == null) {
             ratingSort.value = Order.ASCENDING
         }
         else if (ratingSort.value == Order.ASCENDING){
+            resetAllSortDefault()
+            updateSortViewModel()
             ratingSort.value = Order.DESCENDING
         }
-        else ratingSort.value = Order.ASCENDING
+        else {
+            resetAllSortDefault()
+            updateSortViewModel()
+            ratingSort.value = Order.ASCENDING
+        }
     }
     fun reverseVoteSort(){
         if (voteSort == null) {
             voteSort.value = Order.ASCENDING
         }
         else if (voteSort.value == Order.ASCENDING){
+            resetAllSortDefault()
+            updateSortViewModel()
             voteSort.value = Order.DESCENDING
         }
-        else voteSort.value = Order.ASCENDING
+        else {
+            resetAllSortDefault()
+            updateSortViewModel()
+            voteSort.value = Order.ASCENDING
+        }
     }
 
     fun reverseOTitleSort(){
@@ -591,9 +634,15 @@ class MovieListViewModel @Inject constructor(
             originalTitleSort.value = Order.ASCENDING
         }
         else if (originalTitleSort.value == Order.ASCENDING){
+            resetAllSortDefault()
+            updateSortViewModel()
             originalTitleSort.value = Order.DESCENDING
         }
-        else originalTitleSort.value = Order.ASCENDING
+        else {
+            resetAllSortDefault()
+            updateSortViewModel()
+            originalTitleSort.value = Order.ASCENDING
+        }
     }
 
     fun reverseTitleSort(){
@@ -601,9 +650,15 @@ class MovieListViewModel @Inject constructor(
             titleSort.value = Order.ASCENDING
         }
         else if (titleSort.value == Order.ASCENDING){
+            resetAllSortDefault()
+            updateSortViewModel()
             titleSort.value = Order.DESCENDING
         }
-        else titleSort.value = Order.ASCENDING
+        else {
+            resetAllSortDefault()
+            updateSortViewModel()
+            titleSort.value = Order.ASCENDING
+        }
     }
 
     fun updateSortViewModel(){

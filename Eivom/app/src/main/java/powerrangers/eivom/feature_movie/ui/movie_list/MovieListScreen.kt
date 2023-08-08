@@ -297,7 +297,9 @@ fun MovieListBody(
                             imageVector = Icons.Filled.Search,
                             contentDescription = stringResource(id = R.string.search_icon_outlineText),
                             tint = MaterialTheme.colors.primary,
-                            modifier = Modifier.clickable { /*To Do*/ } //Click Search Button
+                            modifier = Modifier.clickable {
+                                viewModel.updateMovieListBySearch()
+                            } //Click Search Button
                         )
                     },
                     textStyle = TextStyle(
@@ -311,7 +313,9 @@ fun MovieListBody(
                         imeAction = ImeAction.Done
                     ),
                     keyboardActions = KeyboardActions(
-                        onDone = {  }
+                        onDone = {
+                            viewModel.updateMovieListBySearch()
+                        }
                     )
                 )
             }

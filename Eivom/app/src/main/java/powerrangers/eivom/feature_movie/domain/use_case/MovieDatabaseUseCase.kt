@@ -1038,7 +1038,7 @@ class MovieDatabaseUseCase(
         val localMovieItemList = localMovieDatabaseRepository.getLocalMovieListItems().first()
         val formatter = DateTimeFormatter.ofPattern(DefaultValue.DATE_FORMAT)
 
-        val filterList = mutableListOf<LocalMovieItem>()
+        var filterList = mutableListOf<LocalMovieItem>()
         if (searchQuery.isNullOrBlank()) {
             for (movie in localMovieItemList) {
                 if (
@@ -1062,6 +1062,11 @@ class MovieDatabaseUseCase(
                     filterList.add(movie)
                 }
             }
+        } else {
+            filterList = searchLocalMovieItems(
+                localMovieItemList = localMovieItemList,
+                searchQuery = searchQuery
+            ).toMutableList()
         }
 
         val resultList = if (sortBy != null) {
@@ -1106,6 +1111,19 @@ class MovieDatabaseUseCase(
         }
 
         return list
+    }
+
+    private fun searchLocalMovieItems(
+        localMovieItemList: List<LocalMovieItem>,
+        searchQuery: String
+    ): List<LocalMovieItem> {
+        return localMovieItemList.mapNotNull { movie ->
+            if (searchQuery in movie.title || searchQuery in movie.originalTitle) {
+                movie
+            } else {
+                null
+            }
+        }
     }
 
     private suspend fun getLocalMovieListItemsAsMap(): Resource<MutableMap<Int, LocalMovieItem>> {
