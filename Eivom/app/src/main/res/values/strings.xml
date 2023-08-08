@@ -9,6 +9,11 @@
     <string name="movie_list_screen_button_content_description">Move to movies screen</string>
     <string name="movie_management_screen_title">Movie management</string>
     <string name="movie_management_screen_button_content_description">Move to movie management screen</string>
+    <string name="app_information_title">App Information</string>
+    <string name="ceo">Ceo</string>
+    <string name="leader">Leader</string>
+    <string name="member_3">Member 3</string>
+    <string name="app_information_content_description">Move to app information screen</string>
     <string name="settings_title">Settings</string>
     <string name="settings_button_content_description">Move to settings screen</string>
 

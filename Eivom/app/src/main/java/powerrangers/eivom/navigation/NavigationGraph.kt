@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
 import powerrangers.eivom.feature_movie.ui.movie_detail.MovieDetailScreen
 import powerrangers.eivom.feature_movie.ui.movie_list.MovieListScreen
 import powerrangers.eivom.feature_movie.ui.movie_management.MovieManagementScreen
+import powerrangers.eivom.ui.app_information.AppInformationScreen
 import powerrangers.eivom.ui.settings.SettingsScreen
 
 @Composable
@@ -61,6 +62,15 @@ fun EivomNavigationHost(
                 },
                 navigateBack = {
                     navController.navigateUp()
+                }
+            )
+        }
+        composable(
+            route = Route.APP_INFORMATION_SCREEN
+        ) {
+            AppInformationScreen(
+                navigateToMenuItem = {
+                    navController.navigate(it)
                 }
             )
         }
