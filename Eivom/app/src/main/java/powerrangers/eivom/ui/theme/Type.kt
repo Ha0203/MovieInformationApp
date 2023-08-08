@@ -14,7 +14,9 @@ val VintageKing = FontFamily(
 val Margot= FontFamily(
     Font(R.font.margot)
 )
-
+val PoppinsBold = FontFamily(
+    Font(R.font.poppins_bold)
+)
 // Set of Material typography styles to start with
 val Typography = Typography(
     h1 = TextStyle(
@@ -32,7 +34,12 @@ val Typography = Typography(
         fontSize = 20.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 0.5.sp
-    )
+    ),
+    subtitle1 = TextStyle(
+        fontFamily =  PoppinsBold,
+        fontSize = 20.sp,
+        letterSpacing = 0.5.sp
+    ),
     /* Other default text styles to override
     button = TextStyle(
         fontFamily = FontFamily.Default,
