@@ -19,6 +19,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Movie
@@ -128,6 +129,12 @@ fun DrawerBody(
             contentDescription = stringResource(id = R.string.movie_management_screen_button_content_description)
         ),
         MenuItem(
+            route = Route.APP_INFORMATION_SCREEN,
+            title = stringResource(id = R.string.app_information_title),
+            icon = Icons.Filled.Info,
+            contentDescription = stringResource(id = R.string.app_information_content_description)
+        ),
+        MenuItem(
             route = Route.SETTINGS,
             title = stringResource(id = R.string.settings_title),
             icon = Icons.Filled.Settings,
@@ -151,7 +158,6 @@ fun DrawerBody(
                 Text(
                     text = item.title,
                     modifier = modifier.weight(1f),
-                    // color = Purple300
                 )
             }
         }

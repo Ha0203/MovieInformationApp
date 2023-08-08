@@ -11,6 +11,9 @@ object Route {
     const val MOVIE_DETAIL_SCREEN = "movie_detail_screen"
     const val MOVIE_DETAIL_SCREEN_MOVIE_ID = "movie_id"
 
+    // App Information Screen
+    const val APP_INFORMATION_SCREEN = "app_information_screen"
+
     // Settings
     const val SETTINGS = "settings"
 }
