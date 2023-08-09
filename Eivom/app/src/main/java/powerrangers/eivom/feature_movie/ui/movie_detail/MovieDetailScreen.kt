@@ -64,7 +64,11 @@ import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.TopBar
 import powerrangers.eivom.ui.theme.PoppinsBold
+import powerrangers.eivom.ui.theme.PoppinsItalic
 import powerrangers.eivom.ui.theme.PoppinsMedium
+import java.text.NumberFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun MovieDetailScreen(
@@ -135,9 +139,49 @@ fun MovieDetailBody(
                     Overview()
                 }
 
+                // Duration
+                item {
+                    Duration()
+                }
+
                 // Genre
                 item {
                     GenresList()
+                }
+
+                // Tag Line
+                item {
+                    TagLine()
+                }
+
+                // Status
+                item {
+                    Status()
+                }
+
+                // Release Date
+                item {
+                    ReleaseDate()
+                }
+
+                // Budget
+                item {
+                    Budget()
+                }
+
+                // Revenue
+                item {
+                    Revenue()
+                }
+
+                // Language
+                item {
+                    LanguageList()
+                }
+
+                // Country
+                item {
+                    CountryList()
                 }
             }
         }
@@ -346,7 +390,7 @@ fun Overview(
 
         // Overview Detail
         Text(
-            text = "${movie.data!!.overview}",
+            text = if (movie.data!!.overview.length > 0) "${movie.data!!.overview}" else "Comming Soon",
             fontSize = 14.sp,
             fontFamily = PoppinsMedium,
             textAlign = TextAlign.Start,
@@ -384,9 +428,9 @@ fun GenresList(
         val genreList = movie.data!!.genres
         LazyRow(
             modifier = Modifier
-                .height(50.dp)
+                .height(45.dp)
                 .width(130.dp)
-                .padding(5.dp)
+                .padding(6.dp)
             ,
         ){
             items(genreList) {genre ->
@@ -404,7 +448,8 @@ fun GenreBox(
     Card(
         backgroundColor = Color.Black,
         modifier = Modifier
-            .height(30.dp)
+            .height(40.dp)
+            .width((genre.length + 60).dp)
             .padding(5.dp)
         ,
         shape = RoundedCornerShape(8.dp)
@@ -422,6 +467,481 @@ fun GenreBox(
 
 }
 
+
+@Composable
+fun TagLine(
+    modifier: Modifier = Modifier,
+    viewModel: MovieDetailViewModel = hiltViewModel(),
+){
+    val movie by remember { viewModel.movieInformation }
+
+    Column(
+        modifier = Modifier.padding(
+            start = 17.dp,
+            end = 17.dp,
+            bottom = 5.dp
+        )
+    ) {
+        Text(
+            text =  "Tagline",
+            fontSize = 26.sp,
+            fontFamily = PoppinsBold,
+            color = MaterialTheme.colors.primary,
+        )
+
+        Text(
+            text = if (movie.data!!.tagline.length > 0) "${movie.data!!.tagline}" else "Comming Soon",
+            fontSize = 15.sp,
+            fontFamily = PoppinsMedium,
+            color = Color.Black,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(7.dp),
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+fun Status(
+    modifier: Modifier = Modifier,
+    viewModel: MovieDetailViewModel = hiltViewModel(),
+){
+    val movie by remember { viewModel.movieInformation }
+
+    Row(
+        modifier = Modifier.padding(
+            start = 17.dp,
+            end = 17.dp,
+        )
+    ) {
+        Text(
+            text = "Status",
+            fontSize = 26.sp,
+            fontFamily = PoppinsBold,
+            color = MaterialTheme.colors.primary,
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Card(
+            backgroundColor = if (movie.data!!.status == "Released") MaterialTheme.colors.primary else Color.LightGray,
+            modifier = Modifier
+                .height(40.dp)
+                .width((movie.data!!.status.length + 75).dp)
+                .padding(5.dp)
+            ,
+            shape = RoundedCornerShape(8.dp)
+
+        ){
+            Text(
+                text = "${movie.data!!.status}",
+                fontSize = (12 / movie.data!!.status.length + 9).sp,
+                fontFamily = if (movie.data!!.status == "Released") PoppinsMedium else PoppinsItalic,
+                color = if (movie.data!!.status == "Released") Color.White else Color.Gray,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(
+                    top = 7.dp,
+                    bottom = 7.dp
+                )
+            )
+        }
+    }
+}
+
+@Composable
+fun Duration(
+    modifier: Modifier = Modifier,
+    viewModel: MovieDetailViewModel = hiltViewModel(),
+){
+    val movie by remember { viewModel.movieInformation }
+
+    Row(
+        modifier = Modifier.padding(
+            start = 17.dp,
+            end = 17.dp,
+            top = 17.dp
+        )
+    ) {
+        Text(
+            text = "Duration",
+            fontSize = 26.sp,
+            fontFamily = PoppinsBold,
+            color = MaterialTheme.colors.primary,
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Card(
+            backgroundColor = Color.Black,
+            modifier = Modifier
+                .height(if (movie.data!!.length > 0) 38.dp else 44.dp)
+                .width(80.dp)
+                .padding(5.dp)
+            ,
+            shape = RoundedCornerShape(8.dp)
+
+        ){
+            Text(
+                text = if (movie.data!!.length > 0) "${movie.data!!.length / 60} h ${movie.data!!.length % 60} p" else "Comming Soon",
+                fontSize = if (movie.data!!.length > 0) 11.sp else 8.sp,
+                fontFamily = PoppinsMedium,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(
+                    6.dp
+                )
+            )
+        }
+    }
+}
+
+@Composable
+fun ReleaseDate(
+    modifier: Modifier = Modifier,
+    viewModel: MovieDetailViewModel = hiltViewModel(),
+){
+    val movie by remember { viewModel.movieInformation }
+    val localDate = LocalDate.parse(movie.data!!.regionReleaseDate)
+    val formattedDate = localDate.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy"))
+
+    Row(
+        modifier = Modifier.padding(
+            start = 17.dp,
+            end = 17.dp,
+            top = 17.dp
+        )
+    ) {
+        Text(
+            text = "Release Date",
+            fontSize = 26.sp,
+            fontFamily = PoppinsBold,
+            color = MaterialTheme.colors.primary,
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Card(
+            backgroundColor = if (movie.data!!.regionReleaseDate.length > 0) MaterialTheme.colors.primary else Color.LightGray,
+            modifier = Modifier
+                .height(if (formattedDate.length <= 13) 40.dp else 50.dp)
+                .width(90.dp)
+                .padding(5.dp)
+            ,
+            shape = RoundedCornerShape(8.dp)
+
+        ){
+            Text(
+                text = if (movie.data!!.regionReleaseDate.length > 0) "${formattedDate}" else "Comming Soon",
+                fontSize = 10.sp,
+                fontFamily = if (movie.data!!.regionReleaseDate.length > 0) PoppinsMedium else PoppinsItalic,
+                color = if (movie.data!!.regionReleaseDate.length > 0) Color.White else Color.Gray,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(
+                    6.dp
+                )
+            )
+        }
+    }
+}
+
+@Composable
+fun Budget(
+    modifier: Modifier = Modifier,
+    viewModel: MovieDetailViewModel = hiltViewModel(),
+){
+    val movie by remember { viewModel.movieInformation }
+    val budget =(movie.data!!.budget.toDouble() / 1000000).toDouble()
+    Row(
+        modifier = Modifier.padding(
+            start = 17.dp,
+            end = 17.dp,
+            top = 17.dp
+        )
+    ) {
+        Text(
+            text = "Budget",
+            fontSize = 26.sp,
+            fontFamily = PoppinsBold,
+            color = MaterialTheme.colors.primary,
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Card(
+            backgroundColor = Color.Black,
+            modifier = Modifier
+                .height(40.dp)
+                .width(80.dp)
+                .padding(5.dp)
+            ,
+            shape = RoundedCornerShape(8.dp)
+
+        ){
+            Text(
+                text = "$${budget}M",
+                fontSize = 12.sp,
+                fontFamily = PoppinsMedium,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(
+                    6.dp
+                )
+            )
+        }
+    }
+}
+
+@Composable
+fun Revenue(
+    modifier: Modifier = Modifier,
+    viewModel: MovieDetailViewModel = hiltViewModel(),
+){
+    val movie by remember { viewModel.movieInformation }
+    val revenue = if (movie.data!!.revenue < 1000000000) (movie.data!!.revenue.toDouble() / 1000000).toDouble() else (movie.data!!.revenue.toDouble() / 1000000000).toDouble()
+    val revenueReformat = formatDoubleDecimalPlacesWithNumberFormat(revenue, 2)
+    Row(
+        modifier = Modifier.padding(
+            start = 17.dp,
+            end = 17.dp,
+            top = 17.dp
+        )
+    ) {
+        Text(
+            text = "Revenue",
+            fontSize = 26.sp,
+            fontFamily = PoppinsBold,
+            color = MaterialTheme.colors.primary,
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Card(
+            backgroundColor = Color.Black,
+            modifier = Modifier
+                .height(40.dp)
+                .width(80.dp)
+                .padding(5.dp)
+            ,
+            shape = RoundedCornerShape(8.dp)
+
+        ){
+            Text(
+                text = if (movie.data!!.revenue < 1000000000) "$${revenueReformat}M" else "$${revenueReformat}B",
+                fontSize = 12.sp,
+                fontFamily = PoppinsMedium,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(
+                    6.dp
+                )
+            )
+        }
+    }
+}
+
+fun formatDoubleDecimalPlacesWithNumberFormat(value: Double, decimalPlaces: Int): String {
+    val numberFormat = NumberFormat.getNumberInstance()
+    numberFormat.maximumFractionDigits = decimalPlaces
+    return numberFormat.format(value)
+}
+
+@Composable
+fun LanguageList(
+    modifier: Modifier = Modifier,
+    viewModel: MovieDetailViewModel = hiltViewModel(),
+){
+    val movie by remember { viewModel.movieInformation }
+
+    Row(
+        modifier = Modifier.padding(
+            top = 17.dp,
+            start = 17.dp,
+            end = 17.dp,
+        )
+    ){
+        Text(
+            text = "Language",
+            fontSize = 26.sp,
+            fontFamily = PoppinsBold,
+            color = MaterialTheme.colors.primary,
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+        val languageList = movie.data!!.spokenLanguages
+        
+        if (languageList.size > 1) {
+            LazyRow(
+                modifier = Modifier
+                    .height(45.dp)
+                    .width(130.dp)
+                    .padding(6.dp)
+                ,
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                items(languageList) {genre ->
+                    LanguageBox(genre)
+                }
+            }
+        }
+        else {
+            LanguageCard(language = languageList[0])
+        }
+    }
+}
+
+@Composable
+fun LanguageCard(
+    language: String
+){
+    Card(
+        backgroundColor = Color.Black,
+        modifier = Modifier
+            .height(40.dp)
+            .width(80.dp)
+            .padding(5.dp)
+        ,
+        shape = RoundedCornerShape(8.dp)
+
+    ){
+        Text(
+            text = "${language}",
+            fontSize = 10.sp,
+            fontFamily = PoppinsMedium,
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(
+                6.dp
+            )
+        )
+    }
+
+}
+
+@Composable
+fun LanguageBox(
+    language: String
+){
+    Card(
+        backgroundColor = Color.Black,
+        modifier = Modifier
+            .height(40.dp)
+            .width((language.length + 60).dp)
+            .padding(5.dp)
+        ,
+        shape = RoundedCornerShape(8.dp)
+
+    ){
+        Text(
+            text = "${language}",
+            fontSize = 10.sp,
+            fontFamily = PoppinsMedium,
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(4.dp)
+        )
+    }
+
+}
+
+
+@Composable
+fun CountryList(
+    modifier: Modifier = Modifier,
+    viewModel: MovieDetailViewModel = hiltViewModel(),
+){
+    val movie by remember { viewModel.movieInformation }
+
+    Row(
+        modifier = Modifier.padding(
+            17.dp
+        )
+    ){
+        Text(
+            text = "Country",
+            fontSize = 26.sp,
+            fontFamily = PoppinsBold,
+            color = MaterialTheme.colors.primary,
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+        val CountryList = movie.data!!.productionCountries
+
+        if (CountryList.size > 1) {
+            LazyRow(
+                modifier = Modifier
+                    .height(45.dp)
+                    .width(130.dp)
+                    .padding(6.dp)
+                ,
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                items(CountryList) {country ->
+                    CountryBox(country)
+                }
+            }
+        }
+        else {
+            CountryCard(Country = CountryList[0])
+        }
+    }
+}
+
+@Composable
+fun CountryCard(
+    Country: String
+){
+    Card(
+        backgroundColor = Color.Black,
+        modifier = Modifier
+            .height(40.dp)
+            .width(80.dp)
+            .padding(5.dp)
+        ,
+        shape = RoundedCornerShape(8.dp)
+
+    ){
+        Text(
+            text = "${Country}",
+            fontSize = 8.sp,
+            fontFamily = PoppinsMedium,
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(
+                6.dp
+            )
+        )
+    }
+
+}
+
+@Composable
+fun CountryBox(
+    Country: String
+){
+    Card(
+        backgroundColor = Color.Black,
+        modifier = Modifier
+            .height(40.dp)
+            .width((Country.length + 60).dp)
+            .padding(5.dp)
+        ,
+        shape = RoundedCornerShape(8.dp)
+
+    ){
+        Text(
+            text = "${Country}",
+            fontSize = 10.sp,
+            fontFamily = PoppinsMedium,
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(4.dp)
+        )
+    }
+
+}
 
 //Box(modifier = modifier
 //.background(

@@ -17,6 +17,10 @@ val Margot= FontFamily(
 val PoppinsBold = FontFamily(
     Font(R.font.poppins_bold)
 )
+
+val PoppinsItalic = FontFamily(
+    Font(R.font.poppins_italic)
+)
 val PoppinsMedium = FontFamily(
     Font(R.font.poppins_medium)
 )
