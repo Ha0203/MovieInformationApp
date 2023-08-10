@@ -49,6 +49,7 @@ fun SponsoredMovieState.toSponsoredMovie(
     return SponsoredMovie(
         id = currentDateTime.format(idFormatter).map { ((it - '0') + 'A'.code).toChar() }.joinToString("") + userId,
         keyId = keyId,
+        userId = userId,
         adult = this.adult!!,
         landscapeImageUrl = this.landscapeImageUrl,
         landscapeImageUrls = landscapeImageUrls,

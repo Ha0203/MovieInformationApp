@@ -3,6 +3,7 @@ package powerrangers.eivom.feature_movie.domain.model
 data class SponsoredMovie(
     val id: String,
     val keyId: String,
+    val userId: String,
     val adult: Boolean,
     val landscapeImageUrl: String?,
     val landscapeImageUrls: List<String>?,
