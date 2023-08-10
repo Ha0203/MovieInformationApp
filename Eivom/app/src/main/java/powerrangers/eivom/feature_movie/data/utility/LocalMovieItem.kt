@@ -5,6 +5,7 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import powerrangers.eivom.feature_movie.domain.model.Collection
+import powerrangers.eivom.feature_movie.domain.model.Company
 import powerrangers.eivom.feature_movie.domain.model.MovieItem
 import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 
@@ -64,7 +65,14 @@ fun LocalMovieItem.toMovieItem(): MovieItem {
         overview = this.overview,
         posterUrl = "",
         posterUrls = emptyList(),
-        productionCompanies = emptyList(),
+        productionCompanies = this.productionCompanies.map {  company ->
+            Company(
+                id = 0,
+                name = company,
+                logoImageUrl = "",
+                originCountry = ""
+            )
+        },
         productionCountries = this.productionCountries,
         regionReleaseDate = this.regionReleaseDate,
         revenue = this.revenue,

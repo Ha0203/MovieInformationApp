@@ -17,10 +17,11 @@
     <string name="settings_title">Settings</string>
     <string name="settings_button_content_description">Move to settings screen</string>
 
-    <!-- Screen Component -->
+    <!-- Movie List-->
     <string name="error_label">Error</string>
     <string name="add_favorite_movie_failure">Add favorite movie failure</string>
     <string name="delete_favorite_movie_failure">Delete favorite movie failure</string>
+    <string name="add_favorite_movie_content_description">Add favorite movie</string>
 
     <string name="retry_button">Retry</string>
     <string name="confirm_button">Confirm</string>
@@ -68,6 +69,9 @@
     <string name="Vote_SortState">Vote</string>
     <string name="OriginalTitle">Original Title</string>
     <string name="Title">Title</string>
+
+    <!-- Add manual movie -->
+    <string name="add_manual_movie_title">Add Favorite Movie</string>
 
     <!-- Movie Management -->
     <string name="user_error">User error</string>

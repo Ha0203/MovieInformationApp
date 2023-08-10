@@ -44,6 +44,8 @@ class MovieListViewModel @Inject constructor(
         private set
 
     // States
+    var isAddingMovie = mutableStateOf(false)
+        private set
     var isSearchVisible = mutableStateOf(false)
         private set
     var isSortVisible = mutableStateOf(false)
@@ -142,6 +144,10 @@ class MovieListViewModel @Inject constructor(
             )
         }
         loadMoviePaginated()
+    }
+
+    fun updateAddingState(isAdding: Boolean) {
+        isAddingMovie.value = isAdding
     }
 
     fun updateMovieListBySearch() {
