@@ -158,11 +158,36 @@
     <string name="add_sponsored_movie_error_notification">An error occurs</string>
 
     <!-- Settings -->
+    <string name="color_mode_title">Color Mode</string>
+    <string name="default_color_mode_option">Default</string>
+    <string name="custom_color_mode_option">Custom</string>
+    <string name="custom_color_option">Custom Color</string>
+    <string name="topbar_background_color">Topbar Background Color</string>
+    <string name="sidebar_background_color">Sidebar Background Color</string>
+    <string name="screen_background_color">Screen Background Color</string>
+    <string name="movienote_background_color">Movie/Note Background Color</string>
+    <string name="dialog_background_color">Dialog Background Color</string>
+    <string name="topbar_text_color">Topbar Text Color</string>
+    <string name="sidebar_text_color">Sidebar Text Color</string>
+    <string name="screen_text_color">Screen Text Color</string>
+    <string name="movienote_text_color">Movie/Note Text Color</string>
+    <string name="dialog_text_color">Dialog Text Color</string>
+    <string name="original_title_display_title">Original Title Display</string>
+    <string name="original_title_display_option">Yes</string>
+    <string name="original_title_not_display_option">No</string>
+    <string name="date_format_title">Date Format</string>
+    <string name="date_format_placeholder">Enter date format</string>
+    <string name="notification_before_month_title">Notification Before Month</string>
+    <string name="notification_before_week_title">Notification Before Week</string>
+    <string name="notification_before_day_title">Notification Before Day</string>
+    <string name="notification_on_date_title">Notification On Date</string>
     <string name="producer_sign_in_title">Producer</string>
     <string name="sign_in_text">Sign in</string>
     <string name="sign_in_success">Sign in successfully</string>
     <string name="sign_out_text">Sign out</string>
     <string name="sign_out_success">Sign out successfully</string>
+    <string name="save_settings_success">Save Success</string>
+    <string name="save_settings_fail">Save Error</string>
 
     <!-- Default -->
     <string name="web_client_id">433566890639-bpm5pknik6rs3dgh5ehb5ne4vmpcq185.apps.googleusercontent.com</string>
