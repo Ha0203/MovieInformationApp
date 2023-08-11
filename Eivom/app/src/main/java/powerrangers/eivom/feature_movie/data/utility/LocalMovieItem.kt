@@ -63,7 +63,7 @@ fun LocalMovieItem.toMovieItem(): MovieItem {
         originalLanguage = this.originalLanguage,
         originalTitle = this.originalTitle,
         overview = this.overview,
-        posterUrl = "",
+        posterUrl = this.posterUrl,
         posterUrls = emptyList(),
         productionCompanies = this.productionCompanies.map {  company ->
             Company(
