@@ -16,6 +16,7 @@ import powerrangers.eivom.data.repository.UserPreferencesRepositoryImpl
 import powerrangers.eivom.domain.repository.UserPreferencesRepository
 import powerrangers.eivom.domain.use_case.GetColorMode
 import powerrangers.eivom.domain.use_case.GetDateFormat
+import powerrangers.eivom.domain.use_case.GetDateFormatString
 import powerrangers.eivom.domain.use_case.GetDialogBackgroundColor
 import powerrangers.eivom.domain.use_case.GetDialogTextColor
 import powerrangers.eivom.domain.use_case.GetMovieNoteBackgroundColor
@@ -112,6 +113,7 @@ object AppModule {
             getDialogTextColor = GetDialogTextColor(userPreferencesRepository),
             getOriginalTitleDisplay = GetOriginalTitleDisplay(userPreferencesRepository),
             getDateFormat = GetDateFormat(userPreferencesRepository),
+            getDateFormatString = GetDateFormatString(userPreferencesRepository),
             getNotificationBeforeMonth = GetNotificationBeforeMonth(userPreferencesRepository),
             getNotificationBeforeWeek = GetNotificationBeforeWeek(userPreferencesRepository),
             getNotificationBeforeDay = GetNotificationBeforeDay(userPreferencesRepository),

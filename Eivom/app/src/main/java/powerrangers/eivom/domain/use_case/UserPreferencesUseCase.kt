@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import powerrangers.eivom.data.utility.UserPreferencesKey
 import powerrangers.eivom.domain.repository.UserPreferencesRepository
 import powerrangers.eivom.feature_movie.domain.utility.DefaultValue
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 // If adding use case -> adding use case in app module too
@@ -49,6 +50,7 @@ data class UserPreferencesUseCase(
     // Display
     val getOriginalTitleDisplay: GetOriginalTitleDisplay,
     val getDateFormat: GetDateFormat,
+    val getDateFormatString: GetDateFormatString,
     // Notification
     val getNotificationBeforeMonth: GetNotificationBeforeMonth,
     val getNotificationBeforeWeek: GetNotificationBeforeWeek,
@@ -61,8 +63,13 @@ data class UserPreferencesUseCase(
 class SaveColorMode(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke(isCustom: Boolean) {
-        userPreferencesRepository.saveColorMode(isCustom = isCustom)
+    suspend operator fun invoke(isCustom: Boolean): Boolean {
+        return try {
+            userPreferencesRepository.saveColorMode(isCustom = isCustom)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 
@@ -70,81 +77,131 @@ class SaveColorMode(
 class SaveTopbarBackgroundColor(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke(backgroundColor: Long) {
+    suspend operator fun invoke(backgroundColor: Long): Boolean {
         // Check if backgroundColor is valid or not to throw exception
-        userPreferencesRepository.saveTopbarBackgroundColor(backgroundColor = backgroundColor)
+        return try {
+            userPreferencesRepository.saveTopbarBackgroundColor(backgroundColor = backgroundColor)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 class SaveSidebarBackgroundColor(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke(backgroundColor: Long) {
+    suspend operator fun invoke(backgroundColor: Long): Boolean {
         // Check if backgroundColor is valid or not to throw exception
-        userPreferencesRepository.saveSidebarBackgroundColor(backgroundColor = backgroundColor)
+        return try {
+            userPreferencesRepository.saveSidebarBackgroundColor(backgroundColor = backgroundColor)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 class SaveScreenBackgroundColor(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke(backgroundColor: Long) {
+    suspend operator fun invoke(backgroundColor: Long): Boolean {
         // Check if backgroundColor is valid or not to throw exception
-        userPreferencesRepository.saveScreenBackgroundColor(backgroundColor = backgroundColor)
+        return try {
+            userPreferencesRepository.saveScreenBackgroundColor(backgroundColor = backgroundColor)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 class SaveMovieNoteBackgroundColor(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke(backgroundColor: Long) {
+    suspend operator fun invoke(backgroundColor: Long): Boolean {
         // Check if backgroundColor is valid or not to throw exception
-        userPreferencesRepository.saveMovieNoteBackgroundColor(backgroundColor = backgroundColor)
+        return try {
+            userPreferencesRepository.saveMovieNoteBackgroundColor(backgroundColor = backgroundColor)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 class SaveDialogBackgroundColor(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke(backgroundColor: Long) {
+    suspend operator fun invoke(backgroundColor: Long): Boolean {
         // Check if backgroundColor is valid or not to throw exception
-        userPreferencesRepository.saveDialogBackgroundColor(backgroundColor = backgroundColor)
+        return try {
+            userPreferencesRepository.saveDialogBackgroundColor(backgroundColor = backgroundColor)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 class SaveTopbarTextColor(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke(textColor: Long) {
+    suspend operator fun invoke(textColor: Long): Boolean {
         // Check if backgroundColor is valid or not to throw exception
-        userPreferencesRepository.saveTopbarTextColor(textColor = textColor)
+        return try {
+            userPreferencesRepository.saveTopbarTextColor(textColor = textColor)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 class SaveSidebarTextColor(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke(textColor: Long) {
+    suspend operator fun invoke(textColor: Long): Boolean {
         // Check if backgroundColor is valid or not to throw exception
-        userPreferencesRepository.saveSidebarTextColor(textColor = textColor)
+        return try {
+            userPreferencesRepository.saveSidebarTextColor(textColor = textColor)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 class SaveScreenTextColor(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke(textColor: Long) {
+    suspend operator fun invoke(textColor: Long): Boolean {
         // Check if backgroundColor is valid or not to throw exception
-        userPreferencesRepository.saveScreenTextColor(textColor = textColor)
+        return try {
+            userPreferencesRepository.saveScreenTextColor(textColor = textColor)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 class SaveMovieNoteTextColor(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke(textColor: Long) {
+    suspend operator fun invoke(textColor: Long): Boolean {
         // Check if backgroundColor is valid or not to throw exception
-        userPreferencesRepository.saveMovieNoteTextColor(textColor = textColor)
+        return try {
+            userPreferencesRepository.saveMovieNoteTextColor(textColor = textColor)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 class SaveDialogTextColor(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke(textColor: Long) {
+    suspend operator fun invoke(textColor: Long): Boolean {
         // Check if backgroundColor is valid or not to throw exception
-        userPreferencesRepository.saveDialogTextColor(textColor = textColor)
+        return try {
+            userPreferencesRepository.saveDialogTextColor(textColor = textColor)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 
@@ -152,20 +209,26 @@ class SaveDialogTextColor(
 class SaveOriginalTitleDisplay(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke(isDisplay: Boolean) {
+    suspend operator fun invoke(isDisplay: Boolean): Boolean {
         // Check if backgroundColor is valid or not to throw exception
-        userPreferencesRepository.saveOriginalTitleDisplay(isDisplay = isDisplay)
+        return try {
+            userPreferencesRepository.saveOriginalTitleDisplay(isDisplay = isDisplay)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 class SaveDateFormat(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke(dateFormat: String) {
+    suspend operator fun invoke(dateFormat: String): Boolean {
         val correctDate = correctDateFormat(dateFormat = dateFormat)
         if (!checkDateFormat(correctDate)) {
-            TODO("Throw exception")
+            return false
         }
         userPreferencesRepository.saveDateFormat(dateFormat = correctDate)
+        return true
     }
 
     private fun correctDateFormat(dateFormat: String): String {
@@ -191,7 +254,7 @@ class SaveDateFormat(
 
     private fun checkDateFormat(dateFormat: String): Boolean {
         return try {
-            DateTimeFormatter.ofPattern(dateFormat)
+            LocalDate.now().format(DateTimeFormatter.ofPattern(dateFormat))
             true
         } catch (error: Throwable) {
             false
@@ -203,33 +266,53 @@ class SaveDateFormat(
 class SaveNotificationBeforeMonth(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke(isNotification: Boolean) {
+    suspend operator fun invoke(isNotification: Boolean): Boolean {
         // Check if backgroundColor is valid or not to throw exception
-        userPreferencesRepository.saveNotificationBeforeMonth(isNotification = isNotification)
+        return try {
+            userPreferencesRepository.saveNotificationBeforeMonth(isNotification = isNotification)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 class SaveNotificationBeforeWeek(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke(isNotification: Boolean) {
+    suspend operator fun invoke(isNotification: Boolean): Boolean {
         // Check if backgroundColor is valid or not to throw exception
-        userPreferencesRepository.saveNotificationBeforeWeek(isNotification = isNotification)
+        return try {
+            userPreferencesRepository.saveNotificationBeforeWeek(isNotification = isNotification)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 class SaveNotificationBeforeDay(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke(isNotification: Boolean) {
+    suspend operator fun invoke(isNotification: Boolean): Boolean {
         // Check if backgroundColor is valid or not to throw exception
-        userPreferencesRepository.saveNotificationBeforeDay(isNotification = isNotification)
+        return try {
+            userPreferencesRepository.saveNotificationBeforeDay(isNotification = isNotification)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 class SaveNotificationOnDate(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke(isNotification: Boolean) {
+    suspend operator fun invoke(isNotification: Boolean): Boolean {
         // Check if backgroundColor is valid or not to throw exception
-        userPreferencesRepository.saveNotificationOnDate(isNotification = isNotification)
+        return try {
+            userPreferencesRepository.saveNotificationOnDate(isNotification = isNotification)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 
@@ -362,6 +445,15 @@ class GetDateFormat(
                 ?.toString()
                 ?: DefaultValue.DATE_FORMAT
         )
+}
+
+class GetDateFormatString(
+    private val userPreferencesRepository: UserPreferencesRepository
+) {
+    suspend operator fun invoke(): String =
+        userPreferencesRepository.getUserPreferences(key = UserPreferencesKey.DATE_FORMAT)
+            ?.toString()
+            ?: DefaultValue.DATE_FORMAT
 }
 
 // Notification
