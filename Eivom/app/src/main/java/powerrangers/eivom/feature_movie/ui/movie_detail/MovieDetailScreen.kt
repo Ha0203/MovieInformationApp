@@ -1,5 +1,7 @@
 package powerrangers.eivom.feature_movie.ui.movie_detail
 
+import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,6 +47,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -55,6 +59,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.SubcomposeAsyncImage
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import kotlinx.coroutines.launch
 import powerrangers.eivom.R
@@ -227,6 +233,7 @@ fun TopButton(
     }
 }
 
+
 @Composable
 fun FilmTitle(
     modifier: Modifier = Modifier,
@@ -235,7 +242,23 @@ fun FilmTitle(
     val movie by remember { viewModel.movieInformation }
     val defaultBackgroundColor = MaterialTheme.colors.background
     var onFocusColor by remember {
-        mutableStateOf(defaultBackgroundColor)
+        mutableStateOf(Color.Black)
+    }
+    val posterUrl = movie.data?.posterUrl
+    val onErrorFallbackImageRes = "https://upload.wikimedia.org/wikipedia/vi/d/d7/Main_1_fa_1080x1350.jpg"
+    // Check if posterUrl is valid
+    val imageRequest = if (!posterUrl.isNullOrEmpty()) {
+        ImageRequest.Builder(LocalContext.current)
+            .data(posterUrl)
+            .crossfade(true)
+            .build()
+        Log.d("Detail", "success + ${posterUrl.toString()}")
+    } else {
+        // Use a fallback image request for invalid posterUrl
+        ImageRequest.Builder(LocalContext.current)
+            .data(onErrorFallbackImageRes)
+            .build()
+        Log.d("Detail", "fail + ${posterUrl.toString()}")
     }
 
     Row(
@@ -254,14 +277,13 @@ fun FilmTitle(
                 .clip(CircleShape)
             ,
             contentScale = ContentScale.Crop,
-            model = ImageRequest.Builder(context = LocalContext.current)
-                .data(movie.data!!.posterUrl)
-                .crossfade(true)
-                .build(),
+            model = imageRequest
+            ,
             onSuccess = { image ->
                 viewModel.handleMovieDominantColor(image.result.drawable) { color ->
                     onFocusColor = color
                 }
+
             },
             contentDescription = movie.data!!.title,
             loading = {
@@ -271,6 +293,8 @@ fun FilmTitle(
                 )
             }
         )
+
+
 
         Column(
             modifier = Modifier
@@ -535,8 +559,8 @@ fun Status(
 
         ){
             Text(
-                text = "${movie.data!!.status}",
-                fontSize = (12 / movie.data!!.status.length + 9).sp,
+                text = if (movie.data!!.status.length > 0) "${movie.data!!.status}" else "Comming Soon",
+                fontSize = if (movie.data!!.status.length > 0) (12 / movie.data!!.status.length + 9).sp else 10.sp,
                 fontFamily = if (movie.data!!.status == "Released") PoppinsMedium else PoppinsItalic,
                 color = if (movie.data!!.status == "Released") Color.White else Color.Gray,
                 textAlign = TextAlign.Center,
