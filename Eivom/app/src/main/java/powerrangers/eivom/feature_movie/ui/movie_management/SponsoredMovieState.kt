@@ -43,11 +43,9 @@ fun SponsoredMovieState.toSponsoredMovie(
     logoUrls: List<String>,
     videoStateList: List<VideoState>
 ): SponsoredMovie {
-    val currentDateTime = LocalDateTime.now()
-    val idFormatter = DateTimeFormatter.ofPattern("yyMMddHHmm")
     val defaultFormatter = DateTimeFormatter.ofPattern(DefaultValue.DATE_FORMAT)
     return SponsoredMovie(
-        id = currentDateTime.format(idFormatter).map { ((it - '0') + 'A'.code).toChar() }.joinToString("") + userId,
+        id = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmmss")).toInt(),
         keyId = keyId,
         userId = userId,
         adult = this.adult!!,

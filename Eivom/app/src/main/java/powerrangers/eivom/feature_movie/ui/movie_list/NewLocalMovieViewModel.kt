@@ -123,7 +123,20 @@ class NewLocalMovieViewModel @Inject constructor(
         return false
     }
 
-    fun isNewMovieValid(): Boolean = newMovieState.value.isValid() && companies.isNotEmpty()
+    fun isCompaniesValid(): Boolean {
+        if (companies.isEmpty()) {
+            return true
+        } else {
+            for (company in companies) {
+                if (company.isBlank()) {
+                    return false
+                }
+            }
+            return true
+        }
+    }
+
+    fun isNewMovieValid(): Boolean = newMovieState.value.isValid() && isCompaniesValid()
 
     fun addMovieCompany() {
         companies.add("")

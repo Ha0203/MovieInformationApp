@@ -136,10 +136,15 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideMovieDatabaseUseCase(movieDatabaseRepository: MovieDatabaseRepository, localMovieDatabaseRepository: LocalMovieDatabaseRepository): MovieDatabaseUseCase =
+    fun provideMovieDatabaseUseCase(
+        movieDatabaseRepository: MovieDatabaseRepository,
+        localMovieDatabaseRepository: LocalMovieDatabaseRepository,
+        sponsoredMovieFirebaseUseCase: SponsoredMovieFirebaseUseCase
+    ): MovieDatabaseUseCase =
         MovieDatabaseUseCase(
             movieDatabaseRepository = movieDatabaseRepository,
-            localMovieDatabaseRepository = localMovieDatabaseRepository
+            localMovieDatabaseRepository = localMovieDatabaseRepository,
+            sponsoredMovieFirebaseUseCase = sponsoredMovieFirebaseUseCase
         )
 
     @Provides
