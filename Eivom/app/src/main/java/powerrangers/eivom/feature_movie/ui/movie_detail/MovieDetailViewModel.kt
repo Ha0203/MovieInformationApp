@@ -65,4 +65,19 @@ class MovieDetailViewModel @Inject constructor(
     fun handleMovieDominantColor(drawable: Drawable, onFinish: (Color) -> Unit) {
         movieDatabaseUseCase.handleImageDominantColor(drawable = drawable, onFinish = onFinish)
     }
+
+    fun isFavoriteMovie(): Boolean = movieDatabaseUseCase.isFavoriteMovie(movieId)
+    fun isWatchedMovie(): Boolean = movieDatabaseUseCase.isWatchedMovie(movieId)
+    fun isSponsoredMovie(): Boolean = movieDatabaseUseCase.isSponsoredMovie(movieId)
+
+    suspend fun addFavoriteMovie(): Boolean {
+        if (movieInformation.value.data != null) {
+            return movieDatabaseUseCase.addFavoriteMovie(movieInformation.value.data!!)
+        }
+        return false
+    }
+
+    suspend fun deleteFavoriteMovie(): Boolean {
+        return movieDatabaseUseCase.deleteFavoriteMovie(movieId)
+    }
 }
