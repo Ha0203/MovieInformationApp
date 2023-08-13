@@ -145,6 +145,11 @@ fun MovieDetailBody(
                     Overview()
                 }
 
+                // Tag Line
+                item {
+                    TagLine()
+                }
+
                 // Duration
                 item {
                     Duration()
@@ -155,10 +160,6 @@ fun MovieDetailBody(
                     GenresList()
                 }
 
-                // Tag Line
-                item {
-                    TagLine()
-                }
 
                 // Status
                 item {
@@ -450,16 +451,25 @@ fun GenresList(
 
         Spacer(modifier = Modifier.weight(1f))
         val genreList = movie.data!!.genres
-        LazyRow(
-            modifier = Modifier
-                .height(45.dp)
-                .width(130.dp)
-                .padding(6.dp)
-            ,
-        ){
-            items(genreList) {genre ->
-                GenreBox(genre)
+        if (genreList.size > 1)
+        {
+            LazyRow(
+                modifier = Modifier
+                    .height(45.dp)
+                    .width(130.dp)
+                    .padding(6.dp)
+                ,
+            ){
+                items(genreList) {genre ->
+                    GenreBox(genre)
+                }
             }
+        }
+        else if (genreList.size == 1){
+            GenreCard(genre = genreList[0])
+        }
+        else {
+            GenreBox(genre = "Comming Soon")
         }
 
     }
@@ -491,6 +501,33 @@ fun GenreBox(
 
 }
 
+@Composable
+fun GenreCard(
+    genre: String
+){
+    Card(
+        backgroundColor = Color.Black,
+        modifier = Modifier
+            .height(40.dp)
+            .width(80.dp)
+            .padding(5.dp)
+        ,
+        shape = RoundedCornerShape(8.dp)
+
+    ){
+        Text(
+            text = "${genre}",
+            fontSize = 10.sp,
+            fontFamily = PoppinsMedium,
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(
+                6.dp
+            )
+        )
+    }
+
+}
 
 @Composable
 fun TagLine(
@@ -552,7 +589,7 @@ fun Status(
             backgroundColor = if (movie.data!!.status == "Released") MaterialTheme.colors.primary else Color.LightGray,
             modifier = Modifier
                 .height(40.dp)
-                .width((movie.data!!.status.length + 75).dp)
+                .width( if (movie.data!!.status.length > 0) (movie.data!!.status.length + 75).dp else 85.dp)
                 .padding(5.dp)
             ,
             shape = RoundedCornerShape(8.dp)
@@ -566,7 +603,9 @@ fun Status(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(
                     top = 7.dp,
-                    bottom = 7.dp
+                    bottom = 7.dp,
+                    start = 5.dp,
+                    end = 5.dp
                 )
             )
         }
@@ -648,16 +687,16 @@ fun ReleaseDate(
         Card(
             backgroundColor = if (movie.data!!.regionReleaseDate.length > 0) MaterialTheme.colors.primary else Color.LightGray,
             modifier = Modifier
-                .height(if (formattedDate.length <= 13) 40.dp else 50.dp)
+                .height(if (formattedDate.length <= 12) 40.dp else 50.dp)
                 .width(90.dp)
-                .padding(5.dp)
+                .padding(6.dp)
             ,
             shape = RoundedCornerShape(8.dp)
 
         ){
             Text(
                 text = if (movie.data!!.regionReleaseDate.length > 0) "${formattedDate}" else "Comming Soon",
-                fontSize = 10.sp,
+                fontSize = 10.5.sp,
                 fontFamily = if (movie.data!!.regionReleaseDate.length > 0) PoppinsMedium else PoppinsItalic,
                 color = if (movie.data!!.regionReleaseDate.length > 0) Color.White else Color.Gray,
                 textAlign = TextAlign.Center,
@@ -809,8 +848,11 @@ fun LanguageList(
                 }
             }
         }
-        else {
+        else if (languageList.size == 1){
             LanguageCard(language = languageList[0])
+        }
+        else {
+            LanguageCard(language = "Comming Soon")
         }
     }
 }
@@ -907,8 +949,11 @@ fun CountryList(
                 }
             }
         }
-        else {
+        else if (CountryList.size == 1){
             CountryCard(Country = CountryList[0])
+        }
+        else {
+            CountryBox(Country = "Comming Soon")
         }
     }
 }
@@ -920,7 +965,7 @@ fun CountryCard(
     Card(
         backgroundColor = Color.Black,
         modifier = Modifier
-            .height(40.dp)
+            .height(45.dp)
             .width(80.dp)
             .padding(5.dp)
         ,
@@ -948,7 +993,7 @@ fun CountryBox(
     Card(
         backgroundColor = Color.Black,
         modifier = Modifier
-            .height(40.dp)
+            .height(45.dp)
             .width((Country.length + 60).dp)
             .padding(5.dp)
         ,

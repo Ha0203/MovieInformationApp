@@ -1118,6 +1118,10 @@ fun MovieListEntry(
             horizontalAlignment = CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+
+            val posterUrl = movie.posterUrl
+            val onErrorFallbackImageRes = "https://upload.wikimedia.org/wikipedia/vi/d/d7/Main_1_fa_1080x1350.jpg"
+
             SubcomposeAsyncImage(
                 model = ImageRequest.Builder(context = LocalContext.current)
                     .data(movie.posterUrl)
@@ -3117,7 +3121,7 @@ fun SortDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Options:",
+                            text = "Reset",
                             textAlign = TextAlign.Start,
                             style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp),
                             modifier = Modifier.padding(vertical = 4.dp)
