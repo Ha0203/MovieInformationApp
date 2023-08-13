@@ -810,6 +810,19 @@ class MovieDatabaseUseCase(
         }
     }
 
+    suspend fun getMovieNoteResource(
+        movieId: Int,
+        isOriginalTitle: Boolean = false
+    ): Resource<Pair<String, String>> {
+        val movie = getLocalMovieItem(movieId)
+        if (movie is Resource.Error) {
+            return Resource.Error(message = movie.message ?: "Unknown")
+        }
+        return Resource.Success(
+            data = Pair(if (isOriginalTitle) movie.data!!.originalTitle else movie.data!!.title, movie.data!!.note)
+        )
+    }
+
     // Add movie
     suspend fun addFavoriteMovie(
         movieListItem: MovieListItem,

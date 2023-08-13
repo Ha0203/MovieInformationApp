@@ -80,6 +80,7 @@ import java.time.format.DateTimeFormatter
 fun MovieDetailScreen(
     modifier: Modifier = Modifier,
     navigateToMenuItem: (String) -> Unit,
+    navigateToMovieNote: () -> Unit,
     navigateBack: () -> Unit
 ) {
     val scaffoldState = rememberScaffoldState()
