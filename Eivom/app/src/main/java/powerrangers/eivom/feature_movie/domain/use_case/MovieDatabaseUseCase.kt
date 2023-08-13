@@ -6,6 +6,8 @@ import android.graphics.drawable.Drawable
 import androidx.compose.ui.graphics.Color
 import androidx.palette.graphics.Palette
 import kotlinx.coroutines.flow.first
+import powerrangers.eivom.domain.utility.Resource
+import powerrangers.eivom.domain.utility.ResourceErrorMessage
 import powerrangers.eivom.feature_movie.data.network.response.MovieImage
 import powerrangers.eivom.feature_movie.data.network.response.MovieInformation
 import powerrangers.eivom.feature_movie.data.network.response.MovieList
@@ -29,8 +31,6 @@ import powerrangers.eivom.feature_movie.domain.utility.Logic
 import powerrangers.eivom.feature_movie.domain.utility.MovieFilter
 import powerrangers.eivom.feature_movie.domain.utility.MovieOrder
 import powerrangers.eivom.feature_movie.domain.utility.Order
-import powerrangers.eivom.domain.utility.Resource
-import powerrangers.eivom.domain.utility.ResourceErrorMessage
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
 import powerrangers.eivom.feature_movie.domain.utility.TrendingTime
 import java.time.LocalDate
@@ -40,7 +40,8 @@ import java.util.Locale
 // If adding use case -> adding use case in app module too
 class MovieDatabaseUseCase(
     private val movieDatabaseRepository: MovieDatabaseRepository,
-    private val localMovieDatabaseRepository: LocalMovieDatabaseRepository
+    private val localMovieDatabaseRepository: LocalMovieDatabaseRepository,
+    private val sponsoredMovieFirebaseUseCase: SponsoredMovieFirebaseUseCase
 ) {
     private var localMovieMap: Resource<MutableMap<Int, LocalMovieItem>>? = null
 
@@ -99,6 +100,8 @@ class MovieDatabaseUseCase(
             )
         }
 
+        val sponsoredMovieList = sponsoredMovieFirebaseUseCase.getSponsoredMovieList().data
+
         if (favorite?.isFavorite != true && watched?.isWatched != true) {
             if (!searchQuery.isNullOrBlank()) {
                 val movieList = searchMovieListResource(
@@ -116,7 +119,7 @@ class MovieDatabaseUseCase(
 
                 return try {
                     Resource.Success(
-                        data = movieList.data!!.results.map { movie ->
+                        data = (sponsoredMovieList ?: emptyList()) + movieList.data!!.results.map { movie ->
                             MovieListItem(
                                 favorite = localMovieMap?.data?.get(movie.id)?.favorite ?: false,
                                 watched = localMovieMap?.data?.get(movie.id)?.watched ?: false,
@@ -224,7 +227,7 @@ class MovieDatabaseUseCase(
             return try {
                 if (favorite == null && watched == null) {
                     Resource.Success(
-                        data = movieList.data!!.results.map { movie ->
+                        data = (sponsoredMovieList ?: emptyList()) + movieList.data!!.results.map { movie ->
                             MovieListItem(
                                 favorite = localMovieMap?.data?.get(movie.id)?.favorite ?: false,
                                 watched = localMovieMap?.data?.get(movie.id)?.watched ?: false,
@@ -295,7 +298,7 @@ class MovieDatabaseUseCase(
                     )
                 } else if (favorite?.isFavorite == false && watched == null) {
                     Resource.Success(
-                        data = movieList.data!!.results.mapNotNull { movie ->
+                        data = (sponsoredMovieList ?: emptyList()) + movieList.data!!.results.mapNotNull { movie ->
                             if (localMovieMap?.data?.get(movie.id)?.favorite == true) {
                                 null
                             } else {
@@ -372,7 +375,7 @@ class MovieDatabaseUseCase(
                     )
                 } else if (watched?.isWatched == false && favorite == null) {
                     Resource.Success(
-                        data = movieList.data!!.results.mapNotNull { movie ->
+                        data = (sponsoredMovieList ?: emptyList()) + movieList.data!!.results.mapNotNull { movie ->
                             if (localMovieMap?.data?.get(movie.id)?.watched == true) {
                                 null
                             } else {
@@ -449,7 +452,7 @@ class MovieDatabaseUseCase(
                     )
                 } else {
                     Resource.Success(
-                        data = movieList.data!!.results.mapNotNull { movie ->
+                        data = (sponsoredMovieList ?: emptyList()) + movieList.data!!.results.mapNotNull { movie ->
                             if (
                                 localMovieMap?.data?.get(movie.id)?.favorite == true &&
                                 localMovieMap?.data?.get(movie.id)?.watched == true
@@ -603,13 +606,19 @@ class MovieDatabaseUseCase(
         if (information is Resource.Error) {
             return try {
                 Resource.Success(
-                    data = getLocalMovieItem(movieId).data?.toMovieItem()!!
+                    data = sponsoredMovieFirebaseUseCase.getSponsoredMovie(movieId).data!!
                 )
             } catch (e: Exception) {
-                return Resource.Error(
-                    message = e.message
-                        ?: ResourceErrorMessage.GET_MOVIEINFORMATION
-                )
+                return try {
+                    Resource.Success(
+                        data = getLocalMovieItem(movieId).data?.toMovieItem()!!
+                    )
+                } catch (e: Exception) {
+                    return Resource.Error(
+                        message = e.message
+                            ?: ResourceErrorMessage.GET_MOVIEINFORMATION
+                    )
+                }
             }
         }
 
@@ -621,13 +630,19 @@ class MovieDatabaseUseCase(
         if (videos is Resource.Error) {
             return try {
                 Resource.Success(
-                    data = getLocalMovieItem(movieId).data?.toMovieItem()!!
+                    data = sponsoredMovieFirebaseUseCase.getSponsoredMovie(movieId).data!!
                 )
             } catch (e: Exception) {
-                return Resource.Error(
-                    message = e.message
-                        ?: ResourceErrorMessage.GET_MOVIEVIDEO
-                )
+                return try {
+                    Resource.Success(
+                        data = getLocalMovieItem(movieId).data?.toMovieItem()!!
+                    )
+                } catch (e: Exception) {
+                    return Resource.Error(
+                        message = e.message
+                            ?: ResourceErrorMessage.GET_MOVIEVIDEO
+                    )
+                }
             }
         }
 
@@ -639,13 +654,19 @@ class MovieDatabaseUseCase(
         if (images is Resource.Error) {
             return try {
                 Resource.Success(
-                    data = getLocalMovieItem(movieId).data?.toMovieItem()!!
+                    data = sponsoredMovieFirebaseUseCase.getSponsoredMovie(movieId).data!!
                 )
             } catch (e: Exception) {
-                return Resource.Error(
-                    message = e.message
-                        ?: ResourceErrorMessage.GET_MOVIEIMAGE
-                )
+                return try {
+                    Resource.Success(
+                        data = getLocalMovieItem(movieId).data?.toMovieItem()!!
+                    )
+                } catch (e: Exception) {
+                    return Resource.Error(
+                        message = e.message
+                            ?: ResourceErrorMessage.GET_MOVIEIMAGE
+                    )
+                }
             }
         }
 
@@ -772,13 +793,19 @@ class MovieDatabaseUseCase(
         } catch (e: Exception) {
             return try {
                 Resource.Success(
-                    data = getLocalMovieItem(movieId).data?.toMovieItem()!!
+                    data = sponsoredMovieFirebaseUseCase.getSponsoredMovie(movieId).data!!
                 )
             } catch (e: Exception) {
-                return Resource.Error(
-                    message = e.message
-                        ?: ResourceErrorMessage.CONVERT_MOVIEINFORMATION_TO_MOVIEITEM
-                )
+                return try {
+                    Resource.Success(
+                        data = getLocalMovieItem(movieId).data?.toMovieItem()!!
+                    )
+                } catch (e: Exception) {
+                    return Resource.Error(
+                        message = e.message
+                            ?: ResourceErrorMessage.CONVERT_MOVIEINFORMATION_TO_MOVIEITEM
+                    )
+                }
             }
         }
     }
