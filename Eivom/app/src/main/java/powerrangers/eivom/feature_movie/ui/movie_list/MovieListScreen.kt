@@ -16,6 +16,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -43,6 +44,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -61,6 +63,7 @@ import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -91,6 +94,8 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -112,7 +117,10 @@ import androidx.compose.ui.unit.times
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
+import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -123,10 +131,13 @@ import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 import powerrangers.eivom.feature_movie.domain.utility.Order
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
 import powerrangers.eivom.feature_movie.domain.utility.TrendingTime
+import powerrangers.eivom.ui.component.BottomListScreenBar
 import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.FloatingAddButton
 import powerrangers.eivom.ui.component.TopBar
+import powerrangers.eivom.ui.theme.PoppinsBold
+import powerrangers.eivom.ui.theme.PoppinsItalic
 import powerrangers.eivom.ui.utility.UserPreferences
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -155,6 +166,9 @@ fun MovieListScreen(
                     }
                 }
             )
+        },
+        bottomBar = {
+            BottomListScreenBar()
         },
         drawerContent = {
             DrawerHeader()
@@ -187,10 +201,7 @@ fun MovieListBody(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val movieListItems by remember { viewModel.movieListItems }
-    val isFilterVisible by remember { viewModel.isFilterVisible }
     val isSearchVisible by remember { viewModel.isSearchVisible }
-    val isSortVisible by remember { viewModel.isSortVisible }
-
     val filterState by remember { viewModel.filterState  }
     val sortState by remember { viewModel.sortState }
 
@@ -217,223 +228,166 @@ fun MovieListBody(
             viewModel.resetMovieList()
         }
     }
-
-    Row(
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = CenterHorizontally,
         modifier = Modifier
-            .fillMaxSize()
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
     ) {
-        //Text(text = "Menu")
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colors.background)
-                .fillMaxHeight()
+        AnimatedVisibility(
+            visible = isSearchVisible,
+            enter = slideInHorizontally(
+                initialOffsetX = { -it },
+                animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+            ) + fadeIn(),
+            exit = slideOutHorizontally(
+                targetOffsetX = { -it },
+                animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+            ) + fadeOut(),
+            modifier = Modifier.background(MaterialTheme.colors.surface)
         ) {
-            IconButton(onClick = { viewModel.reverseIsFilter() }) {
-                Icon(
-                    imageVector = Icons.Filled.Filter,
-                    contentDescription = stringResource(id = R.string.filter_button),
-                    tint = MaterialTheme.colors.primary
-                )
-                //Create dialog
-            }
-            if (isFilterVisible) {
-                FilterButton(
-                    funcToCall = {
-                        viewModel.reverseIsFilter()
-                        viewModel.updateFilterState()
-                    },
-                    onDismiss = {
-                        viewModel.reverseIsFilter()
-                    },
-                )
-            }
-            IconButton(onClick = { viewModel.reverseIsSort() }) {
-                Icon(
-                    imageVector = Icons.Filled.Sort,
-                    contentDescription = stringResource(id = R.string.sort_button),
-                    tint = MaterialTheme.colors.primary,
-                )
-            }
-            if (isSortVisible) {
-                SortButton(
-                    funcToCall = {
-                        viewModel.reverseIsSort()
-                        viewModel.updateSortState()
+            // Content of the filter screen
+            OutlinedTextField(
+                value = viewModel.userSearch,
+                singleLine = true,
+                shape = RoundedCornerShape(20.dp),
+                modifier = Modifier
+                    .size(width = 310.dp, height = 60.dp)
+                    .padding(horizontal = 10.dp)
+                //.padding(start = 10.dp, end = 10.dp, top = 5.dp,)
+                ,
+                colors = TextFieldDefaults.textFieldColors(
+                    textColor = Color.Black,
+                ),
+                onValueChange = { viewModel.updateUserSearch(it) },
+                label = {
+                    Text(
+                        text = stringResource(R.string.search_label),
+                        fontFamily = PoppinsItalic,
+                        fontSize = 15.sp,
+                        color = MaterialTheme.colors.primary
+                    )
+                },
+                placeholder = {
+                    Text(
+                        text = stringResource(id = R.string.search_movie_placeholder),
+                        style = TextStyle(
+                            fontSize = 14.sp, // Adjust the font size as desired
+                            color = Color.Gray
+                        ),
 
-                    },
-                    onDismiss = {
-                        viewModel.reverseIsSort()
-
+                    )
+                },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = stringResource(id = R.string.search_icon_outlineText),
+                        tint = MaterialTheme.colors.primary,
+                        modifier = Modifier.clickable {
+                            viewModel.updateMovieListBySearch()
+                        } //Click Search Button
+                    )
+                },
+                textStyle = TextStyle(
+                    fontSize = 14.sp,
+                    fontFamily = PoppinsBold,
+                    textAlign = TextAlign.Start
+                ),
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        viewModel.updateMovieListBySearch()
                     }
                 )
-            }
-
-            IconButton(onClick = { viewModel.reverseIsSearch() }) {
-                Icon(
-                    imageVector = Icons.Filled.Search,
-                    contentDescription = stringResource(id = R.string.search_button),
-                    tint = MaterialTheme.colors.primary
-                )
-            }
+            )
         }
-
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = CenterHorizontally,
+        Box(
             modifier = Modifier
+                .fillMaxSize()
                 .animateContentSize(
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioNoBouncy,
                         stiffness = Spring.StiffnessLow
                     )
                 )
+                .padding(top = 10.dp)
         ) {
-            AnimatedVisibility(
-                visible = isSearchVisible,
-                enter = slideInHorizontally(
-                    initialOffsetX = { -it },
-                    animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
-                ) + fadeIn(),
-                exit = slideOutHorizontally(
-                    targetOffsetX = { -it },
-                    animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
-                ) + fadeOut(),
-                modifier = Modifier.background(MaterialTheme.colors.surface)
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = modifier
+                    .background(MaterialTheme.colors.background)
+                    .fillMaxSize()
+                    .padding(
+                        top = 5.dp,
+                        start = 10.dp,
+                        end = 10.dp
+                    ),
+
+                //horizontalAlignment = CenterHorizontally
             ) {
-                // Content of the filter screen
-                OutlinedTextField(
-                    value = viewModel.userSearch,
-                    singleLine = true,
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .size(width = 200.dp, height = 55.dp)
-                        .padding(horizontal = 10.dp)
-                    //.padding(start = 10.dp, end = 10.dp, top = 5.dp,)
-                    ,
-                    colors = TextFieldDefaults.textFieldColors(
-                        textColor = Color.Black,
-                    ),
-                    onValueChange = { viewModel.updateUserSearch(it) },
-                    label = { Text(stringResource(R.string.search_label)) },
-                    placeholder = {
-                        Text(
-                            text = stringResource(id = R.string.search_movie_placeholder),
-                            style = TextStyle(
-                                fontSize = 12.sp, // Adjust the font size as desired
-                                color = Color.Gray
+                itemsIndexed(movieListItems.data!!) { index, movie ->
+                    if (index >= movieListItems.data!!.size - 1 && movieListItems is Resource.Success) {
+                        viewModel.loadMoviePaginated()
+                    }
+                    MovieListEntry(
+                        modifier = modifier,
+                        navigateToMovieDetailScreen = navigateToMovieDetailScreen,
+                        movie = movie,
+                        handleMovieDominantColor = { drawable, onFinish ->
+                            viewModel.handleMovieDominantColor(
+                                drawable = drawable,
+                                onFinish = onFinish
                             )
-                        )
-                    },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Filled.Search,
-                            contentDescription = stringResource(id = R.string.search_icon_outlineText),
-                            tint = MaterialTheme.colors.primary,
-                            modifier = Modifier.clickable {
-                                viewModel.updateMovieListBySearch()
-                            } //Click Search Button
-                        )
-                    },
-                    textStyle = TextStyle(
-//                        fontSize = textSizeState.value,
-//                        textAlign = TextAlign.Start
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold, // Adjust the font weight as needed
-                        textAlign = TextAlign.Start
-                    ),
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            viewModel.updateMovieListBySearch()
-                        }
+                        },
+                        addFavoriteMovie = {
+                            val isSuccess = coroutineScope.async {
+                                viewModel.addFavoriteMovie(it)
+                            }
+                            isSuccess.await()
+                        },
+                        deleteFavoriteMovie = {
+                            val isSuccess = coroutineScope.async {
+                                viewModel.deleteFavoriteMovie(it.id)
+                            }
+                            isSuccess.await()
+                        },
+                        isFavoriteMovie = { viewModel.isFavoriteMovie(it) }
                     )
-                )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
             }
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .animateContentSize(
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioNoBouncy,
-                            stiffness = Spring.StiffnessLow
-                        )
-                    )
-                    .padding(top = 10.dp)
+                contentAlignment = Center,
+                modifier = Modifier.fillMaxSize()
             ) {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = modifier
-                        .background(MaterialTheme.colors.background)
-                        .fillMaxSize()
-                        .padding(
-                            top = 5.dp,
-                            start = 10.dp,
-                            end = 10.dp
-                        ),
-
-                    //horizontalAlignment = CenterHorizontally
-                ) {
-                    itemsIndexed(movieListItems.data!!) { index, movie ->
-                        if (index >= movieListItems.data!!.size - 1 && movieListItems is Resource.Success) {
-                            viewModel.loadMoviePaginated()
-                        }
-                        MovieListEntry(
-                            modifier = modifier,
-                            navigateToMovieDetailScreen = navigateToMovieDetailScreen,
-                            movie = movie,
-                            handleMovieDominantColor = { drawable, onFinish ->
-                                viewModel.handleMovieDominantColor(
-                                    drawable = drawable,
-                                    onFinish = onFinish
-                                )
-                            },
-                            addFavoriteMovie = {
-                                val isSuccess = coroutineScope.async {
-                                    viewModel.addFavoriteMovie(it)
-                                }
-                                isSuccess.await()
-                            },
-                            deleteFavoriteMovie = {
-                                val isSuccess = coroutineScope.async {
-                                    viewModel.deleteFavoriteMovie(it.id)
-                                }
-                                isSuccess.await()
-                            },
-                            isFavoriteMovie = { viewModel.isFavoriteMovie(it) }
+                when (movieListItems) {
+                    is Resource.Loading -> {
+                        CircularProgressIndicator(color = MaterialTheme.colors.secondary)
+                    }
+                    is Resource.Error -> {
+                        RetrySection(
+                            error = movieListItems.message ?: ResourceErrorMessage.UNKNOWN,
+                            onRetry = {
+                                viewModel.loadMoviePaginated()
+                            }
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
                     }
 
-                }
-                Box(
-                    contentAlignment = Center,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    when (movieListItems) {
-                        is Resource.Loading -> {
-                            CircularProgressIndicator(color = MaterialTheme.colors.secondary)
-                        }
-                        is Resource.Error -> {
-                            RetrySection(
-                                error = movieListItems.message ?: ResourceErrorMessage.UNKNOWN,
-                                onRetry = {
-                                    viewModel.loadMoviePaginated()
-                                }
-                            )
-                        }
-
-                        else -> {}
-                    }
+                    else -> {}
                 }
             }
         }
     }
-
 }
 
 @Composable
@@ -1076,7 +1030,7 @@ fun MovieListEntry(
 ) {
     val defaultDominantColor = MaterialTheme.colors.surface
     var dominantColor by remember {
-        mutableStateOf(defaultDominantColor)
+        mutableStateOf(Color.Black)
     }
     var isFavorite by remember {
         mutableStateOf(isFavoriteMovie(movie.id))
@@ -1113,35 +1067,52 @@ fun MovieListEntry(
                 navigateToMovieDetailScreen(movie.id)
             }
     ) {
+        val posterUrl = movie.posterUrl
+        val onErrorFallbackImageRes = "https://cdn.pixabay.com/photo/2018/01/04/15/51/404-error-3060993_640.png"
+        val painter = rememberAsyncImagePainter(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(posterUrl)
+                .crossfade(true)
+                .build()
+        )
         Column(
             modifier = modifier.fillMaxSize(),
             horizontalAlignment = CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-
-            val posterUrl = movie.posterUrl
-            val onErrorFallbackImageRes = "https://upload.wikimedia.org/wikipedia/vi/d/d7/Main_1_fa_1080x1350.jpg"
-
-            SubcomposeAsyncImage(
-                model = ImageRequest.Builder(context = LocalContext.current)
-                    .data(movie.posterUrl)
-                    .crossfade(true)
-                    .build(),
-                onSuccess = { image ->
-                    handleMovieDominantColor(image.result.drawable) { color ->
-                        dominantColor = color
-                    }
-                },
-                contentDescription = movie.title,
+            Image(
+                painter = if (painter.state is AsyncImagePainter.State.Error) rememberAsyncImagePainter(
+                    onErrorFallbackImageRes
+                ) else painter,
+                contentDescription = null,
+                modifier = modifier
+                    .width(180.dp)
+                    .height(190.dp)
+                    .padding(10.dp)
+                    .clip(RoundedCornerShape(30.dp))
+                ,
                 contentScale = ContentScale.Fit,
-                loading = {
-                    CircularProgressIndicator(
-                        modifier = modifier
-                            .fillMaxWidth()
-                            .scale(0.25f)
-                    )
-                }
             )
+//            SubcomposeAsyncImage(
+//                model = ImageRequest.Builder(context = LocalContext.current)
+//                    .data(movie.posterUrl)
+//                    .crossfade(true)
+//                    .build(),
+//                onSuccess = { image ->
+//                    handleMovieDominantColor(image.result.drawable) { color ->
+//                        dominantColor = color
+//                    }
+//                },
+//                contentDescription = movie.title,
+//                contentScale = ContentScale.Fit,
+//                loading = {
+//                    CircularProgressIndicator(
+//                        modifier = modifier
+//                            .fillMaxWidth()
+//                            .scale(0.25f)
+//                    )
+//                }
+//            )
             Text(
                 text = movie.title,
                 textAlign = TextAlign.Center,

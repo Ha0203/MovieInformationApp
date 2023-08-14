@@ -1,6 +1,7 @@
 package powerrangers.eivom.feature_movie.ui.movie_detail
 
 import android.util.Log
+import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -58,6 +59,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
@@ -66,6 +68,7 @@ import kotlinx.coroutines.launch
 import powerrangers.eivom.R
 import powerrangers.eivom.domain.utility.Resource
 import powerrangers.eivom.domain.utility.ResourceErrorMessage
+import powerrangers.eivom.ui.component.BottomDetailBar
 import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.TopBar
@@ -97,6 +100,9 @@ fun MovieDetailScreen(
                     }
                 }
             )
+        },
+        bottomBar = {
+            BottomDetailBar()
         },
         drawerContent = {
             DrawerHeader()
@@ -191,12 +197,18 @@ fun MovieDetailBody(
                 item {
                     CountryList()
                 }
+
+                // Space
+                item{
+                    Spacer(modifier = Modifier.height(30.dp))
+                }
             }
         }
         else -> {
             Text(text = movie.message ?: ResourceErrorMessage.UNKNOWN)
         }
     }
+
 }
 
 @Composable
@@ -246,22 +258,14 @@ fun FilmTitle(
     var onFocusColor by remember {
         mutableStateOf(Color.Black)
     }
-    val posterUrl = movie.data?.posterUrl
-    val onErrorFallbackImageRes = "https://upload.wikimedia.org/wikipedia/vi/d/d7/Main_1_fa_1080x1350.jpg"
-    // Check if posterUrl is valid
-    val imageRequest = if (!posterUrl.isNullOrEmpty()) {
-        ImageRequest.Builder(LocalContext.current)
+    val posterUrl = movie.data!!.posterUrl
+    val onErrorFallbackImageRes = "https://www.globalsign.com/application/files/9516/0389/3750/What_Is_an_SSL_Common_Name_Mismatch_Error_-_Blog_Image.jpg"
+    val painter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(LocalContext.current)
             .data(posterUrl)
-            .crossfade(true)
             .build()
-        Log.d("Detail", "success + ${posterUrl.toString()}")
-    } else {
-        // Use a fallback image request for invalid posterUrl
-        ImageRequest.Builder(LocalContext.current)
-            .data(onErrorFallbackImageRes)
-            .build()
-        Log.d("Detail", "fail + ${posterUrl.toString()}")
-    }
+    )
+
 
     Row(
         horizontalArrangement = Arrangement.Start,
@@ -270,33 +274,44 @@ fun FilmTitle(
             .fillMaxWidth()
     ){
         Spacer(modifier = Modifier.width(70.dp))
-
         // Film Poster
-        SubcomposeAsyncImage(
+        Image(
+            painter = if (painter.state is AsyncImagePainter.State.Error) rememberAsyncImagePainter(
+               onErrorFallbackImageRes
+            ) else painter,
+            contentDescription = null,
             modifier = modifier
                 .size(100.dp)
                 .padding(13.dp)
-                .clip(CircleShape)
-            ,
+                .clip(CircleShape),
             contentScale = ContentScale.Crop,
-            model = imageRequest
-            ,
-            onSuccess = { image ->
-                viewModel.handleMovieDominantColor(image.result.drawable) { color ->
-                    onFocusColor = color
-                }
-
-            },
-            contentDescription = movie.data!!.title,
-            loading = {
-                CircularProgressIndicator(
-                    modifier = modifier
-                        .scale(0.25f)
-                )
-            }
         )
-
-
+//        SubcomposeAsyncImage(
+//            modifier = modifier
+//                .size(100.dp)
+//                .padding(13.dp)
+//                .clip(CircleShape)
+//            ,
+//            contentScale = ContentScale.Crop,
+//            model = ImageRequest.Builder(LocalContext.current)
+//                .data(posterUrl)
+//                .crossfade(true)
+//                .build()
+//            ,
+//            onSuccess = { image ->
+//                viewModel.handleMovieDominantColor(image.result.drawable) { color ->
+//                    onFocusColor = color
+//                }
+//
+//            },
+//            contentDescription = movie.data!!.title,
+//            loading = {
+//                CircularProgressIndicator(
+//                    modifier = modifier
+//                        .scale(0.25f)
+//                )
+//            }
+//        )
 
         Column(
             modifier = Modifier
@@ -590,7 +605,7 @@ fun Status(
             backgroundColor = if (movie.data!!.status == "Released") MaterialTheme.colors.primary else Color.LightGray,
             modifier = Modifier
                 .height(40.dp)
-                .width( if (movie.data!!.status.length > 0) (movie.data!!.status.length + 75).dp else 85.dp)
+                .width(if (movie.data!!.status.length > 0) (movie.data!!.status.length + 75).dp else 85.dp)
                 .padding(5.dp)
             ,
             shape = RoundedCornerShape(8.dp)
