@@ -68,7 +68,7 @@ import kotlinx.coroutines.launch
 import powerrangers.eivom.R
 import powerrangers.eivom.domain.utility.Resource
 import powerrangers.eivom.domain.utility.ResourceErrorMessage
-import powerrangers.eivom.ui.component.BottomDetailBar
+import powerrangers.eivom.ui.component.BottomOnlyHomeBar
 import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.TopBar
@@ -102,7 +102,7 @@ fun MovieDetailScreen(
             )
         },
         bottomBar = {
-            BottomDetailBar()
+            BottomOnlyHomeBar()
         },
         drawerContent = {
             DrawerHeader()

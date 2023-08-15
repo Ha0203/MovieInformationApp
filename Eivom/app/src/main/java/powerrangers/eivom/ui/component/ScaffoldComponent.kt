@@ -112,7 +112,7 @@ fun TopBar(
 }
 
 @Composable
-fun BottomListScreenBar(
+fun BottomDefaultScreenBar(
     modifier: Modifier = Modifier,
     //onHomeIconClick: () -> Unit,
     //onFavoriteIconClick: () -> Unit,
@@ -235,7 +235,7 @@ fun BottomListScreenBar(
 }
 
 @Composable
-fun BottomDetailBar(
+fun BottomOnlyHomeBar(
     modifier: Modifier = Modifier,
     //onHomeIconClick: () -> Unit,
     viewModel: MovieListViewModel = hiltViewModel()

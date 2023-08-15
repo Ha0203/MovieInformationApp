@@ -131,7 +131,7 @@ import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 import powerrangers.eivom.feature_movie.domain.utility.Order
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
 import powerrangers.eivom.feature_movie.domain.utility.TrendingTime
-import powerrangers.eivom.ui.component.BottomListScreenBar
+import powerrangers.eivom.ui.component.BottomDefaultScreenBar
 import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.FloatingAddButton
@@ -168,7 +168,7 @@ fun MovieListScreen(
             )
         },
         bottomBar = {
-            BottomListScreenBar()
+            BottomDefaultScreenBar()
         },
         drawerContent = {
             DrawerHeader()

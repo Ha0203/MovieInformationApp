@@ -80,6 +80,7 @@ import powerrangers.eivom.R
 import powerrangers.eivom.domain.utility.Resource
 import powerrangers.eivom.feature_movie.domain.model.MovieListItem
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
+import powerrangers.eivom.ui.component.BottomOnlyHomeBar
 import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.FloatingAddButton
@@ -116,6 +117,9 @@ fun MovieManagementScreen(
         drawerContent = {
             DrawerHeader()
             DrawerBody(onItemClick = navigateToMenuItem)
+        },
+        bottomBar = {
+            BottomOnlyHomeBar()
         },
         floatingActionButton = {
             FloatingAddButton(
