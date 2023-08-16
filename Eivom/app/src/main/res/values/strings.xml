@@ -24,7 +24,7 @@
     <string name="add_favorite_movie_content_description">Add favorite movie</string>
 
     <string name="retry_button">Retry</string>
-    <string name="confirm_button">Confirm</string>
+    <string name="apply_button">Apply</string>
     <string name="save_button_title">Save</string>
     <string name="cancel_button">Cancel</string>
     <string name="back_button">Back</string>
@@ -48,7 +48,7 @@
     <string name="Favorite_FilterState">Favorite</string>
     <string name="Watched_FilterState">Watched</string>
     <string name="Region_FilterState">Region</string>
-    <string name="AdultContentIncluded_FilterState">Include Adult Content</string>
+    <string name="AdultContentIncluded_FilterState">Adult Content</string>
     <string name="ReleaseYear_FilterState">Release Year</string>
     <string name="MinimumReleaseDate_FilterState">Min Release Date</string>
     <string name="MaximumReleaseDate_FilterState">Max Release Date</string>

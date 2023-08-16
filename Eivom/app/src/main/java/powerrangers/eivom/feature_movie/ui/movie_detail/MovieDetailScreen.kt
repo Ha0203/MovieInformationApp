@@ -239,7 +239,7 @@ fun TopButton(
                 modifier = Modifier
                     .size(60.dp)
                     .scale(-1f, 1f) // Flip horizontally
-                    .padding(5.dp),
+                    .padding(10.dp),
                 tint = Color.Black
             )
         }

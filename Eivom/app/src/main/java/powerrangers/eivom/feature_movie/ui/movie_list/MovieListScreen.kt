@@ -1213,8 +1213,8 @@ fun TrendingFilter(
                     stiffness = Spring.StiffnessLow
                 )
             )
-            .background(color = Color.White)
-        ,
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = if (trending == null) Color.White else MaterialTheme.colors.secondary)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -1261,8 +1261,8 @@ fun TrendingFilter(
                     painter = painterResource(R.drawable.checked_ic),
                     contentDescription = null,
                     modifier = Modifier
-                            .size(25.dp)
-                            .padding(bottom = 5.dp),
+                        .size(25.dp)
+                        .padding(bottom = 5.dp),
                     tint = Color.White
                 )
             }
@@ -1274,28 +1274,34 @@ fun TrendingFilter(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
                     .background(color = MaterialTheme.colors.secondary)
             ) {
                 Text(
                     text = stringResource(id = R.string.TrendingDay_FilterState),
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(vertical = 5.dp)
+                    fontFamily = PoppinsBold,
+                    color = Color.White,
+                    modifier = Modifier.padding(
+                        vertical = 5.dp,
+                        horizontal = 10.dp
+                    )
                 )
                 Spacer( modifier = Modifier.weight(0.10f))
+
                 IconButton(onClick = { viewModel.reverseTrendingDayWeek() } ) {
                     if (trending != TrendingTime.DAY)
                         Icon(
                             painter = painterResource(R.drawable.unchecked_ic),
                             contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                            tint = MaterialTheme.colors.primary
+                            modifier = Modifier.size(21.dp),
+                            tint = Color.White,
                         )
                     else    Icon(
                         painter = painterResource(R.drawable.checked_ic),
                         contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
+                        modifier = Modifier.size(21.dp),
+                        tint = Color.White,
                     )
 
                 }
@@ -1305,23 +1311,28 @@ fun TrendingFilter(
                 Text(
                     text = stringResource(id = R.string.TrendingWeek_FilterState),
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(vertical = 5.dp)
+                    fontFamily = PoppinsBold,
+                    color = Color.White,
+                    modifier = Modifier.padding(
+                        vertical = 5.dp,
+                        horizontal = 10.dp
+                    )
                 )
                 Spacer( modifier = Modifier.weight(0.10f))
+
                 IconButton(onClick = { viewModel.reverseTrendingDayWeek() } ) {
                     if (trending != TrendingTime.WEEK)
                         Icon(
                             painter = painterResource(R.drawable.unchecked_ic),
                             contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                            tint = MaterialTheme.colors.primary
+                            modifier = Modifier.size(21.dp),
+                            tint = Color.White,
                         )
                     else Icon(
                         painter = painterResource(R.drawable.checked_ic),
                         contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
+                        modifier = Modifier.size(21.dp),
+                        tint = Color.White,
                     )
                 }
             }
@@ -1336,29 +1347,50 @@ fun FavoriteFilter(
 {
     val favorite by remember { viewModel.favoriteFilter }
     Row(
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = MaterialTheme.colors.primary)
     ) {
+        // Icon Signature
+        Icon(
+            painterResource(id = R.drawable.ic_heart),
+            contentDescription = null,
+            modifier = Modifier
+                .size(40.dp)
+                .padding(
+                    top = 3.dp,
+                    bottom = 5.dp,
+                    start = 10.dp,
+                    end = 9.dp
+                )
+            ,
+            tint = Color.White
+        )
         Text(
             text = stringResource(id = R.string.Favorite_FilterState),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(vertical = 4.dp)
+            fontSize = 21.sp,
+            fontFamily = PoppinsBold,
+            color = Color.White,
+            modifier = Modifier.padding(vertical = 5.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
+
         IconButton(onClick = { if (viewModel.trendingFilter.value == null ) viewModel.reverseIsFavorite()} ) {
             if (favorite == null)
                 Icon(
                     painter = painterResource(R.drawable.unchecked_ic),
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = MaterialTheme.colors.primary
+                    modifier = Modifier.size(21.dp),
+                    tint = Color.White,
                 )
             else
                 Icon(
                 painter = painterResource(R.drawable.checked_ic),
                 contentDescription = null,
-                modifier = Modifier.size(20.dp),
-                tint = MaterialTheme.colors.primary
+                modifier = Modifier.size(21.dp),
+                tint = Color.White,
             )
         }
     }
@@ -1371,13 +1403,33 @@ fun WatchedFilter(
 {
     val watched by remember {viewModel.watchedFilter}
     Row(
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = MaterialTheme.colors.primary)
     ) {
+        // Icon Signature
+        Icon(
+            painterResource(id = R.drawable.ic_watched),
+            contentDescription = null,
+            modifier = Modifier
+                .size(40.dp)
+                .padding(
+                    top = 3.dp,
+                    bottom = 5.dp,
+                    start = 10.dp,
+                    end = 9.dp
+                )
+            ,
+            tint = Color.White
+        )
         Text(
             text = stringResource(id = R.string.Watched_FilterState),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(vertical = 4.dp)
+            fontSize = 21.sp,
+            fontFamily = PoppinsBold,
+            color = Color.White,
+            modifier = Modifier.padding(vertical = 5.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
         IconButton(onClick = { if (viewModel.trendingFilter.value == null) viewModel.reverseIsWatched()} ) {
@@ -1385,15 +1437,15 @@ fun WatchedFilter(
                 Icon(
                     painter = painterResource(R.drawable.unchecked_ic),
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = MaterialTheme.colors.primary
+                    modifier = Modifier.size(21.dp),
+                    tint = Color.White,
                 )
             else
                 Icon(
                     painter = painterResource(R.drawable.checked_ic),
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = MaterialTheme.colors.primary
+                    modifier = Modifier.size(21.dp),
+                    tint = Color.White,
                 )
         }
     }
@@ -1406,19 +1458,47 @@ fun RegionFilter(
     val regions = TranslateCode.ISO_3166_1.values.toList()
     val regionSelected by remember { viewModel.regionSelected }
     Row(
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = MaterialTheme.colors.primary)
     ) {
+        // Icon Signature
+        Icon(
+            painterResource(id = R.drawable.ic_region),
+            contentDescription = null,
+            modifier = Modifier
+                .size(40.dp)
+                .padding(
+                    top = 3.dp,
+                    bottom = 5.dp,
+                    start = 10.dp,
+                    end = 9.dp
+                )
+            ,
+            tint = Color.White
+        )
         Text(
             text = stringResource(id = R.string.Region_FilterState),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
+            fontSize = 21.sp,
+            fontFamily = PoppinsBold,
+            color = Color.White,
             modifier = Modifier.padding(vertical = 4.dp)
         )
-        Spacer(modifier = Modifier.weight(1f))
+
+        Spacer(modifier = Modifier.weight(0.5f))
 
         // Region selection
         Box(
-            modifier = Modifier.wrapContentSize(Alignment.TopEnd)
+            modifier = Modifier
+                .wrapContentSize(Alignment.TopEnd)
+                .width(130.dp)
+                .height(35.dp)
+                .padding(
+                    end = 7.dp
+                )
+                .clip(RoundedCornerShape(20.dp))
         ) {
             OutlinedButton(
                 onClick = {
@@ -1430,17 +1510,17 @@ fun RegionFilter(
                         viewModel.resetRegionSelect()
                     }
                 },
-
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = regionSelected.ifEmpty { "Select Region" },
                     textAlign = TextAlign.Center,
+                    fontFamily = PoppinsBold,
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colors.primary,
                     modifier = Modifier
-                        .widthIn(min = 60.dp)
-                        .height(20.dp),
-
+                        .fillMaxWidth()
                 )
-
                 DropdownMenu(
                     expanded = regionSelected.isEmpty(),
                     onDismissRequest = {
@@ -1451,12 +1531,19 @@ fun RegionFilter(
                     Column(
                         modifier = Modifier
                             .width(IntrinsicSize.Min)
-                            .heightIn(max = dropdownMenuHeight(visibleItems = 5))
+                            .heightIn(max = dropdownMenuHeight(visibleItems = 4))
                             .verticalScroll(rememberScrollState())
                     ){
                         regions.forEach { region ->
                             DropdownMenuItem(onClick = { viewModel.changeRegionSelect(region) }) {
-                                Text(text = region)
+                                Text(
+                                    text = region,
+                                    fontFamily = PoppinsBold,
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colors.primary,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
                             }
                         }
                     }
@@ -1483,13 +1570,33 @@ fun AdultConTentFilter(
 {
     val isAdult by remember {viewModel.adultFilter}
     Row(
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = MaterialTheme.colors.primary)
     ) {
+        // Icon Signature
+        Icon(
+            painterResource(id = R.drawable.ic_adultcontetn),
+            contentDescription = null,
+            modifier = Modifier
+                .size(40.dp)
+                .padding(
+                    top = 3.dp,
+                    bottom = 5.dp,
+                    start = 10.dp,
+                    end = 9.dp
+                )
+            ,
+            tint = Color.White
+        )
         Text(
             text = stringResource(id = R.string.AdultContentIncluded_FilterState),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(vertical = 4.dp)
+            fontSize = 18.sp,
+            fontFamily = PoppinsBold,
+            color = Color.White,
+            modifier = Modifier.padding(vertical = 5.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
         IconButton(onClick = { if (viewModel.trendingFilter.value == null) viewModel.reverseAdultContent()} ) {
@@ -1497,15 +1604,15 @@ fun AdultConTentFilter(
                 Icon(
                     painter = painterResource(R.drawable.unchecked_ic),
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = MaterialTheme.colors.primary
+                    modifier = Modifier.size(21.dp),
+                    tint = Color.White,
                 )
             else
                 Icon(
                     painter = painterResource(R.drawable.checked_ic),
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = MaterialTheme.colors.primary
+                    modifier = Modifier.size(21.dp),
+                    tint = Color.White,
                 )
         }
     }
@@ -1518,75 +1625,89 @@ fun ReleaseDateFilter(
     val newRD by remember { viewModel.releaseDate }
 
     Row(
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(70.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = MaterialTheme.colors.primary)
     ) {
+        // Icon Signature
+        Icon(
+            painterResource(id = R.drawable.ic_year),
+            contentDescription = null,
+            modifier = Modifier
+                .size(40.dp)
+                .padding(
+                    top = 3.dp,
+                    bottom = 5.dp,
+                    start = 10.dp,
+                    end = 9.dp
+                )
+            ,
+            tint = Color.White
+        )
         Text(
             text = stringResource(id = R.string.ReleaseYear_FilterState),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(vertical = 4.dp)
+            fontSize = 19.sp,
+            fontFamily = PoppinsBold,
+            color = Color.White,
+            modifier = Modifier.padding(vertical = 5.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
 
-        OutlinedTextField(
-            value = newRD,
-            onValueChange = { newValue ->
-                val filteredValue = newValue.filter { it.isDigit() }
-                if (newValue.length <= 4) {
-                    viewModel.updateReleaseDate(filteredValue)
-                }
-                else {
-                    viewModel.updateReleaseDate("")
-                }
-            },
-            keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Number
-            ),
-            visualTransformation = VisualTransformation.None,
-            textStyle = TextStyle(
-                fontSize = 9.5.sp,
-                fontWeight = FontWeight.ExtraBold,
-                textAlign = TextAlign.Left,
-                //background = Color.White
-            ),
-            trailingIcon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_year) , contentDescription = null,
-                    modifier = Modifier
-                        .size(15.dp),
-                    tint = MaterialTheme.colors.primary,
-                )
-            },
-            shape = RoundedCornerShape(5.dp),
-            colors = TextFieldDefaults.textFieldColors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor =  Color.Gray,
-                placeholderColor = MaterialTheme.colors.primary,
-                textColor = MaterialTheme.colors.primary,
-                backgroundColor = Color.White,
-
-            ),
-            placeholder = {
-                Text(
-                    text = LocalDate.now().year.toString(),
-                    style = TextStyle(
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Light,
-                        fontStyle = FontStyle.Italic,
-                        color = Color.LightGray,
-                        textAlign = TextAlign.Left
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                )
-            },
-
+        Box(
             modifier = Modifier
-                .size(width = 90.dp, height = 45.dp)
-                .border(0.5.dp, Color.LightGray, shape = RoundedCornerShape(4.dp)),
-        )
+                .size(width = 90.dp, height = 50.dp)
+                .padding(end = 10.dp)
+                .clip(RoundedCornerShape(20.dp))
+        ) {
+            OutlinedTextField(
+                value = newRD,
+                onValueChange = { newValue ->
+                    val filteredValue = newValue.filter { it.isDigit() }
+                    if (newValue.length <= 4) {
+                        viewModel.updateReleaseDate(filteredValue)
+                    }
+                    else {
+                        viewModel.updateReleaseDate("")
+                    }
+                },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number
+                ),
+                visualTransformation = VisualTransformation.None,
+                textStyle = TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Left,
+                    //background = Color.White
+                ),
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor =  Color.Gray,
+                    placeholderColor = MaterialTheme.colors.primary,
+                    textColor = MaterialTheme.colors.primary,
+                    backgroundColor = Color.White,
+                ),
+                placeholder = {
+                    Text(
+                        text = LocalDate.now().year.toString(),
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            fontFamily = PoppinsBold,
+                            color = Color.LightGray,
+                            textAlign = TextAlign.Center
+                        ),
+                        modifier = Modifier
+                            .fillMaxSize()
+                    )
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
     }
 }
 
@@ -1598,70 +1719,52 @@ fun MinDateFilter(
     val context = LocalContext.current
 
     Row(
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = MaterialTheme.colors.primary)
     ) {
         Text(
             text = stringResource(id = R.string.MinimumReleaseDate_FilterState),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(vertical = 4.dp)
+            fontSize = 18.sp,
+            fontFamily = PoppinsBold,
+            color = Color.White,
+            modifier = Modifier.padding(vertical = 5.dp, horizontal = 22.dp)
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
-        OutlinedTextField(
-            value = newMinRD ?: "",
-            onValueChange = { viewModel.updateMinReleaseDate(it) },
-            label = { Text("Select a date") },
-            visualTransformation = VisualTransformation.None,
-            textStyle = TextStyle(
-                fontSize = 12.sp,
-                fontWeight = FontWeight.ExtraBold,
-                textAlign = TextAlign.Center,
-            ),
-            trailingIcon = {
-                IconButton(
-                    onClick = {
-                        val calendar = Calendar.getInstance()
-                        newMinRD?.let {
-                            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                            calendar.time = newMinRD?.let { it1 -> dateFormat.parse(it1) } ?: calendar.time
-                        }
-
-                        DatePickerDialog(
-                            context,
-                            { _, year, month, dayOfMonth ->
-                                val newcalendar = Calendar.getInstance()
-                                newcalendar.set(year, month, dayOfMonth)
-                                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                                viewModel.updateMinReleaseDate(dateFormat.format(newcalendar.time))
-                            },
-                            calendar.get(Calendar.YEAR),
-                            calendar.get(Calendar.MONTH),
-                            calendar.get(Calendar.DAY_OF_MONTH)
-                        ).show()
-                  },
-                ) {
-                    Icon(
-                        Icons.Default.DateRange, contentDescription = "Select a date",
-                        tint = MaterialTheme.colors.primary
-                    )
+        IconButton(
+            onClick = {
+                val calendar = Calendar.getInstance()
+                newMinRD?.let {
+                    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                    calendar.time = newMinRD?.let { it1 -> dateFormat.parse(it1) } ?: calendar.time
                 }
+
+                DatePickerDialog(
+                    context,
+                    { _, year, month, dayOfMonth ->
+                        val newcalendar = Calendar.getInstance()
+                        newcalendar.set(year, month, dayOfMonth)
+                        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                        viewModel.updateMinReleaseDate(dateFormat.format(newcalendar.time))
+                    },
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+                ).show()
             },
-            readOnly = true,
-            singleLine = true,
-            shape = RoundedCornerShape(5.dp),
-            colors = TextFieldDefaults.textFieldColors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor =  Color.Gray,
-                placeholderColor = MaterialTheme.colors.primary,
-                textColor = MaterialTheme.colors.primary,
-                backgroundColor = Color.White,
-            ),
-            modifier = Modifier
-                .size(width = 70.dp, height = 45.dp)
-        )
+        ) {
+            Icon(
+                Icons.Default.DateRange, contentDescription = "Select a date",
+                tint = Color.White,
+                modifier = Modifier
+                    .size(38.dp)
+                    .padding(end = 10.dp)
+            )
+        }
     }
 }
 
@@ -1673,70 +1776,50 @@ fun MaxDateFilter(
     val context = LocalContext.current
 
     Row(
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = MaterialTheme.colors.primary)
     ) {
         Text(
             text = stringResource(id = R.string.MaximumReleaseDate_FilterState),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(vertical = 4.dp)
+            fontSize = 18.sp,
+            fontFamily = PoppinsBold,
+            color = Color.White,
+            modifier = Modifier.padding(vertical = 5.dp, horizontal = 22.dp)
         )
-
         Spacer(modifier = Modifier.weight(1f))
-
-        OutlinedTextField(
-            value = newMaxRD ?: "",
-            onValueChange = { viewModel.updateMaxReleaseDate(it) },
-            label = { Text("Select a date") },
-            visualTransformation = VisualTransformation.None,
-            textStyle = TextStyle(
-                fontSize = 12.sp,
-                fontWeight = FontWeight.ExtraBold,
-                textAlign = TextAlign.Center,
-            ),
-            trailingIcon = {
-                IconButton(
-                    onClick = {
-                        val calendar = Calendar.getInstance()
-                        newMaxRD?.let {
-                            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                            calendar.time = newMaxRD?.let { it1 -> dateFormat.parse(it1) } ?: calendar.time
-                        }
-
-                        DatePickerDialog(
-                            context,
-                            { _, year, month, dayOfMonth ->
-                                val newcalendar = Calendar.getInstance()
-                                newcalendar.set(year, month, dayOfMonth)
-                                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                                viewModel.updateMaxReleaseDate(dateFormat.format(newcalendar.time))
-                            },
-                            calendar.get(Calendar.YEAR),
-                            calendar.get(Calendar.MONTH),
-                            calendar.get(Calendar.DAY_OF_MONTH)
-                        ).show()
-                    },
-                ) {
-                    Icon(
-                        Icons.Default.DateRange, contentDescription = "Select a date",
-                        tint = MaterialTheme.colors.primary
-                    )
+        IconButton(
+            onClick = {
+                val calendar = Calendar.getInstance()
+                newMaxRD?.let {
+                    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                    calendar.time = newMaxRD?.let { it1 -> dateFormat.parse(it1) } ?: calendar.time
                 }
+
+                DatePickerDialog(
+                    context,
+                    { _, year, month, dayOfMonth ->
+                        val newcalendar = Calendar.getInstance()
+                        newcalendar.set(year, month, dayOfMonth)
+                        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                        viewModel.updateMaxReleaseDate(dateFormat.format(newcalendar.time))
+                    },
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+                ).show()
             },
-            readOnly = true,
-            singleLine = true,
-            shape = RoundedCornerShape(5.dp),
-            colors = TextFieldDefaults.textFieldColors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor =  Color.Gray,
-                placeholderColor = MaterialTheme.colors.primary,
-                textColor = MaterialTheme.colors.primary,
-                backgroundColor = Color.White,
-            ),
-            modifier = Modifier
-                .size(width = 70.dp, height = 45.dp)
-        )
+        ) {
+            Icon(
+                Icons.Default.DateRange, contentDescription = "Select a date",
+                tint = Color.White,
+                modifier = Modifier
+                    .size(38.dp)
+                    .padding(end = 10.dp)
+            )
+        }
     }
 }
 
@@ -1747,78 +1830,93 @@ fun MinRating(
     val newFloat by remember { viewModel.minRating }
 
     Row(
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(70.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = MaterialTheme.colors.primary)
     ) {
+        // Icon Signature
+        Icon(
+            painterResource(id = R.drawable.ic_starcard),
+            contentDescription = null,
+            modifier = Modifier
+                .size(41.dp)
+                .padding(
+                    top = 3.dp,
+                    bottom = 9.dp,
+                    start = 10.dp,
+                    end = 9.dp
+                )
+            ,
+            tint = Color.White
+        )
         Text(
             text = stringResource(id = R.string.MinimumRating_FilterState),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(vertical = 4.dp)
+            fontSize = 22.sp,
+            fontFamily = PoppinsBold,
+            color = Color.White,
+            modifier = Modifier.padding(vertical = 5.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
 
-        OutlinedTextField(
-            value = newFloat?: "",
-            onValueChange = { newValue ->
-                // Validate the input to ensure it falls within the desired range
-                if ( newValue.length < 3 ||
-                    (
-                            newValue.length == 3 && newValue.toFloat() in 0.0f..10.0f
-                    )
-                ){
-                    viewModel.updateMinRating(newValue)
-                } else {
-                    // If the input is not a valid float within the range, do not update the value
-                    viewModel.updateMinRating("")
-                }
-            },
-            keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Done // Set the IME action to "Done"
-            ),
-            visualTransformation = VisualTransformation.None,
-            textStyle = TextStyle(
-                fontSize = 10.sp,
-                fontWeight = FontWeight.ExtraBold,
-                textAlign = TextAlign.Left,
-
-                //background = Color.White
-            ),
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Star, contentDescription = null,
-                    modifier = Modifier.size(13.dp), tint = MaterialTheme.colors.primary
-                )
-            },
-            shape = RoundedCornerShape(5.dp),
-            colors = TextFieldDefaults.textFieldColors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor =  Color.Gray,
-                placeholderColor = MaterialTheme.colors.primary,
-                textColor = MaterialTheme.colors.primary,
-                backgroundColor = Color.White,
-
-                ),
-            placeholder = {
-                Text(
-                    text = "1.0",
-                    style = TextStyle(
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Light,
-                        fontStyle = FontStyle.Italic,
-                        color = Color.LightGray,
-                        textAlign = TextAlign.Start
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                )
-            },
+        Box(
             modifier = Modifier
-                .size(width = 90.dp, height = 45.dp)
-                .border(0.5.dp, Color.LightGray, shape = RoundedCornerShape(4.dp)),
-        )
+                .size(width = 90.dp, height = 50.dp)
+                .padding(end = 10.dp)
+                .clip(RoundedCornerShape(10.dp))
+        ){
+            OutlinedTextField(
+                value = newFloat?: "",
+                onValueChange = { newValue ->
+                    // Validate the input to ensure it falls within the desired range
+                    if ( newValue.length < 3 ||
+                        (
+                                newValue.length == 3 && newValue.toFloat() in 0.0f..10.0f
+                                )
+                    ){
+                        viewModel.updateMinRating(newValue)
+                    } else {
+                        // If the input is not a valid float within the range, do not update the value
+                        viewModel.updateMinRating("")
+                    }
+                },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done // Set the IME action to "Done"
+                ),
+                visualTransformation = VisualTransformation.None,
+                textStyle = TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Left,
+                ),
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor =  Color.Gray,
+                    placeholderColor = MaterialTheme.colors.primary,
+                    textColor = MaterialTheme.colors.primary,
+                    backgroundColor = Color.White,
+                ),
+                placeholder = {
+                    Text(
+                        text = "1.0",
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            fontFamily = PoppinsBold,
+                            color = Color.LightGray,
+                            textAlign = TextAlign.Center
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxSize()
+            )
+        }
+
     }
 }
 
@@ -1829,78 +1927,91 @@ fun MaxRating(
     val newFloat by remember { viewModel.maxRating }
 
     Row(
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(70.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = MaterialTheme.colors.primary)
     ) {
+        // Icon Signature
+        Icon(
+            painterResource(id = R.drawable.ic_starcard),
+            contentDescription = null,
+            modifier = Modifier
+                .size(41.dp)
+                .padding(
+                    top = 3.dp,
+                    bottom = 9.dp,
+                    start = 10.dp,
+                    end = 9.dp
+                )
+            ,
+            tint = Color.White
+        )
         Text(
             text = stringResource(id = R.string.MaximumRating_FilterState),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(vertical = 4.dp)
+            fontSize = 22.sp,
+            fontFamily = PoppinsBold,
+            color = Color.White,
+            modifier = Modifier.padding(vertical = 5.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
-
-        OutlinedTextField(
-            value = newFloat?: "",
-            onValueChange = { newValue ->
-                // Validate the input to ensure it falls within the desired range
-                if ( newValue.length < 3 ||
-                    (
-                            newValue.length == 3 && newValue.toFloat() in 0.0f..10.0f
-                    )
-                ){
-                    viewModel.updateMaxRating(newValue)
-                } else {
-                    // If the input is not a valid float within the range, do not update the value
-                    viewModel.updateMaxRating("")
-                }
-            },
-            keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Done // Set the IME action to "Done"
-            ),
-            visualTransformation = VisualTransformation.None,
-            textStyle = TextStyle(
-                fontSize = 10.sp,
-                fontWeight = FontWeight.ExtraBold,
-                textAlign = TextAlign.Left,
-
-                //background = Color.White
-            ),
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Star, contentDescription = null,
-                    modifier = Modifier.size(13.dp), tint = MaterialTheme.colors.primary
-                )
-            },
-            shape = RoundedCornerShape(5.dp),
-            colors = TextFieldDefaults.textFieldColors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor =  Color.Gray,
-                placeholderColor = MaterialTheme.colors.primary,
-                textColor = MaterialTheme.colors.primary,
-                backgroundColor = Color.White,
-
-                ),
-            placeholder = {
-                Text(
-                    text = "5.0",
-                    style = TextStyle(
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Light,
-                        fontStyle = FontStyle.Italic,
-                        color = Color.LightGray,
-                        textAlign = TextAlign.Start
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                )
-            },
+        Box(
             modifier = Modifier
-                .size(width = 90.dp, height = 45.dp)
-                .border(0.5.dp, Color.LightGray, shape = RoundedCornerShape(4.dp)),
-        )
+                .size(width = 90.dp, height = 50.dp)
+                .padding(end = 10.dp)
+                .clip(RoundedCornerShape(10.dp))
+        ){
+            OutlinedTextField(
+                value = newFloat?: "",
+                onValueChange = { newValue ->
+                    // Validate the input to ensure it falls within the desired range
+                    if ( newValue.length < 3 ||
+                        (
+                                newValue.length == 3 && newValue.toFloat() in 0.0f..10.0f
+                                )
+                    ){
+                        viewModel.updateMaxRating(newValue)
+                    } else {
+                        // If the input is not a valid float within the range, do not update the value
+                        viewModel.updateMaxRating("")
+                    }
+                },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done // Set the IME action to "Done"
+                ),
+                visualTransformation = VisualTransformation.None,
+                textStyle = TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Left,
+                ),
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor =  Color.Gray,
+                    placeholderColor = MaterialTheme.colors.primary,
+                    textColor = MaterialTheme.colors.primary,
+                    backgroundColor = Color.White,
+
+                    ),
+                placeholder = {
+                    Text(
+                        text = "5.0",
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            fontFamily = PoppinsBold,
+                            color = Color.LightGray,
+                            textAlign = TextAlign.Center
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
     }
 }
 
@@ -1912,78 +2023,94 @@ fun MinLength(
     val newLen by remember { viewModel.minLength }
 
     Row(
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(70.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = MaterialTheme.colors.primary)
     ) {
+        // Icon Signature
+        Icon(
+            painterResource(id = R.drawable.ic_movielen),
+            contentDescription = null,
+            modifier = Modifier
+                .size(40.dp)
+                .padding(
+                    top = 3.dp,
+                    bottom = 8.dp,
+                    start = 10.dp,
+                    end = 9.dp
+                )
+            ,
+            tint = Color.White
+        )
         Text(
             text = stringResource(id = R.string.MinimumLength_FilterState),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
+            fontFamily = PoppinsBold,
+            color = Color.White,
             modifier = Modifier.padding(vertical = 4.dp)
         )
 
         Spacer(modifier = Modifier.weight(1f))
-
-        OutlinedTextField(
-            value = newLen?: "",
-            onValueChange = { newValue ->
-                // Validate the input to ensure it falls within the desired range
-                if ( newValue.length < 3 ||
-                    (
-                            newValue.length == 3 && newValue.toInt() in 60..200
-                    )
-                ){
-                    viewModel.updateMinLen(newValue)
-                } else {
-                    // If the input is not a valid float within the range, do not update the value
-                    viewModel.updateMinLen("")
-                }
-            },
-            keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Done // Set the IME action to "Done"
-            ),
-            visualTransformation = VisualTransformation.None,
-            textStyle = TextStyle(
-                fontSize = 10.sp,
-                fontWeight = FontWeight.ExtraBold,
-                textAlign = TextAlign.Left,
-            ),
-            trailingIcon = {
-                Icon(
-                    painterResource(id = R.drawable.ic_movielen), contentDescription = null,
-                    modifier = Modifier.size(15.dp)
-                )
-            },
-            shape = RoundedCornerShape(5.dp),
-            colors = TextFieldDefaults.textFieldColors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor =  Color.Gray,
-                placeholderColor = MaterialTheme.colors.primary,
-                textColor = MaterialTheme.colors.primary,
-                backgroundColor = Color.White,
-                trailingIconColor = MaterialTheme.colors.primary,
-                disabledTrailingIconColor = Color.Gray
-                ),
-            placeholder = {
-                Text(
-                    text = "90",
-                    style = TextStyle(
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Light,
-                        fontStyle = FontStyle.Italic,
-                        color = Color.LightGray,
-                        textAlign = TextAlign.Start
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                )
-            },
+        Box(
             modifier = Modifier
-                .size(width = 90.dp, height = 45.dp)
-                .border(0.5.dp, Color.LightGray, shape = RoundedCornerShape(4.dp)),
-        )
+                .size(width = 90.dp, height = 50.dp)
+                .padding(end = 10.dp)
+                .clip(RoundedCornerShape(10.dp))
+        ){
+            OutlinedTextField(
+                value = newLen?: "",
+                onValueChange = { newValue ->
+                    // Validate the input to ensure it falls within the desired range
+                    if ( newValue.length < 3 ||
+                        (
+                                newValue.length == 3 && newValue.toInt() in 60..200
+                                )
+                    ){
+                        viewModel.updateMinLen(newValue)
+                    } else {
+                        // If the input is not a valid float within the range, do not update the value
+                        viewModel.updateMinLen("")
+                    }
+                },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done // Set the IME action to "Done"
+                ),
+                visualTransformation = VisualTransformation.None,
+                textStyle = TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Left,
+                ),
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor =  Color.Gray,
+                    placeholderColor = MaterialTheme.colors.primary,
+                    textColor = MaterialTheme.colors.primary,
+                    backgroundColor = Color.White,
+                    trailingIconColor = MaterialTheme.colors.primary,
+                    disabledTrailingIconColor = Color.Gray
+                ),
+                placeholder = {
+                    Text(
+                        text = "90",
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            fontFamily = PoppinsBold,
+                            color = Color.LightGray,
+                            textAlign = TextAlign.Center
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
     }
 }
 
@@ -1994,78 +2121,94 @@ fun MaxLength(
     val newLen by remember { viewModel.maxLength }
 
     Row(
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(70.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = MaterialTheme.colors.primary)
     ) {
+        // Icon Signature
+        Icon(
+            painterResource(id = R.drawable.ic_movielen),
+            contentDescription = null,
+            modifier = Modifier
+                .size(40.dp)
+                .padding(
+                    top = 3.dp,
+                    bottom = 8.dp,
+                    start = 10.dp,
+                    end = 9.dp
+                )
+            ,
+            tint = Color.White
+        )
         Text(
             text = stringResource(id = R.string.MaximumLength_FilterState),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
+            fontFamily = PoppinsBold,
+            color = Color.White,
             modifier = Modifier.padding(vertical = 4.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
-
-        OutlinedTextField(
-            value = newLen?: "",
-            onValueChange = { newValue ->
-                // Validate the input to ensure it falls within the desired range
-                if ( newValue.length < 3 ||
-                    (
-                            newValue.length == 3 && newValue.toInt() in 60..200
-                    )
-                ){
-                    viewModel.updateMaxLen(newValue)
-                } else {
-                    // If the input is not a valid float within the range, do not update the value
-                    viewModel.updateMaxLen("")
-                }
-            },
-            keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Done // Set the IME action to "Done"
-            ),
-            visualTransformation = VisualTransformation.None,
-            textStyle = TextStyle(
-                fontSize = 10.sp,
-                fontWeight = FontWeight.ExtraBold,
-                textAlign = TextAlign.Left,
-            ),
-            trailingIcon = {
-                Icon(
-                    painterResource(id = R.drawable.ic_movielen), contentDescription = null,
-                    modifier = Modifier.size(15.dp)
-                )
-            },
-            shape = RoundedCornerShape(5.dp),
-            colors = TextFieldDefaults.textFieldColors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor =  Color.Gray,
-                placeholderColor = MaterialTheme.colors.primary,
-                textColor = MaterialTheme.colors.primary,
-                backgroundColor = Color.White,
-                trailingIconColor = MaterialTheme.colors.primary,
-                disabledTrailingIconColor = Color.Gray
+        Box(
+            modifier = Modifier
+                .size(width = 90.dp, height = 50.dp)
+                .padding(end = 10.dp)
+                .clip(RoundedCornerShape(10.dp))
+        ){
+            OutlinedTextField(
+                value = newLen?: "",
+                onValueChange = { newValue ->
+                    // Validate the input to ensure it falls within the desired range
+                    if ( newValue.length < 3 ||
+                        (
+                                newValue.length == 3 && newValue.toInt() in 60..200
+                                )
+                    ){
+                        viewModel.updateMaxLen(newValue)
+                    } else {
+                        // If the input is not a valid float within the range, do not update the value
+                        viewModel.updateMaxLen("")
+                    }
+                },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done // Set the IME action to "Done"
+                ),
+                visualTransformation = VisualTransformation.None,
+                textStyle = TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Left,
+                ),
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor =  Color.Gray,
+                    placeholderColor = MaterialTheme.colors.primary,
+                    textColor = MaterialTheme.colors.primary,
+                    backgroundColor = Color.White,
+                    trailingIconColor = MaterialTheme.colors.primary,
+                    disabledTrailingIconColor = Color.Gray
 
                 ),
-            placeholder = {
-                Text(
-                    text = "150",
-                    style = TextStyle(
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Light,
-                        fontStyle = FontStyle.Italic,
-                        color = Color.LightGray,
-                        textAlign = TextAlign.Start
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                )
-            },
-            modifier = Modifier
-                .size(width = 90.dp, height = 45.dp)
-                .border(0.5.dp, Color.LightGray, shape = RoundedCornerShape(4.dp)),
-        )
+                placeholder = {
+                    Text(
+                        text = "150",
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            fontFamily = PoppinsBold,
+                            color = Color.LightGray,
+                            textAlign = TextAlign.Center
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
     }
 }
 
@@ -2087,15 +2230,37 @@ fun GenreFilter(
                     stiffness = Spring.StiffnessLow
                 )
             )
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = if (!isGenre) Color.White else MaterialTheme.colors.secondary)
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+                .background(color = MaterialTheme.colors.primary)
         ) {
+            Icon(
+                painterResource(id = R.drawable.ic_genre),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(40.dp)
+                    .padding(
+                        top = 3.dp,
+                        bottom = 5.dp,
+                        start = 10.dp,
+                        end = 9.dp
+                    )
+                ,
+                tint = Color.White
+            )
             Text(
                 text = stringResource(id = R.string.Genre_FilterState),
-                fontSize = 16.sp,
+                fontSize = 21.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 4.dp)
+                fontFamily = Poppins,
+                color = Color.White,
+                modifier = Modifier.padding(vertical = 5.dp)
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -2107,13 +2272,13 @@ fun GenreFilter(
                         imageVector = Icons.Default.ArrowDropDown,
                         contentDescription = null,
                         modifier = Modifier.size(30.dp),
-                        tint = MaterialTheme.colors.primary
+                        tint = Color.White
                     )
                 else Icon(
                     imageVector = Icons.Default.ArrowDropUp,
                     contentDescription = null,
                     modifier = Modifier.size(30.dp),
-                    tint = MaterialTheme.colors.primary
+                    tint = Color.White
                 )
             }
         }
@@ -2132,10 +2297,18 @@ fun GenreSelectMenu(
     selectedGenres: MutableList<GenreItems>
 ) {
     val rows = genres.chunked(3) // Group genres into rows with three items each
-    Column {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = MaterialTheme.colors.secondary)
+    ) {
         for (rowGenres in rows) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(6.dp)
+                ,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 for (genre in rowGenres) {
@@ -2165,7 +2338,7 @@ fun GenreCard(
                 }
             }
             .background(
-                color = if (genre.isSelected.value) MaterialTheme.colors.primary else Color.LightGray,
+                color = if (genre.isSelected.value) MaterialTheme.colors.primary else Color.White,
                 shape = RoundedCornerShape(8.dp)
             )
     ) {
@@ -2173,7 +2346,7 @@ fun GenreCard(
             modifier = Modifier
                 .padding(10.dp)
                 .wrapContentSize(align = Center)
-                .widthIn(min = 60.dp, max = 120.dp),
+                .widthIn(min = 60.dp, max = 125.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ){
@@ -2193,7 +2366,7 @@ fun GenreCard(
                     modifier = Modifier
                         //.padding(start = 4.dp)
                         .size(10.dp),
-                    tint = Color.Black
+                    tint = MaterialTheme.colors.primary
                 )
             }
 
@@ -2201,7 +2374,7 @@ fun GenreCard(
                 text = genre.name,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp,
-                color = if (genre.isSelected.value) Color.White else Color.Black,
+                color = if (genre.isSelected.value) Color.White else MaterialTheme.colors.primary,
                 textAlign = TextAlign.Center // Center the text horizontally within the card
             )
         }
@@ -2227,15 +2400,38 @@ fun WithoutGenreFilter(
                     stiffness = Spring.StiffnessLow
                 )
             )
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = if (!isWithoutGenre) Color.White else MaterialTheme.colors.secondary)
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+                .background(color = MaterialTheme.colors.primary)
         ) {
+            Icon(
+                painterResource(id = R.drawable.ic_genre),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(40.dp)
+                    .padding(
+                        top = 3.dp,
+                        bottom = 5.dp,
+                        start = 10.dp,
+                        end = 9.dp
+                    )
+                ,
+                tint = Color.White
+            )
+
             Text(
                 text = stringResource(id = R.string.WithoutGenre_FilterState),
-                fontSize = 16.sp,
+                fontSize = 21.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 4.dp)
+                fontFamily = Poppins,
+                color = Color.White,
+                modifier = Modifier.padding(vertical = 5.dp)
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -2247,13 +2443,13 @@ fun WithoutGenreFilter(
                         imageVector = Icons.Default.ArrowDropDown,
                         contentDescription = null,
                         modifier = Modifier.size(30.dp),
-                        tint = MaterialTheme.colors.primary
+                        tint = Color.White
                     )
                 else Icon(
                     imageVector = Icons.Default.ArrowDropUp,
                     contentDescription = null,
                     modifier = Modifier.size(30.dp),
-                    tint = MaterialTheme.colors.primary
+                    tint = Color.White
                 )
             }
         }
@@ -2273,10 +2469,18 @@ fun WithoutGenreSelectMenu(
     selectedGenres: MutableList<GenreItems>
 ) {
     val rows = genres.chunked(3) // Group genres into rows with three items each
-    Column {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = MaterialTheme.colors.secondary)
+    ) {
         for (rowGenres in rows) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(6.dp)
+                ,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 for (genre in rowGenres) {
@@ -2308,7 +2512,11 @@ fun WithoutGenreCard(
                 }
             }
             .background(
-                color = if (genre.isSelected.value && !checkExist) MaterialTheme.colors.primary else Color.LightGray,
+                color =
+                if (genre.isSelected.value && !checkExist) MaterialTheme.colors.primary
+                    else if (checkExist) Color.LightGray
+                    else Color.White
+                ,
                 shape = RoundedCornerShape(8.dp)
             )
     ) {
@@ -2331,7 +2539,7 @@ fun WithoutGenreCard(
                         else if (checkExist){
                             Color.Gray
                         }
-                        else Color.Black,
+                        else MaterialTheme.colors.primary,
                 textAlign = TextAlign.Center // Center the text horizontally within the card
             )
         }
@@ -2357,15 +2565,37 @@ fun CountryFilter(
                     stiffness = Spring.StiffnessLow
                 )
             )
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = if (!isCountry) Color.White else MaterialTheme.colors.secondary)
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+                .background(color = MaterialTheme.colors.primary)
         ) {
+            Icon(
+                painterResource(id = R.drawable.ic_country),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(40.dp)
+                    .padding(
+                        top = 3.dp,
+                        bottom = 7.dp,
+                        start = 10.dp,
+                        end = 9.dp
+                    )
+                ,
+                tint = Color.White
+            )
             Text(
                 text = stringResource(id = R.string.OriginCountry_FilterState),
-                fontSize = 16.sp,
+                fontSize = 21.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 4.dp)
+                fontFamily = Poppins,
+                color = Color.White,
+                modifier = Modifier.padding(vertical = 5.dp)
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -2377,13 +2607,13 @@ fun CountryFilter(
                         imageVector = Icons.Default.ArrowDropDown,
                         contentDescription = null,
                         modifier = Modifier.size(30.dp),
-                        tint = MaterialTheme.colors.primary
+                        tint = Color.White
                     )
                 else Icon(
                     imageVector = Icons.Default.ArrowDropUp,
                     contentDescription = null,
                     modifier = Modifier.size(30.dp),
-                    tint = MaterialTheme.colors.primary
+                    tint = Color.White
                 )
             }
         }
@@ -2404,7 +2634,10 @@ fun CountrySelectMenu(
     val rows = countries.chunked(3) // Group genres into rows with three items each
     LazyRow(
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = MaterialTheme.colors.secondary)
     ) {
         items(rows) { rowCountries ->
             Row(
@@ -2439,7 +2672,7 @@ fun CountryCard(
                 }
             }
             .background(
-                color = if (country.isSelected.value) MaterialTheme.colors.primary else Color.LightGray,
+                color = if (country.isSelected.value) MaterialTheme.colors.primary else Color.White,
                 shape = RoundedCornerShape(8.dp)
             )
     ) {
@@ -2456,7 +2689,7 @@ fun CountryCard(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
                     modifier = Modifier
-                        //.padding(start = 4.dp)
+                        .padding(end = 3.dp)
                         .size(10.dp),
                     tint = Color.White
                 )
@@ -2465,7 +2698,7 @@ fun CountryCard(
                 text = country.name,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp,
-                color = if (country.isSelected.value) Color.White else Color.Black,
+                color = if (country.isSelected.value) Color.White else MaterialTheme.colors.primary,
                 textAlign = TextAlign.Center // Center the text horizontally within the card
             )
         }
@@ -2490,15 +2723,37 @@ fun LanguageFilter(
                     stiffness = Spring.StiffnessLow
                 )
             )
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = if (!isLanguage) Color.White else MaterialTheme.colors.secondary)
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+                .background(color = MaterialTheme.colors.primary)
         ) {
+            Icon(
+                painterResource(id = R.drawable.ic_language),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(40.dp)
+                    .padding(
+                        top = 3.dp,
+                        bottom = 5.dp,
+                        start = 10.dp,
+                        end = 9.dp
+                    )
+                ,
+                tint = Color.White
+            )
             Text(
                 text = stringResource(id = R.string.OriginLanguage_FilterState),
-                fontSize = 16.sp,
+                fontSize = 21.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 4.dp)
+                fontFamily = Poppins,
+                color = Color.White,
+                modifier = Modifier.padding(vertical = 5.dp)
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -2510,13 +2765,13 @@ fun LanguageFilter(
                         imageVector = Icons.Default.ArrowDropDown,
                         contentDescription = null,
                         modifier = Modifier.size(30.dp),
-                        tint = MaterialTheme.colors.primary
+                        tint = Color.White
                     )
                 else Icon(
                     imageVector = Icons.Default.ArrowDropUp,
                     contentDescription = null,
                     modifier = Modifier.size(30.dp),
-                    tint = MaterialTheme.colors.primary
+                    tint = Color.White
                 )
             }
         }
@@ -2537,7 +2792,10 @@ fun LanguageSelectMenu(
     val rows = languages.chunked(3) // Group genres into rows with three items each
     LazyRow(
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = MaterialTheme.colors.secondary)
     ) {
         items(rows) { rowLanguages ->
             Row(
@@ -2572,7 +2830,7 @@ fun LanguageCard(
                 }
             }
             .background(
-                color = if (language.isSelected.value) MaterialTheme.colors.primary else Color.LightGray,
+                color = if (language.isSelected.value) MaterialTheme.colors.primary else Color.White,
                 shape = RoundedCornerShape(8.dp)
             )
     ) {
@@ -2589,7 +2847,7 @@ fun LanguageCard(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
                     modifier = Modifier
-                        //.padding(start = 4.dp)
+                        .padding(end = 3.dp)
                         .size(10.dp),
                     tint = Color.White
                 )
@@ -2598,7 +2856,7 @@ fun LanguageCard(
                 text = language.name,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp,
-                color = if (language.isSelected.value) Color.White else Color.Black,
+                color = if (language.isSelected.value) Color.White else MaterialTheme.colors.primary,
                 textAlign = TextAlign.Center // Center the text horizontally within the card
             )
         }
@@ -2735,23 +2993,47 @@ fun FilterDialog(
                         .weight(0.2f),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Button(
-                        onClick = {
-                            // Handle Cancel button action
-                            onDismiss()
-                        },
-                        modifier = Modifier.padding(8.dp)
-                    ) {
-                        Text(text = stringResource(id = R.string.cancel_button))
+
+                    Box(
+                        modifier = Modifier
+                            .width(100.dp)
+                            .height(35.dp)
+                            .padding(start = 7.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                    ){
+                        Button(
+                            onClick = {
+                                // Handle Cancel button action
+                                onDismiss()
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.cancel_button),
+                                fontFamily = Poppins
+                            )
+                        }
                     }
 
-                    Button(
-                        onClick = {
-                            funcToCall()
-                        },
-                        modifier = Modifier.padding(8.dp)
-                    ) {
-                        Text(text = stringResource(id = R.string.confirm_button))
+
+                    Box(
+                        modifier = Modifier
+                            .width(100.dp)
+                            .height(35.dp)
+                            .padding(end = 7.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                    ){
+                        Button(
+                            onClick = {
+                                funcToCall()
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.apply_button),
+                                fontFamily = Poppins
+                            )
+                        }
                     }
                 }
             }
@@ -2892,55 +3174,78 @@ fun ReleaseDateSort(
 {
     val releaseSort by remember { viewModel.releaseDateSort }
 
-    Column(
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
-            )
+            .clickable {
+                viewModel.reverseReleaseDateSort()
+            }
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = MaterialTheme.colors.primary)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        // Icon Signature
+        Icon(
+            painterResource(id = R.drawable.ic_releasefilm),
+            contentDescription = null,
             modifier = Modifier
-                .clickable {
-                    viewModel.reverseReleaseDateSort()
-                }
-                .padding(end = 15.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.ReleaseDate_SortState),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 4.dp)
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            when (releaseSort) {
-                null -> {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_threedots),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
-                }
-                Order.ASCENDING -> {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_ascending),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
-                }
-                else -> {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_decending),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
-                }
+                .size(40.dp)
+                .padding(
+                    top = 3.dp,
+                    bottom = 7.dp,
+                    start = 10.dp,
+                    end = 9.dp
+                )
+            ,
+            tint = Color.White
+        )
+        Text(
+            text = stringResource(id = R.string.ReleaseDate_SortState),
+            fontSize = 21.sp,
+            fontFamily = PoppinsBold,
+            color = Color.White,
+            modifier = Modifier.padding(vertical = 5.dp)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        when (releaseSort) {
+            null -> {
+                Icon(
+                    painter = painterResource(R.drawable.ic_threedots),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(
+                            end = 15.dp
+                        )
+                    ,
+                    tint = Color.White
+                )
+            }
+            Order.ASCENDING -> {
+                Icon(
+                    painter = painterResource(R.drawable.ic_ascending),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(
+                            end = 15.dp
+                        )
+                    ,
+                    tint =  Color.White
+                )
+            }
+            else -> {
+                Icon(
+                    painter = painterResource(R.drawable.ic_decending),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(
+                            end = 15.dp
+                        )
+                    ,
+                    tint = Color.White
+                )
             }
         }
     }
@@ -2953,55 +3258,76 @@ fun RatingSort(
 {
     val ratingSort by remember { viewModel.ratingSort }
 
-    Column(
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
-            )
+            .clickable {
+                viewModel.reverseRatingSort()
+            }
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = MaterialTheme.colors.primary)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        // Icon Signature
+        Icon(
+            imageVector = Icons.Default.Star,
+            contentDescription = null,
             modifier = Modifier
-                .clickable {
-                    viewModel.reverseRatingSort()
-                }
-                .padding(end = 15.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.Rating_SortState),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 4.dp)
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            when (ratingSort) {
-                null -> {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_threedots),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
-                }
-                Order.ASCENDING -> {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_ascending),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
-                }
-                else -> {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_decending),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
-                }
+                .size(40.dp)
+                .padding(
+                    top = 3.dp,
+                    bottom = 9.dp,
+                    start = 10.dp,
+                    end = 9.dp
+                )
+            ,
+            tint = Color.White
+        )
+        Text(
+            text = stringResource(id = R.string.Rating_SortState),
+            fontSize = 21.sp,
+            fontFamily = PoppinsBold,
+            color = Color.White,
+            modifier = Modifier.padding(vertical = 5.dp)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        when (ratingSort) {
+            null -> {
+                Icon(
+                    painter = painterResource(R.drawable.ic_threedots),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(
+                            end = 15.dp
+                        ),
+                    tint = Color.White
+                )
+            }
+            Order.ASCENDING -> {
+                Icon(
+                    painter = painterResource(R.drawable.ic_ascending),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(
+                            end = 15.dp
+                        ),
+                    tint = Color.White
+                )
+            }
+            else -> {
+                Icon(
+                    painter = painterResource(R.drawable.ic_decending),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(
+                            end = 15.dp
+                        )
+                    ,
+                    tint = Color.White
+                )
             }
         }
     }
@@ -3014,55 +3340,71 @@ fun VoteSort(
 {
     val voteSort by remember { viewModel.voteSort }
 
-    Column(
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
-            )
+            .clickable {
+                viewModel.reverseVoteSort()
+            }
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = MaterialTheme.colors.primary)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        // Icon Signature
+        Icon(
+            painterResource(id = R.drawable.ic_vote),
+            contentDescription = null,
             modifier = Modifier
-                .clickable {
-                    viewModel.reverseVoteSort()
-                }
-                .padding(end = 15.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.Vote_SortState),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 4.dp)
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            when (voteSort) {
-                null -> {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_threedots),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
-                }
-                Order.ASCENDING -> {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_ascending),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
-                }
-                else -> {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_decending),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
-                }
+                .size(40.dp)
+                .padding(
+                    top = 3.dp,
+                    bottom = 8.dp,
+                    start = 10.dp,
+                    end = 9.dp
+                )
+            ,
+            tint = Color.White
+        )
+        Text(
+            text = stringResource(id = R.string.Vote_SortState),
+            fontSize = 21.sp,
+            fontFamily = PoppinsBold,
+            color = Color.White,
+            modifier = Modifier.padding(vertical = 5.dp)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        when (voteSort) {
+            null -> {
+                Icon(
+                    painter = painterResource(R.drawable.ic_threedots),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(
+                            end = 15.dp
+                        ),
+                    tint = Color.White,
+                )
+            }
+            Order.ASCENDING -> {
+                Icon(
+                    painter = painterResource(R.drawable.ic_ascending),
+                    contentDescription = null,
+                    modifier = Modifier.size(40.dp).padding(
+                        end = 15.dp
+                    ),
+                    tint = Color.White,
+                )
+            }
+            else -> {
+                Icon(
+                    painter = painterResource(R.drawable.ic_decending),
+                    contentDescription = null,
+                    modifier = Modifier.size(40.dp).padding(
+                        end = 15.dp
+                    ),
+                    tint = Color.White,
+                )
             }
         }
     }
@@ -3075,58 +3417,74 @@ fun OriginalTitleSort(
 {
     val originalTSort by remember { viewModel.originalTitleSort }
 
-    Column(
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
-            )
+            .clickable {
+                viewModel.reverseOTitleSort()
+            }
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = MaterialTheme.colors.primary)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        // Icon Signature
+        Icon(
+            painterResource(id = R.drawable.ic_title),
+            contentDescription = null,
             modifier = Modifier
-                .clickable {
-                    viewModel.reverseOTitleSort()
-                }
-                .padding(end = 15.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.OriginalTitle),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 4.dp)
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            when (originalTSort) {
-                null -> {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_threedots),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
-                }
-                Order.ASCENDING -> {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_ascending),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
-                }
-                else -> {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_decending),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
-                }
+                .size(40.dp)
+                .padding(
+                    top = 3.dp,
+                    bottom = 5.dp,
+                    start = 10.dp,
+                    end = 9.dp
+                )
+            ,
+            tint = Color.White
+        )
+        Text(
+            text = stringResource(id = R.string.OriginalTitle),
+            fontSize = 21.sp,
+            fontFamily = PoppinsBold,
+            color = Color.White,
+            modifier = Modifier.padding(vertical = 5.dp)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        when (originalTSort) {
+            null -> {
+                Icon(
+                    painter = painterResource(R.drawable.ic_threedots),
+                    contentDescription = null,
+                    modifier = Modifier.size(40.dp).padding(
+                        end = 15.dp
+                    ),
+                    tint = Color.White,
+                )
+            }
+            Order.ASCENDING -> {
+                Icon(
+                    painter = painterResource(R.drawable.ic_ascending),
+                    contentDescription = null,
+                    modifier = Modifier.size(40.dp).padding(
+                        end = 15.dp
+                    ),
+                    tint = Color.White,
+                )
+            }
+            else -> {
+                Icon(
+                    painter = painterResource(R.drawable.ic_decending),
+                    contentDescription = null,
+                    modifier = Modifier.size(40.dp).padding(
+                        end = 15.dp
+                    ),
+                    tint = Color.White,
+                )
             }
         }
     }
+
 }
 
 @Composable
@@ -3136,56 +3494,72 @@ fun TitleSort(
 {
     val tilteSort by remember { viewModel.titleSort }
 
-    Column(
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
-            )
+            .clickable { viewModel.reverseTitleSort() }
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = MaterialTheme.colors.primary)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        // Icon Signature
+        Icon(
+            painterResource(id = R.drawable.ic_title),
+            contentDescription = null,
             modifier = Modifier
-                .clickable { viewModel.reverseTitleSort() }
-                .padding(end = 15.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.Title),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 4.dp)
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            when (tilteSort) {
-                null -> {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_threedots),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
-                }
-                Order.ASCENDING -> {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_ascending),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
-                }
-                else -> {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_decending),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
-                    )
-                }
+                .size(40.dp)
+                .padding(
+                    top = 3.dp,
+                    bottom = 5.dp,
+                    start = 10.dp,
+                    end = 9.dp
+                )
+            ,
+            tint = Color.White
+        )
+        Text(
+            text = stringResource(id = R.string.Title),
+            fontSize = 21.sp,
+            fontFamily = PoppinsBold,
+            color = Color.White,
+            modifier = Modifier.padding(vertical = 5.dp)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        when (tilteSort) {
+            null -> {
+                Icon(
+                    painter = painterResource(R.drawable.ic_threedots),
+                    contentDescription = null,
+                    modifier = Modifier.size(40.dp).padding(
+                        end = 15.dp
+                    ),
+                    tint = Color.White,
+                )
+            }
+            Order.ASCENDING -> {
+                Icon(
+                    painter = painterResource(R.drawable.ic_ascending),
+                    contentDescription = null,
+                    modifier = Modifier.size(40.dp).padding(
+                        end = 15.dp
+                    ),
+                    tint = Color.White,
+                )
+            }
+            else -> {
+                Icon(
+                    painter = painterResource(R.drawable.ic_decending),
+                    contentDescription = null,
+                    modifier = Modifier.size(40.dp).padding(
+                        end = 15.dp
+                    ),
+                    tint = Color.White,
+                )
             }
         }
     }
+
 }
 
 
@@ -3207,50 +3581,60 @@ fun SortDialog(
                     .padding(10.dp)
                     .background(MaterialTheme.colors.surface)
                     .fillMaxWidth()
-                    .width(300.dp)
-                    .height(360.dp)
+                    .width(340.dp)
+                    .height(450.dp)
             ) {
                 Text(
                     text = stringResource(id = R.string.sort_title),
-                    style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp),
                     textAlign = TextAlign.Center,
+                    fontSize = 35.sp,
+                    fontFamily = LobsterRegular,
+                    color = MaterialTheme.colors.primary,
                     modifier = Modifier
-                        .padding(top = 10.dp)
+                        .padding(top = 5.dp)
                         .fillMaxWidth()
-                        .weight(0.15f)
+                        .height(50.dp)
+                        .weight(0.2f)
                 )
 
                 Column(
                     modifier = Modifier
                         .padding(10.dp)
                         .fillMaxWidth()
-                        .weight(0.9f)
+                        .weight(1.4f)
                 ) {
                     Row(
                         //horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(color = MaterialTheme.colors.primary)
                     ) {
                         Text(
-                            text = "Reset",
+                            text = "Reset Options",
                             textAlign = TextAlign.Start,
-                            style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp),
-                            modifier = Modifier.padding(vertical = 4.dp)
+                            fontSize = 21.sp,
+                            fontFamily = PoppinsBold,
+                            color = Color.White,
+                            modifier = Modifier.padding(vertical = 5.dp, horizontal = 26.dp)
                         )
                         Spacer(modifier = Modifier.weight(2f))
+
                         IconButton(
                             onClick = {
                                 viewModel.resetAllSortDefault()
                                 viewModel.updateSortViewModel()
                             },
-                            modifier = Modifier.padding(start = 10.dp)
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_backup), contentDescription = null,
                                 modifier = Modifier.size(20.dp),
-                                tint = MaterialTheme.colors.primary
+                                tint = Color.White
                             )
                         }
                     }
+                    Spacer(modifier = Modifier.height(10.dp))
                     //ReleaseDate Sort
                         ReleaseDateSort(viewModel = viewModel)
                         Spacer(modifier = Modifier.height(10.dp))
@@ -3274,23 +3658,45 @@ fun SortDialog(
                         .weight(0.2f),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Button(
-                        onClick = {
-                            // Handle Cancel button action
-                            onDismiss()
-                        },
-                        modifier = Modifier.padding(8.dp)
-                    ) {
-                        Text(text = stringResource(id = R.string.cancel_button))
+                    Box(
+                        modifier = Modifier
+                            .width(100.dp)
+                            .height(35.dp)
+                            .padding(start = 7.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                    ){
+                        Button(
+                            onClick = {
+                                // Handle Cancel button action
+                                onDismiss()
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.cancel_button),
+                                fontFamily = Poppins
+                            )
+                        }
                     }
 
-                    Button(
-                        onClick = {
-                            funcToCall()
-                        },
-                        modifier = Modifier.padding(8.dp)
-                    ) {
-                        Text(text = stringResource(id = R.string.confirm_button))
+                    Box(
+                        modifier = Modifier
+                            .width(100.dp)
+                            .height(35.dp)
+                            .padding(end = 7.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                    ){
+                        Button(
+                            onClick = {
+                                funcToCall()
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.apply_button),
+                                fontFamily = Poppins
+                            )
+                        }
                     }
                 }
             }

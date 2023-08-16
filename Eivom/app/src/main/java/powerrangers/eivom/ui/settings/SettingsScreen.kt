@@ -467,7 +467,7 @@ fun SettingsBody(
         val context = LocalContext.current
         SelectButton(
             modifier = modifier.fillMaxWidth(),
-            text = stringResource(id = R.string.confirm_button),
+            text = stringResource(id = R.string.apply_button),
             isSelected = true,
             onSelect = {
                 coroutineScope.launch {
@@ -677,7 +677,7 @@ fun ColorPicker(
                     controller = controller,
                 )
                 SelectButton(
-                    text = stringResource(id = R.string.confirm_button),
+                    text = stringResource(id = R.string.apply_button),
                     isSelected = true,
                     onSelect = {
                         onColorChanged(selectedColor)
