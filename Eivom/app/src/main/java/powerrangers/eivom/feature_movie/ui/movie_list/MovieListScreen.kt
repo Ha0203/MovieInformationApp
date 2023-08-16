@@ -1207,36 +1207,63 @@ fun TrendingFilter(
     val trending by remember {viewModel.trendingFilter}
     Column(
         modifier = Modifier
-        .animateContentSize(
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = Spring.StiffnessLow
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
             )
-        )
+            .background(color = Color.White)
+        ,
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+                .background(color = MaterialTheme.colors.primary)
         ) {
+            Icon(
+                painterResource(id = R.drawable.ic_trend),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(40.dp)
+                    .padding(
+                        top = 3.dp,
+                        bottom = 5.dp,
+                        start = 10.dp,
+                        end = 9.dp
+                    )
+                ,
+                tint = Color.White
+            )
             Text(
                 text = stringResource(id = R.string.Trending_FilterState),
-                fontSize = 16.sp,
+                fontSize = 21.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 4.dp)
+                fontFamily = Poppins,
+                color = Color.White,
+                modifier = Modifier.padding(vertical = 6.dp)
             )
             Spacer(modifier = Modifier.weight(1f))
+
             IconButton(onClick = {viewModel.reverseIsTrending()} ) {
                 if (trending == null)
                     Icon(
                         painter = painterResource(R.drawable.unchecked_ic),
                         contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colors.primary
+                        modifier = Modifier
+                            .size(25.dp)
+                            .padding(bottom = 5.dp),
+                        tint = Color.White
                     )
                 else Icon(
                     painter = painterResource(R.drawable.checked_ic),
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = MaterialTheme.colors.primary
+                    modifier = Modifier
+                            .size(25.dp)
+                            .padding(bottom = 5.dp),
+                    tint = Color.White
                 )
             }
         }
@@ -1244,13 +1271,16 @@ fun TrendingFilter(
         if (trending != null)
         {
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = MaterialTheme.colors.secondary)
             ) {
                 Text(
                     text = stringResource(id = R.string.TrendingDay_FilterState),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(vertical = 4.dp)
+                    modifier = Modifier.padding(vertical = 5.dp)
                 )
                 Spacer( modifier = Modifier.weight(0.10f))
                 IconButton(onClick = { viewModel.reverseTrendingDayWeek() } ) {
@@ -1262,11 +1292,11 @@ fun TrendingFilter(
                             tint = MaterialTheme.colors.primary
                         )
                     else    Icon(
-                            painter = painterResource(R.drawable.checked_ic),
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                            tint = MaterialTheme.colors.primary
-                        )
+                        painter = painterResource(R.drawable.checked_ic),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary
+                    )
 
                 }
 
@@ -1276,7 +1306,7 @@ fun TrendingFilter(
                     text = stringResource(id = R.string.TrendingWeek_FilterState),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(vertical = 4.dp)
+                    modifier = Modifier.padding(vertical = 5.dp)
                 )
                 Spacer( modifier = Modifier.weight(0.10f))
                 IconButton(onClick = { viewModel.reverseTrendingDayWeek() } ) {
@@ -2595,7 +2625,7 @@ fun FilterDialog(
                     .padding(10.dp)
                     .background(MaterialTheme.colors.surface)
                     .fillMaxWidth()
-                    .width(300.dp)
+                    .width(340.dp)
                     .height(450.dp)
             ) {
                 Text(
