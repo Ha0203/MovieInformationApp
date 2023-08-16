@@ -11,13 +11,25 @@ import powerrangers.eivom.R
 val VintageKing = FontFamily(
     Font(R.font.vintageking)
 )
+
 val Margot= FontFamily(
     Font(R.font.margot)
 )
 val PoppinsBold = FontFamily(
     Font(R.font.poppins_bold)
 )
-
+val Poppins = FontFamily(
+    Font(R.font.poppins_regular)
+)
+val LobsterBold = FontFamily(
+    Font(R.font.lobstertwo_bold)
+)
+val LobsterItalic = FontFamily(
+    Font(R.font.lobstertwo_italic)
+)
+val LobsterRegular = FontFamily(
+    Font(R.font.lobstertwo_regular)
+)
 val PoppinsItalic = FontFamily(
     Font(R.font.poppins_italic)
 )

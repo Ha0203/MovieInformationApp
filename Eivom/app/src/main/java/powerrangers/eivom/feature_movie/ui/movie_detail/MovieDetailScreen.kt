@@ -231,18 +231,18 @@ fun TopButton(
             )
         }
         Spacer(modifier = Modifier.weight(1f))
-        // Watched
-        Icon(
-            painter = painterResource(id = R.drawable.ic_note),
-            contentDescription = null,
-            modifier = Modifier
-                .size(60.dp)
-                .scale(-1f, 1f) // Flip horizontally
-                .padding(5.dp)
-            ,
-            tint = Color.Black
-        )
-
+        // Note
+        IconButton(onClick = { /*ADD Function*/  }) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_note),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(60.dp)
+                    .scale(-1f, 1f) // Flip horizontally
+                    .padding(5.dp),
+                tint = Color.Black
+            )
+        }
         // Watched
 //        Icon(
 //            painter = painterResource(id = R.drawable.ic_watched),

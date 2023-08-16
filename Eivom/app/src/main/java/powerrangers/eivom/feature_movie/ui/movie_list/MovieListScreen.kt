@@ -70,6 +70,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
@@ -136,8 +137,12 @@ import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
 import powerrangers.eivom.ui.component.FloatingAddButton
 import powerrangers.eivom.ui.component.TopBar
+import powerrangers.eivom.ui.theme.LobsterBold
+import powerrangers.eivom.ui.theme.LobsterRegular
+import powerrangers.eivom.ui.theme.Poppins
 import powerrangers.eivom.ui.theme.PoppinsBold
 import powerrangers.eivom.ui.theme.PoppinsItalic
+import powerrangers.eivom.ui.theme.VintageKing
 import powerrangers.eivom.ui.utility.UserPreferences
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -2578,6 +2583,7 @@ fun FilterDialog(
     viewModel: MovieListViewModel = hiltViewModel()
 ) {
     viewModel.updateFilterViewModel()
+
     Dialog(
         onDismissRequest = {
             onDismiss()
@@ -2590,15 +2596,18 @@ fun FilterDialog(
                     .background(MaterialTheme.colors.surface)
                     .fillMaxWidth()
                     .width(300.dp)
-                    .height(400.dp)
+                    .height(450.dp)
             ) {
                 Text(
                     text = stringResource(id = R.string.filter_title),
-                    style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp),
                     textAlign = TextAlign.Center,
+                    fontSize = 35.sp,
+                    fontFamily = LobsterRegular,
+                    color = MaterialTheme.colors.primary,
                     modifier = Modifier
-                        .padding(top = 20.dp)
+                        .padding(top = 5.dp)
                         .fillMaxWidth()
+                        .height(50.dp)
                         .weight(0.2f)
                 )
 
@@ -2606,7 +2615,7 @@ fun FilterDialog(
                     modifier = Modifier
                         .padding(10.dp)
                         .fillMaxWidth()
-                        .weight(1f)
+                        .weight(1.2f)
                 ) {
                     // Trending Filter
                     item{
@@ -2659,7 +2668,7 @@ fun FilterDialog(
                     }
                     item { Spacer(modifier = Modifier.height(10.dp)) }
                     // Genre Filter
-                    item { 
+                    item {
                         GenreFilter(viewModel = viewModel)
                     }
                     item { Spacer(modifier = Modifier.height(10.dp)) }
@@ -2714,6 +2723,106 @@ fun FilterDialog(
                     ) {
                         Text(text = stringResource(id = R.string.confirm_button))
                     }
+                }
+            }
+        }
+    )
+}
+
+@Composable
+fun NoteDialog(
+    funcToCall: () -> Unit,
+    onDismiss: () -> Unit,
+    viewModel: MovieListViewModel = hiltViewModel()
+) {
+    Dialog(
+        onDismissRequest = {
+            onDismiss()
+        },
+        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = true),
+        content = {
+            Column(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .background(MaterialTheme.colors.primary)
+                    .fillMaxWidth()
+                    .width(300.dp)
+                    .height(200.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .padding(top = 5.dp)
+                        .fillMaxWidth()
+                        .height(50.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.note),
+                        textAlign = TextAlign.Left,
+                        fontSize = 30.sp,
+                        fontFamily = LobsterRegular,
+                        color = Color.White,
+                        modifier = Modifier
+                            .height(50.dp)
+                            .padding(10.dp)
+                    )
+
+                    Spacer(modifier = Modifier.weight(0.5f))
+
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier
+                                .size(30.dp)
+                                .padding(7.dp)
+                        )
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .width(300.dp)
+                        .height(200.dp)
+                        .padding(10.dp)
+                        .clip(RoundedCornerShape(20.dp))
+
+                ){
+                    //OutlinedTextField(value = , onValueChange = )
+                    var userNote = ""
+                    OutlinedTextField(
+                        value = userNote,
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxSize()
+                        ,
+                        colors = TextFieldDefaults.textFieldColors(
+                            textColor = Color.Black,
+                            backgroundColor = Color.White
+                        ),
+                        onValueChange = { userNote = it },
+                        placeholder = {
+                            Text(
+                                text = "Note Something",
+                                fontFamily = PoppinsItalic,
+                                fontSize = 12.sp,
+                                color = Color.Black
+                            )
+                        },
+                        textStyle = TextStyle(
+                            fontSize = 12.sp,
+                            fontFamily = Poppins,
+                            textAlign = TextAlign.Start
+                        ),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                /*To Do*/
+                            }
+                        )
+                    )
                 }
             }
         }

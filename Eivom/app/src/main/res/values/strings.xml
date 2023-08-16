@@ -192,5 +192,6 @@
     <!-- Default -->
     <string name="web_client_id">433566890639-bpm5pknik6rs3dgh5ehb5ne4vmpcq185.apps.googleusercontent.com</string>
 
-
+    <!-- Note -->
+    <string name="note">Note</string>
 </resources>
