@@ -109,13 +109,17 @@ fun MovieDetailScreen(
             DrawerBody(onItemClick = navigateToMenuItem)
         }
     ) { innerPadding ->
-        MovieDetailBody(modifier = modifier.padding(innerPadding))
+        MovieDetailBody(
+            modifier = modifier.padding(innerPadding),
+            navigateToMovieNote = {navigateToMovieNote()}
+        )
     }
 }
 
 @Composable
 fun MovieDetailBody(
     modifier: Modifier = Modifier,
+    navigateToMovieNote: () -> Unit,
     viewModel: MovieDetailViewModel = hiltViewModel(),
 ) {
     val movie by remember { viewModel.movieInformation }
@@ -134,7 +138,7 @@ fun MovieDetailBody(
             LazyColumn (modifier = Modifier.padding(10.dp)) {
                 //Top Button
                 item{
-                    TopButton()
+                    TopButton(navigateToMovieNote = {navigateToMovieNote()})
                 }
 
                 // Title
@@ -214,6 +218,7 @@ fun MovieDetailBody(
 @Composable
 fun TopButton(
     modifier: Modifier = Modifier,
+    navigateToMovieNote: () -> Unit,
     viewModel: MovieDetailViewModel = hiltViewModel(),
 ){
     Row(){
@@ -232,16 +237,18 @@ fun TopButton(
         }
         Spacer(modifier = Modifier.weight(1f))
         // Note
-        IconButton(onClick = { /*ADD Function*/  }) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_note),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(60.dp)
-                    .scale(-1f, 1f) // Flip horizontally
-                    .padding(10.dp),
-                tint = Color.Black
-            )
+        if (viewModel.isFavoriteMovie()) {
+            IconButton(onClick = { navigateToMovieNote() }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_note),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(60.dp)
+                        .scale(-1f, 1f) // Flip horizontally
+                        .padding(10.dp),
+                    tint = Color.Black
+                )
+            }
         }
         // Watched
 //        Icon(
