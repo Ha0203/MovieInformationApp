@@ -200,4 +200,28 @@
 
     <!-- HelpScreen-->
     <string name="help_introduction">Hi! How can we help you?</string>
+    <string name="help_add_sponsored_movie_s1">Step 1: Click \"+\" button</string>
+    <string name="help_add_sponsored_movie_s2">Step 2: Choose \"Movie key\"</string>
+    <string name="help_add_sponsored_movie_s3">Step 3: Choose \"Adult content\"</string>
+    <string name="help_add_sponsored_movie_s4">Step 4: Choose \"Title" or "Original Title\"</string>
+    <string name="help_add_sponsored_movie_s5">Step 5: Choose \"Genre\" and write an overview</string>
+    <string name="help_add_sponsored_movie_s6">Step 6: Choose \"Release Date\", \"Collection\", \"Production Companies and Country\"</string>
+    <string name="help_add_sponsored_movie_s7">Step 7: Drop your \"Poster\", \"Backdrop\" and \"Homepage\" URL</string>
+    <string name="help_add_sponsored_movie_s8">Step 8: Add your video</string>
+    <string name="help_add_sponsored_movie_s9">Step 9: Save your process</string>
+    <string name="help_sign_in_as_producer_s1">Step 1: Click \"Sign-in\"</string>
+    <string name="help_sign_in_as_producer_s2">Step 2: Choose google account</string>
+    <string name="help_sign_in_as_producer_s3">Step 3: The system confirms user\'s sign-in status</string>
+    <string name="help_add_favorite_s1">Step 1: Click on the favorite annotation</string>
+    <string name="help_add_favorite_s2">Step 2: Update the movies favorite list automatically</string>
+    <string name="help_add_favorite_s3">Step 3: Color of the favorite annotation changed</string>
+    <string name="help_take_note_s1">Step 1: Click on the \"Edit Note\" button</string>
+    <string name="help_take_note_s2">Step 2: Write user\'s note in blank space</string>
+    <string name="help_take_note_s3">Step 3: Click the \"Save\" button</string>
+    <string name="help_filter_s1">Step 1: Click on the \"Filter\" button</string>
+    <string name="help_filter_s2">Step 2: Tick/ Pick attributes</string>
+    <string name="help_filter_s3">Step 3: Click \"Confirm\" button</string>
+    <string name="help_sort_s1">Step 1: The Click on the \"Sort\" button</string>
+    <string name="help_sort_s2">Step 2: Choose one sort</string>
+    <string name="help_sort_s3">Step 3: Click \"Confirm\" button</string>
 </resources>
