@@ -16,6 +16,9 @@
     <string name="app_information_content_description">Move to app information screen</string>
     <string name="settings_title">Settings</string>
     <string name="settings_button_content_description">Move to settings screen</string>
+    <string name="help_screen_title">Help</string>
+    <string name="help_screen_button_content_description">Move to help screen</string>
+
 
     <!-- Movie List-->
     <string name="error_label">Error</string>
@@ -194,4 +197,7 @@
 
     <!-- Note -->
     <string name="note">Note</string>
+
+    <!-- HelpScreen-->
+    <string name="help_introduction">Hi! How can we help you?</string>
 </resources>

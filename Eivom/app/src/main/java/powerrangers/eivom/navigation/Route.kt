@@ -20,4 +20,7 @@ object Route {
 
     // Settings
     const val SETTINGS = "settings"
+
+    //Help Screen
+    const val HELP_SCREEN = "help_screen"
 }

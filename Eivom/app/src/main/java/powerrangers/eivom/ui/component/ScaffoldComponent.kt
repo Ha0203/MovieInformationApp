@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Filter
+import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.List
@@ -349,6 +350,12 @@ fun DrawerBody(
             title = stringResource(id = R.string.settings_title),
             icon = Icons.Filled.Settings,
             contentDescription = stringResource(id = R.string.settings_button_content_description)
+        ),
+        MenuItem(
+            route = Route.HELP_SCREEN,
+            title = stringResource(id = R.string.help_screen_title),
+            icon = Icons.Filled.Help,
+            contentDescription = stringResource(id = R.string.help_screen_button_content_description)
         )
     )
     LazyColumn(modifier = modifier) {

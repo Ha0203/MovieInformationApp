@@ -11,6 +11,7 @@ import powerrangers.eivom.feature_movie.ui.movie_list.MovieListScreen
 import powerrangers.eivom.feature_movie.ui.movie_management.MovieManagementScreen
 import powerrangers.eivom.feature_movie.ui.movie_note.MovieNoteScreen
 import powerrangers.eivom.ui.app_information.AppInformationScreen
+import powerrangers.eivom.ui.help_screen.HelpScreen
 import powerrangers.eivom.ui.settings.SettingsScreen
 
 @Composable
@@ -100,6 +101,15 @@ fun EivomNavigationHost(
             route = Route.SETTINGS
         ) {
             SettingsScreen(
+                navigateToMenuItem = {
+                    navController.navigate(it)
+                }
+            )
+        }
+        composable(
+            route = Route.HELP_SCREEN
+        ) {
+            HelpScreen(
                 navigateToMenuItem = {
                     navController.navigate(it)
                 }
