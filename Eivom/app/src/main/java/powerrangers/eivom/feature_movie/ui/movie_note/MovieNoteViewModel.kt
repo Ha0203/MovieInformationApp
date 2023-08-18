@@ -27,6 +27,9 @@ class MovieNoteViewModel @Inject constructor(
     var movieNote = mutableStateOf(NoteState())
         private set
 
+    var isEditing = mutableStateOf(false)
+        private set
+
     init {
         viewModelScope.launch {
             userPreferences.value =
@@ -57,5 +60,19 @@ class MovieNoteViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun updateIsEditing() {
+        isEditing.value = !isEditing.value
+    }
+
+    fun updateNoteContent(content: String) {
+        movieNote.value = movieNote.value.copy(
+            content = content
+        )
+    }
+
+    suspend fun saveMovieNote(): Boolean {
+        return movieDatabaseUseCase.updateMovieNote(movieId, movieNote.value.content)
     }
 }

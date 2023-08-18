@@ -197,6 +197,7 @@
 
     <!-- Note -->
     <string name="note">Note</string>
+    <string name="note_placeholder">Your movie note</string>
 
     <!-- HelpScreen-->
     <string name="help_introduction">Hi! How can we help you?</string>

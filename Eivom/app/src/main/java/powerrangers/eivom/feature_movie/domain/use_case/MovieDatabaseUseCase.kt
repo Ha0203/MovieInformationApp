@@ -914,6 +914,22 @@ class MovieDatabaseUseCase(
         }
     }
 
+    suspend fun updateMovieNote(
+        movieId: Int,
+        note: String
+    ): Boolean {
+        return try {
+            var localMovieItem = getLocalMovieItem(movieId)
+            localMovieItem = Resource.Success(data = localMovieItem.data!!.copy(note = note))
+            localMovieDatabaseRepository.updateLocalMovieItem(localMovieItem.data!!)
+            localMovieMap?.data?.put(localMovieItem.data!!.id, localMovieItem.data!!)
+
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     private suspend fun getMovieListResource(
         apiKey: String = DataSourceRelation.TMDB_API_KEY,
         region: MovieFilter.Region?,
