@@ -188,6 +188,7 @@ fun HelpScreenBody(
         Text(
             text = stringResource(id = R.string.help_FAQ_title),
             fontSize = 20.sp,
+            color = if (userPreferences.colorMode) userPreferences.screenTextColor else MaterialTheme.colors.onBackground
         )
         Spacer(modifier = modifier.height(25.dp))
         Column(
@@ -199,7 +200,7 @@ fun HelpScreenBody(
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
                         .height(130.dp)
-                        .background(MaterialTheme.colors.secondary)
+                        .background(color = if (userPreferences.colorMode) userPreferences.dialogBackgroundColor else MaterialTheme.colors.secondary)
                         .weight(1f)
                         .clickable {
                             updateHelpState(1)
@@ -212,7 +213,8 @@ fun HelpScreenBody(
                     ) {
                         Text(
                             text = "How to add sponsored movies",
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            color = if (userPreferences.colorMode) userPreferences.dialogTextColor else MaterialTheme.colors.onBackground
                         )
                     }
                 }
@@ -221,7 +223,7 @@ fun HelpScreenBody(
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
                         .height(130.dp)
-                        .background(MaterialTheme.colors.secondary)
+                        .background(color = if (userPreferences.colorMode) userPreferences.dialogBackgroundColor else MaterialTheme.colors.secondary)
                         .weight(1f)
                         .clickable {
                             updateHelpState(2)
@@ -234,7 +236,8 @@ fun HelpScreenBody(
                     ) {
                         Text(
                             text = "How to sign in as producer",
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            color = if (userPreferences.colorMode) userPreferences.dialogTextColor else MaterialTheme.colors.onBackground
                         )
                     }
                 }
@@ -244,7 +247,7 @@ fun HelpScreenBody(
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
                         .height(130.dp)
-                        .background(MaterialTheme.colors.secondary)
+                        .background(color = if (userPreferences.colorMode) userPreferences.dialogBackgroundColor else MaterialTheme.colors.secondary)
                         .weight(1f)
                         .clickable {
                             updateHelpState(3)
@@ -257,7 +260,8 @@ fun HelpScreenBody(
                     ) {
                         Text(
                             text = "How to add favorite movies",
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            color = if (userPreferences.colorMode) userPreferences.dialogTextColor else MaterialTheme.colors.onBackground
                         )
                     }
                 }
@@ -266,7 +270,7 @@ fun HelpScreenBody(
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
                         .height(130.dp)
-                        .background(MaterialTheme.colors.secondary)
+                        .background(color = if (userPreferences.colorMode) userPreferences.dialogBackgroundColor else MaterialTheme.colors.secondary)
                         .weight(1f)
                         .clickable {
                             updateHelpState(4)
@@ -279,7 +283,8 @@ fun HelpScreenBody(
                     ) {
                         Text(
                             text = "How to take a note",
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            color = if (userPreferences.colorMode) userPreferences.dialogTextColor else MaterialTheme.colors.onBackground
                         )
                     }
                 }
@@ -289,7 +294,7 @@ fun HelpScreenBody(
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
                         .height(130.dp)
-                        .background(MaterialTheme.colors.secondary)
+                        .background(color = if (userPreferences.colorMode) userPreferences.dialogBackgroundColor else MaterialTheme.colors.secondary)
                         .weight(1f)
                         .clickable {
                             updateHelpState(5)
@@ -302,7 +307,8 @@ fun HelpScreenBody(
                     ) {
                         Text(
                             text = "How to filter movies",
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            color = if (userPreferences.colorMode) userPreferences.dialogTextColor else MaterialTheme.colors.onBackground
                         )
                     }
                 }
@@ -311,7 +317,7 @@ fun HelpScreenBody(
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
                         .height(130.dp)
-                        .background(MaterialTheme.colors.secondary)
+                        .background(color = if (userPreferences.colorMode) userPreferences.dialogBackgroundColor else MaterialTheme.colors.secondary)
                         .weight(1f)
                         .clickable {
                             updateHelpState(6)
@@ -324,7 +330,8 @@ fun HelpScreenBody(
                     ) {
                         Text(
                             text = "How to sort movies",
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            color = if (userPreferences.colorMode) userPreferences.dialogTextColor else MaterialTheme.colors.onBackground
                         )
                     }
                 }
