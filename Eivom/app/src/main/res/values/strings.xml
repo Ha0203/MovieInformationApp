@@ -224,4 +224,7 @@
     <string name="help_sort_s1">Step 1: The Click on the \"Sort\" button</string>
     <string name="help_sort_s2">Step 2: Choose one sort</string>
     <string name="help_sort_s3">Step 3: Click \"Confirm\" button</string>
+    <string name="help_search_title">Search for answers</string>
+    <string name="help_search_recommend_title">Your problems</string>
+    <string name="help_FAQ_title">━━━Frequently Asked Questions━━━</string>
 </resources>
