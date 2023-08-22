@@ -22,7 +22,7 @@ import javax.inject.Inject
 class NewLocalMovieViewModel @Inject constructor(
     private val userPreferencesUseCase: UserPreferencesUseCase,
     private val movieDatabaseUseCase: MovieDatabaseUseCase
-): ViewModel() {
+) : ViewModel() {
     var userPreferences = mutableStateOf(UserPreferences())
         private set
 
@@ -66,6 +66,65 @@ class NewLocalMovieViewModel @Inject constructor(
         companies.clear()
     }
 
+    suspend fun saveEditedMovie(movieId: Int): Boolean {
+        if (isNewMovieValid()) {
+            return movieDatabaseUseCase.updateFavoriteMovie(
+                MovieItem(
+                    editable = true,
+                    favorite = true,
+                    watched = false,
+                    sponsored = false,
+                    adult = newMovieState.value.adult ?: true,
+                    landscapeImageUrl = newMovieState.value.landscapeImageUrl ?: "",
+                    landscapeImageUrls = emptyList(),
+                    collection = Collection(
+                        landscapeImageUrl = "",
+                        id = 0,
+                        name = "",
+                        posterUrl = ""
+                    ),
+                    budget = newMovieState.value.budget ?: 0,
+                    genres = newMovieState.value.genres,
+                    homepageUrl = newMovieState.value.homepageUrl ?: "",
+                    id = movieId,
+                    originalLanguage = newMovieState.value.originalLanguage ?: "",
+                    originalTitle = newMovieState.value.originalTitle ?: "",
+                    overview = newMovieState.value.overview ?: "",
+                    posterUrl = newMovieState.value.posterUrl ?: "",
+                    posterUrls = emptyList(),
+                    productionCompanies = companies.mapNotNull { company ->
+                        if (company.isNotBlank()) {
+                            Company(
+                                id = 0,
+                                name = company,
+                                logoImageUrl = "",
+                                originCountry = ""
+                            )
+                        } else {
+                            null
+                        }
+                    },
+                    productionCountries = emptyList(),
+                    regionReleaseDate = newMovieState.value.regionReleaseDate?.format(
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                    ) ?: "",
+                    revenue = newMovieState.value.revenue ?: 0,
+                    length = newMovieState.value.length ?: 0,
+                    logoImageUrls = emptyList(),
+                    spokenLanguages = newMovieState.value.spokenLanguages,
+                    status = newMovieState.value.status ?: "",
+                    tagline = "",
+                    title = newMovieState.value.title ?: "",
+                    videos = emptyList(),
+                    voteAverage = 0.0,
+                    voteCount = 0,
+                    note = ""
+                )
+            )
+        }
+        return false
+    }
+
     suspend fun saveNewMovie(): Boolean {
         if (isNewMovieValid()) {
             return movieDatabaseUseCase.addFavoriteMovie(
@@ -86,7 +145,8 @@ class NewLocalMovieViewModel @Inject constructor(
                     budget = newMovieState.value.budget ?: 0,
                     genres = newMovieState.value.genres,
                     homepageUrl = newMovieState.value.homepageUrl ?: "",
-                    id = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmmss")).toInt(),
+                    id = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmmss"))
+                        .toInt(),
                     originalLanguage = newMovieState.value.originalLanguage ?: "",
                     originalTitle = newMovieState.value.originalTitle ?: "",
                     overview = newMovieState.value.overview ?: "",
@@ -105,7 +165,9 @@ class NewLocalMovieViewModel @Inject constructor(
                         }
                     },
                     productionCountries = emptyList(),
-                    regionReleaseDate = newMovieState.value.regionReleaseDate?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) ?: "",
+                    regionReleaseDate = newMovieState.value.regionReleaseDate?.format(
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                    ) ?: "",
                     revenue = newMovieState.value.revenue ?: 0,
                     length = newMovieState.value.length ?: 0,
                     logoImageUrls = emptyList(),

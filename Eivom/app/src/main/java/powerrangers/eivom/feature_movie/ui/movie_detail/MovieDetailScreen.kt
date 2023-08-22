@@ -1,7 +1,12 @@
 package powerrangers.eivom.feature_movie.ui.movie_detail
 
+import android.app.DatePickerDialog
 import android.util.Log
 import android.widget.Space
+import android.widget.Toast
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,15 +28,22 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Star
@@ -51,13 +63,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
@@ -68,6 +84,10 @@ import kotlinx.coroutines.launch
 import powerrangers.eivom.R
 import powerrangers.eivom.domain.utility.Resource
 import powerrangers.eivom.domain.utility.ResourceErrorMessage
+import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
+import powerrangers.eivom.feature_movie.ui.movie_list.AddOrDeleteButton
+import powerrangers.eivom.feature_movie.ui.movie_list.NewLocalMovieViewModel
+import powerrangers.eivom.feature_movie.ui.movie_list.SelectButton
 import powerrangers.eivom.ui.component.BottomOnlyHomeBar
 import powerrangers.eivom.ui.component.DrawerBody
 import powerrangers.eivom.ui.component.DrawerHeader
@@ -75,6 +95,7 @@ import powerrangers.eivom.ui.component.TopBar
 import powerrangers.eivom.ui.theme.PoppinsBold
 import powerrangers.eivom.ui.theme.PoppinsItalic
 import powerrangers.eivom.ui.theme.PoppinsMedium
+import powerrangers.eivom.ui.utility.UserPreferences
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -221,6 +242,20 @@ fun TopButton(
     navigateToMovieNote: () -> Unit,
     viewModel: MovieDetailViewModel = hiltViewModel(),
 ){
+    val isEditing by remember { viewModel.isEditing }
+    val movie by remember { viewModel.movieInformation }
+
+    if (isEditing) {
+        AddMovieDialog(
+            modifier = modifier,
+            userPreferences = viewModel.userPreferences.value,
+            updateAddingState = {
+                viewModel.updateIsEditing()
+            },
+            movieId = viewModel.movieId
+        )
+    }
+
     Row(){
         // Exit to Main Screen
         IconButton(onClick = { /*ADD Function*/  }) {
@@ -237,6 +272,19 @@ fun TopButton(
         }
         Spacer(modifier = Modifier.weight(1f))
         // Note
+        if (movie.data != null && movie.data!!.editable) {
+            IconButton(onClick = { viewModel.updateIsEditing() }) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(60.dp)
+                        .scale(-1f, 1f) // Flip horizontally
+                        .padding(10.dp),
+                    tint = Color.Black
+                )
+            }
+        }
         if (viewModel.isFavoriteMovie()) {
             IconButton(onClick = { navigateToMovieNote() }) {
                 Icon(
@@ -1172,3 +1220,586 @@ fun CountryBox(
 //        }
 //    }
 //}
+
+@Composable
+fun AddMovieDialog(
+    modifier: Modifier,
+    userPreferences: UserPreferences,
+    newLocalMovieViewModel: NewLocalMovieViewModel = hiltViewModel(),
+    updateAddingState: (Boolean) -> Unit,
+    movieId: Int,
+    viewModel: MovieDetailViewModel = hiltViewModel()
+) {
+    val newMovieState by remember { newLocalMovieViewModel.newMovieState }
+
+    val companies = remember { newLocalMovieViewModel.companies }
+
+    Dialog(
+        onDismissRequest = {
+            updateAddingState(false)
+        }
+    ) {
+        Card(
+            elevation = 8.dp,
+            modifier = modifier
+                .padding(8.dp)
+        ) {
+            Column(
+                modifier = modifier
+                    .padding(8.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Dialog title
+                Text(
+                    modifier = modifier.fillMaxWidth(),
+                    text = stringResource(id = R.string.add_manual_movie_title),
+                    textAlign = TextAlign.Center
+                )
+                Column(
+                    modifier = modifier
+                        .height(450.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+                    // Adult
+                    Row(
+                        modifier = modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            modifier = modifier.weight(1f),
+                            text = stringResource(id = R.string.adult_label)
+                        )
+                        SelectButton(
+                            modifier = modifier.weight(0.45f),
+                            text = stringResource(id = R.string.adult_yes),
+                            isSelected = newMovieState.adult == true,
+                            onSelect = {
+                                newLocalMovieViewModel.updateAdultOfMovie(
+                                    isAdult = true
+                                )
+                            }
+                        )
+                        Spacer(modifier = modifier.weight(0.1f))
+                        SelectButton(
+                            modifier = modifier.weight(0.45f),
+                            text = stringResource(id = R.string.adult_no),
+                            isSelected = newMovieState.adult == false,
+                            onSelect = {
+                                newLocalMovieViewModel.updateAdultOfMovie(
+                                    isAdult = false
+                                )
+                            }
+                        )
+                    }
+                    // Original Title
+                    OutlinedTextField(
+                        modifier = modifier.fillMaxWidth(),
+                        value = newMovieState.originalTitle ?: "",
+                        onValueChange = {
+                            newLocalMovieViewModel.updateMovieOriginalTitle(it)
+                        },
+                        label = {
+                            Text(text = stringResource(id = R.string.original_title_field_label))
+                        },
+                        placeholder = {
+                            Text(text = stringResource(id = R.string.original_title_field_placeholder))
+                        },
+                        maxLines = 2
+                    )
+                    // Title
+                    OutlinedTextField(
+                        modifier = modifier.fillMaxWidth(),
+                        value = newMovieState.title ?: "",
+                        onValueChange = {
+                            newLocalMovieViewModel.updateMovieTitle(it)
+                        },
+                        label = {
+                            Text(text = stringResource(id = R.string.title_field_label))
+                        },
+                        placeholder = {
+                            Text(text = stringResource(id = R.string.title_field_placeholder))
+                        },
+                        maxLines = 2
+                    )
+                    // Genres
+                    Row(
+                        modifier = modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            modifier = modifier.weight(1f),
+                            text = stringResource(id = R.string.genre_label)
+                        )
+                        LazyRow(
+                            modifier = modifier.weight(2f)
+                        ) {
+                            items(newLocalMovieViewModel.genreList) { genre ->
+                                val isGenreSelected = newLocalMovieViewModel.isGenreSelected(genre.second)
+                                SelectButton(
+                                    text = genre.second,
+                                    isSelected = isGenreSelected,
+                                    onSelect = {
+                                        if (isGenreSelected) {
+                                            newLocalMovieViewModel.removeMovieGenre(genre.second)
+                                        } else {
+                                            newLocalMovieViewModel.addMovieGenre(genre.second)
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    // Overview
+                    OutlinedTextField(
+                        modifier = modifier.fillMaxWidth(),
+                        value = newMovieState.overview ?: "",
+                        onValueChange = {
+                            newLocalMovieViewModel.updateMovieOverview(it)
+                        },
+                        label = {
+                            Text(text = stringResource(id = R.string.overview_field_label))
+                        },
+                        placeholder = {
+                            Text(text = stringResource(id = R.string.overview_field_placeholder))
+                        },
+                        maxLines = 8
+                    )
+                    // Original Language
+                    Row(
+                        modifier = modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val density = LocalDensity.current
+
+                        var isOriginalLanguageDropdownExpanded by remember { mutableStateOf(false) }
+                        var dropdownMenuWidth by remember { mutableStateOf(0.dp) }
+
+                        Text(
+                            modifier = modifier.weight(1f),
+                            text = stringResource(id = R.string.original_language_label)
+                        )
+                        Column(
+                            modifier = modifier.weight(1f)
+                        ) {
+                            SelectButton(
+                                modifier = modifier
+                                    .fillMaxWidth()
+                                    .onGloballyPositioned { coordinates ->
+                                        dropdownMenuWidth =
+                                            (coordinates.size.width / density.density).dp
+                                    },
+                                text = TranslateCode.ISO_639_1[newMovieState.originalLanguage]
+                                    ?: stringResource(id = R.string.unknown),
+                                isSelected = newMovieState.originalLanguage != null,
+                                onSelect = {
+                                    isOriginalLanguageDropdownExpanded =
+                                        !isOriginalLanguageDropdownExpanded
+                                }
+                            )
+                            DropdownMenu(
+                                modifier = modifier
+                                    .height(200.dp)
+                                    .width(dropdownMenuWidth),
+                                expanded = isOriginalLanguageDropdownExpanded,
+                                onDismissRequest = {
+                                    isOriginalLanguageDropdownExpanded = false
+                                }
+                            ) {
+                                newLocalMovieViewModel.languageList.forEach { language ->
+                                    DropdownMenuItem(
+                                        onClick = {
+                                            newLocalMovieViewModel.updateMovieOriginalLanguage(
+                                                language.first
+                                            )
+                                            newLocalMovieViewModel.removeMovieSpokenLanguage(
+                                                language.first
+                                            )
+                                            isOriginalLanguageDropdownExpanded = false
+                                        }
+                                    ) {
+                                        Text(
+                                            modifier = modifier.fillMaxWidth(),
+                                            text = language.second,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // Spoken Language
+                    Row(
+                        modifier = modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val density = LocalDensity.current
+                        var dropdownMenuWidth by remember { mutableStateOf(0.dp) }
+                        var isLanguageDropdownExpanded by remember { mutableStateOf(false) }
+
+                        Text(
+                            modifier = modifier.weight(1f),
+                            text = stringResource(id = R.string.spoken_language_label)
+                        )
+                        AddOrDeleteButton(
+                            modifier = modifier
+                                .weight(1f)
+                                .onGloballyPositioned { coordinates ->
+                                    dropdownMenuWidth =
+                                        (coordinates.size.width / density.density).dp
+                                },
+                            isAddButton = true,
+                            contentDescription = stringResource(id = R.string.add_spoken_language_content_description),
+                            onClick = {
+                                isLanguageDropdownExpanded =
+                                    !isLanguageDropdownExpanded
+                            }
+                        )
+                        DropdownMenu(
+                            modifier = modifier
+                                .height(200.dp)
+                                .width(dropdownMenuWidth),
+                            expanded = isLanguageDropdownExpanded,
+                            onDismissRequest = {
+                                isLanguageDropdownExpanded = false
+                            }
+                        ) {
+                            newLocalMovieViewModel.languageList.forEach { language ->
+                                if (language.first != newMovieState.originalLanguage && language.first !in newMovieState.spokenLanguages) {
+                                    DropdownMenuItem(
+                                        onClick = {
+                                            newLocalMovieViewModel.addMovieSpokenLanguage(
+                                                language.first
+                                            )
+                                            isLanguageDropdownExpanded = false
+                                        }
+                                    ) {
+                                        Text(
+                                            modifier = modifier.fillMaxWidth(),
+                                            text = language.second,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    Row(
+                        modifier = modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Spacer(modifier = modifier.weight(1f))
+
+                        Column(
+                            modifier = modifier
+                                .weight(1f)
+                                .animateContentSize(
+                                    animationSpec = spring(
+                                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                                        stiffness = Spring.StiffnessLow
+                                    )
+                                )
+                        ) {
+                            if (newMovieState.originalLanguage != null) {
+                                SelectButton(
+                                    modifier = modifier.fillMaxWidth(),
+                                    enabled = false,
+                                    text = TranslateCode.ISO_639_1[newMovieState.originalLanguage]
+                                        ?: stringResource(id = R.string.unknown),
+                                    isSelected = true,
+                                    onSelect = {}
+                                )
+                            }
+                            for (i in newMovieState.spokenLanguages.lastIndex downTo 0) {
+                                SelectButton(
+                                    modifier = modifier.fillMaxWidth(),
+                                    text = TranslateCode.ISO_639_1[newMovieState.spokenLanguages[i]]
+                                        ?: stringResource(
+                                            id = R.string.unknown
+                                        ),
+                                    isSelected = false,
+                                    onSelect = {
+                                        newLocalMovieViewModel.removeMovieSpokenLanguage(
+                                            newMovieState.spokenLanguages[i]
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    // Length
+                    OutlinedTextField(
+                        modifier = modifier.fillMaxWidth(),
+                        value = newMovieState.length?.toString() ?: "",
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
+                        ),
+                        onValueChange = {
+                            newLocalMovieViewModel.updateMovieLength(it)
+                        },
+                        label = {
+                            Text(text = stringResource(id = R.string.length_field_label))
+                        },
+                        placeholder = {
+                            Text(text = stringResource(id = R.string.length_field_placeholder))
+                        },
+                        trailingIcon = {
+                            Text(text = stringResource(id = R.string.length_unit))
+                        },
+                        maxLines = 1
+                    )
+                    // Release Date
+                    Row(
+                        modifier = modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val context = LocalContext.current
+                        val currentDate = LocalDate.now()
+
+                        Text(
+                            modifier = modifier.weight(1f),
+                            text = stringResource(id = R.string.release_date_label)
+                        )
+                        SelectButton(
+                            modifier = modifier.weight(1f),
+                            text = newMovieState.regionReleaseDate?.format(userPreferences.dateFormat)
+                                ?: stringResource(id = R.string.unknown),
+                            isSelected = newMovieState.regionReleaseDate != null,
+                            onSelect = {
+                                DatePickerDialog(
+                                    context,
+                                    { _, year, month, dayOfMonth ->
+                                        newLocalMovieViewModel.updateMovieReleaseDate(
+                                            year = year,
+                                            month = month + 1,
+                                            dayOfMonth = dayOfMonth
+                                        )
+                                    },
+                                    newMovieState.regionReleaseDate?.year ?: currentDate.year,
+                                    (newMovieState.regionReleaseDate?.monthValue
+                                        ?: currentDate.monthValue) - 1,
+                                    newMovieState.regionReleaseDate?.dayOfMonth ?: currentDate.dayOfMonth
+                                ).show()
+                            }
+                        )
+                    }
+                    // Company
+                    Column(
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .animateContentSize(
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessLow
+                                )
+                            )
+                    ) {
+                        Row(
+                            modifier = modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                modifier = modifier.weight(1f),
+                                text = stringResource(id = R.string.company_label)
+                            )
+                            AddOrDeleteButton(
+                                modifier = modifier.weight(1f),
+                                isAddButton = true,
+                                contentDescription = stringResource(id = R.string.add_company_content_description),
+                                onClick = {
+                                    newLocalMovieViewModel.addMovieCompany()
+                                }
+                            )
+                        }
+                        for (i in companies.lastIndex downTo 0) {
+                            OutlinedTextField(
+                                modifier = modifier.fillMaxWidth(),
+                                value = companies[i],
+                                onValueChange = {
+                                    newLocalMovieViewModel.updateMovieCompany(
+                                        index = i,
+                                        name = it
+                                    )
+                                },
+                                label = {
+                                    Text(text = stringResource(id = R.string.company_name_label))
+                                },
+                                placeholder = {
+                                    Text(text = stringResource(id = R.string.company_name_placeholder))
+                                },
+                                maxLines = 1,
+                                trailingIcon = {
+                                    IconButton(
+                                        onClick = {
+                                            newLocalMovieViewModel.removeMovieCompany(i)
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Delete,
+                                            contentDescription = stringResource(id = R.string.remove_company_button)
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
+                    // Main Poster Url
+                    OutlinedTextField(
+                        modifier = modifier.fillMaxWidth(),
+                        value = newMovieState.posterUrl ?: "",
+                        onValueChange = {
+                            newLocalMovieViewModel.updateMoviePosterUrl(
+                                url = it
+                            )
+                        },
+                        label = {
+                            Text(text = stringResource(id = R.string.movie_main_poster_label))
+                        },
+                        placeholder = {
+                            Text(text = stringResource(id = R.string.movie_main_poster_placeholder))
+                        },
+                        maxLines = 1
+                    )
+                    // Main Backdrop Url
+                    OutlinedTextField(
+                        modifier = modifier.fillMaxWidth(),
+                        value = newMovieState.landscapeImageUrl ?: "",
+                        onValueChange = {
+                            newLocalMovieViewModel.updateMovieLandscapeImageUrl(
+                                url = it
+                            )
+                        },
+                        label = {
+                            Text(text = stringResource(id = R.string.movie_main_backdrop_label))
+                        },
+                        placeholder = {
+                            Text(text = stringResource(id = R.string.movie_main_backdrop_placeholder))
+                        },
+                        maxLines = 1
+                    )
+                    // Homepage Url
+                    OutlinedTextField(
+                        modifier = modifier.fillMaxWidth(),
+                        value = newMovieState.homepageUrl ?: "",
+                        onValueChange = {
+                            newLocalMovieViewModel.updateMovieHomepage(
+                                url = it
+                            )
+                        },
+                        label = {
+                            Text(text = stringResource(id = R.string.movie_homepage_label))
+                        },
+                        placeholder = {
+                            Text(text = stringResource(id = R.string.movie_homepage_placeholder))
+                        },
+                        maxLines = 1
+                    )
+                    // Status
+                    OutlinedTextField(
+                        modifier = modifier.fillMaxWidth(),
+                        value = newMovieState.status ?: "",
+                        onValueChange = {
+                            newLocalMovieViewModel.updateMovieStatus(
+                                status = it
+                            )
+                        },
+                        label = {
+                            Text(text = stringResource(id = R.string.status_label))
+                        },
+                        placeholder = {
+                            Text(text = stringResource(id = R.string.status_placeholder))
+                        },
+                        maxLines = 1
+                    )
+                    // Budget
+                    OutlinedTextField(
+                        modifier = modifier.fillMaxWidth(),
+                        value = newMovieState.budget?.toString() ?: "",
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
+                        ),
+                        onValueChange = {
+                            newLocalMovieViewModel.updateMovieBudget(it)
+                        },
+                        label = {
+                            Text(text = stringResource(id = R.string.budget_label))
+                        },
+                        placeholder = {
+                            Text(text = stringResource(id = R.string.budget_placeholder))
+                        },
+                        trailingIcon = {
+                            Text(text = stringResource(id = R.string.currency_unit))
+                        },
+                        maxLines = 1
+                    )
+                    // Revenue
+                    OutlinedTextField(
+                        modifier = modifier.fillMaxWidth(),
+                        value = newMovieState.revenue?.toString() ?: "",
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
+                        ),
+                        onValueChange = {
+                            newLocalMovieViewModel.updateMovieRevenue(it)
+                        },
+                        label = {
+                            Text(text = stringResource(id = R.string.revenue_label))
+                        },
+                        placeholder = {
+                            Text(text = stringResource(id = R.string.revenue_placeholder))
+                        },
+                        trailingIcon = {
+                            Text(text = stringResource(id = R.string.currency_unit))
+                        },
+                        maxLines = 1
+                    )
+                }
+                // Button
+                Row(
+                    modifier = modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    val context = LocalContext.current
+                    val coroutineScope = rememberCoroutineScope()
+                    Button(
+                        onClick = {
+                            updateAddingState(false)
+                        }
+                    ) {
+                        Text(text = stringResource(id = R.string.cancel_button))
+                    }
+                    Button(
+                        onClick = {
+                            coroutineScope.launch {
+                                if (newLocalMovieViewModel.saveEditedMovie(movieId)) {
+                                    viewModel.loadMovieInfo()
+                                    newLocalMovieViewModel.clearNewMovieState()
+                                    updateAddingState(false)
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.add_sponsored_movie_success_notification),
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.add_sponsored_movie_error_notification),
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
+                        },
+                        enabled = newLocalMovieViewModel.isNewMovieValid()
+                    ) {
+                        Text(text = stringResource(id = R.string.save_button_title))
+                    }
+                }
+            }
+        }
+    }
+}

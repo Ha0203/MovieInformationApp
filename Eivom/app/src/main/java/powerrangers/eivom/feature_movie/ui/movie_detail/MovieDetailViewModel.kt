@@ -25,9 +25,12 @@ class MovieDetailViewModel @Inject constructor(
     var userPreferences = mutableStateOf(UserPreferences())
         private set
 
-    private val movieId: Int = checkNotNull(savedStateHandle[Route.MOVIE_DETAIL_SCREEN_MOVIE_ID])
+    val movieId: Int = checkNotNull(savedStateHandle[Route.MOVIE_DETAIL_SCREEN_MOVIE_ID])
 
     var movieInformation = mutableStateOf<Resource<MovieItem>>(Resource.Loading())
+        private set
+
+    var isEditing = mutableStateOf(false)
         private set
 
     init {
@@ -52,14 +55,18 @@ class MovieDetailViewModel @Inject constructor(
                     notificationBeforeDay = userPreferencesUseCase.getNotificationBeforeDay(),
                     notificationOnDate = userPreferencesUseCase.getNotificationOnDate(),
                 )
-            movieInformation.value =
-                movieDatabaseUseCase.getMovieItemResource(
-                    movieId = movieId,
-                    landscapeWidth = 500,
-                    posterWidth = 500,
-                    dateFormat = userPreferences.value.dateFormat
-                )
+            loadMovieInfo()
         }
+    }
+
+    suspend fun loadMovieInfo() {
+        movieInformation.value =
+            movieDatabaseUseCase.getMovieItemResource(
+                movieId = movieId,
+                landscapeWidth = 500,
+                posterWidth = 500,
+                dateFormat = userPreferences.value.dateFormat
+            )
     }
 
     fun handleMovieDominantColor(drawable: Drawable, onFinish: (Color) -> Unit) {
@@ -79,5 +86,9 @@ class MovieDetailViewModel @Inject constructor(
 
     suspend fun deleteFavoriteMovie(): Boolean {
         return movieDatabaseUseCase.deleteFavoriteMovie(movieId)
+    }
+
+    fun updateIsEditing() {
+        isEditing.value = !isEditing.value
     }
 }

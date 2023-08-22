@@ -914,6 +914,18 @@ class MovieDatabaseUseCase(
         }
     }
 
+    suspend fun updateFavoriteMovie(
+        movie: MovieItem
+    ): Boolean {
+        return try {
+            localMovieDatabaseRepository.updateLocalMovieItem(movie.toLocalMovieItem())
+
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     suspend fun updateMovieNote(
         movieId: Int,
         note: String
