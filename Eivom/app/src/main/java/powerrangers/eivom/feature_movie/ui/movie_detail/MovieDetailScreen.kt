@@ -244,6 +244,9 @@ fun TopButton(
 ){
     val isEditing by remember { viewModel.isEditing }
     val movie by remember { viewModel.movieInformation }
+    val isFavorite by remember { viewModel.isFavorite }
+
+    val coroutineScope = rememberCoroutineScope()
 
     if (isEditing) {
         AddMovieDialog(
@@ -310,18 +313,52 @@ fun TopButton(
 //            tint = Color.Black
 //        )
         // Favorite
-        IconButton(onClick = { /*ADD Function*/  }) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_unfavorite),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(60.dp)
-                    .scale(-1f, 1f) // Flip horizontally
-                    .padding(10.dp)
-                ,
-                tint = Color.Black
-            )
-        }
+        FavoriteMovieButton(
+            isFavorite = isFavorite,
+            onFavoriteToggle = {
+                coroutineScope.launch {
+                    if (viewModel.isFavoriteMovie()) {
+                        viewModel.deleteFavoriteMovie()
+                        viewModel.updateIsFavorite()
+                    } else {
+                        viewModel.addFavoriteMovie()
+                        viewModel.updateIsFavorite()
+                    }
+                }
+            },
+            checkedColor = Color.Red,
+            uncheckedColor = MaterialTheme.colors.onSurface
+        )
+    }
+}
+
+@Composable
+fun FavoriteMovieButton(
+    isFavorite: Boolean,
+    onFavoriteToggle: () -> Unit,
+    modifier: Modifier = Modifier,
+    checkedColor: Color = MaterialTheme.colors.primary,
+    uncheckedColor: Color = MaterialTheme.colors.onSurface
+) {
+    val favoriteIcon = if (isFavorite) {
+        Icons.Filled.Favorite
+    } else {
+        Icons.Default.Favorite
+    }
+
+    IconButton(
+        onClick = { onFavoriteToggle() },
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = favoriteIcon,
+            contentDescription = if (isFavorite) {
+                stringResource(R.string.favorite_movie_description)
+            } else {
+                stringResource(R.string.unfavorite_movie_description)
+            },
+            tint = if (isFavorite) checkedColor else uncheckedColor
+        )
     }
 }
 

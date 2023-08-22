@@ -33,6 +33,9 @@ class MovieDetailViewModel @Inject constructor(
     var isEditing = mutableStateOf(false)
         private set
 
+    var isFavorite = mutableStateOf(false)
+        private set
+
     init {
         viewModelScope.launch {
             userPreferences.value =
@@ -55,6 +58,7 @@ class MovieDetailViewModel @Inject constructor(
                     notificationBeforeDay = userPreferencesUseCase.getNotificationBeforeDay(),
                     notificationOnDate = userPreferencesUseCase.getNotificationOnDate(),
                 )
+            isFavorite.value = isFavoriteMovie()
             loadMovieInfo()
         }
     }
@@ -86,6 +90,10 @@ class MovieDetailViewModel @Inject constructor(
 
     suspend fun deleteFavoriteMovie(): Boolean {
         return movieDatabaseUseCase.deleteFavoriteMovie(movieId)
+    }
+
+    fun updateIsFavorite() {
+        isFavorite.value = !isFavorite.value
     }
 
     fun updateIsEditing() {
