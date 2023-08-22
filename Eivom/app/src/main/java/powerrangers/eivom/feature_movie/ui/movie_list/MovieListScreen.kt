@@ -214,7 +214,7 @@ fun MovieListBody(
 
     if (isAddingMovie) {
         AddMovieDialog(
-            modifier = modifier,
+            modifier = Modifier,
             userPreferences = viewModel.userPreferences.value,
             updateAddingState = {
                 viewModel.updateAddingState(it)

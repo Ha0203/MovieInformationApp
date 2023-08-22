@@ -66,6 +66,28 @@ class NewLocalMovieViewModel @Inject constructor(
         companies.clear()
     }
 
+    fun updateMovieState(movieItem: MovieItem) {
+        newMovieState.value = NewMovieState(
+            adult = movieItem.adult,
+            landscapeImageUrl = movieItem.landscapeImageUrl,
+            budget = movieItem.budget,
+            genres = movieItem.genres,
+            homepageUrl = movieItem.homepageUrl,
+            originalLanguage = movieItem.originalLanguage,
+            originalTitle = movieItem.originalTitle,
+            overview = movieItem.overview,
+            posterUrl = movieItem.posterUrl,
+            regionReleaseDate = LocalDate.parse(movieItem.regionReleaseDate),
+            revenue = movieItem.revenue,
+            length = movieItem.length,
+            spokenLanguages = movieItem.spokenLanguages,
+            status = movieItem.status,
+            title = movieItem.title,
+            voteAverage = movieItem.voteAverage,
+            voteCount = movieItem.voteCount,
+        )
+    }
+
     suspend fun saveEditedMovie(movieId: Int): Boolean {
         if (isNewMovieValid()) {
             return movieDatabaseUseCase.updateFavoriteMovie(

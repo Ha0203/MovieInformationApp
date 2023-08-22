@@ -84,6 +84,7 @@ import kotlinx.coroutines.launch
 import powerrangers.eivom.R
 import powerrangers.eivom.domain.utility.Resource
 import powerrangers.eivom.domain.utility.ResourceErrorMessage
+import powerrangers.eivom.feature_movie.domain.model.MovieItem
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
 import powerrangers.eivom.feature_movie.ui.movie_list.AddOrDeleteButton
 import powerrangers.eivom.feature_movie.ui.movie_list.NewLocalMovieViewModel
@@ -254,8 +255,7 @@ fun TopButton(
             userPreferences = viewModel.userPreferences.value,
             updateAddingState = {
                 viewModel.updateIsEditing()
-            },
-            movieId = viewModel.movieId
+            }
         )
     }
 
@@ -1264,12 +1264,13 @@ fun AddMovieDialog(
     userPreferences: UserPreferences,
     newLocalMovieViewModel: NewLocalMovieViewModel = hiltViewModel(),
     updateAddingState: (Boolean) -> Unit,
-    movieId: Int,
     viewModel: MovieDetailViewModel = hiltViewModel()
 ) {
     val newMovieState by remember { newLocalMovieViewModel.newMovieState }
 
     val companies = remember { newLocalMovieViewModel.companies }
+
+    newLocalMovieViewModel.updateMovieState(viewModel.movieInformation.value.data!!)
 
     Dialog(
         onDismissRequest = {
@@ -1813,7 +1814,7 @@ fun AddMovieDialog(
                     Button(
                         onClick = {
                             coroutineScope.launch {
-                                if (newLocalMovieViewModel.saveEditedMovie(movieId)) {
+                                if (newLocalMovieViewModel.saveEditedMovie(viewModel.movieId)) {
                                     viewModel.loadMovieInfo()
                                     newLocalMovieViewModel.clearNewMovieState()
                                     updateAddingState(false)
