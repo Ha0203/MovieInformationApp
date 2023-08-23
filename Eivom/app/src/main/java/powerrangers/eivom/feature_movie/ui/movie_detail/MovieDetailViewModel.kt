@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import powerrangers.eivom.domain.use_case.GoogleAuthClient
 import powerrangers.eivom.feature_movie.domain.model.MovieItem
 import powerrangers.eivom.feature_movie.domain.use_case.MovieDatabaseUseCase
 import powerrangers.eivom.domain.use_case.UserPreferencesUseCase
@@ -20,6 +21,7 @@ import javax.inject.Inject
 class MovieDetailViewModel @Inject constructor(
     private val userPreferencesUseCase: UserPreferencesUseCase,
     private val movieDatabaseUseCase: MovieDatabaseUseCase,
+    private val googleAuthClient: GoogleAuthClient,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     var userPreferences = mutableStateOf(UserPreferences())
@@ -35,6 +37,8 @@ class MovieDetailViewModel @Inject constructor(
 
     var isFavorite = mutableStateOf(false)
         private set
+
+    private var user = mutableStateOf(googleAuthClient.getSignedInUser())
 
     init {
         viewModelScope.launch {
@@ -80,6 +84,10 @@ class MovieDetailViewModel @Inject constructor(
     fun isFavoriteMovie(): Boolean = movieDatabaseUseCase.isFavoriteMovie(movieId)
     fun isWatchedMovie(): Boolean = movieDatabaseUseCase.isWatchedMovie(movieId)
     fun isSponsoredMovie(): Boolean = movieDatabaseUseCase.isSponsoredMovie(movieId)
+
+    fun isSponsoredEdit(): Boolean {
+        return user.value is Resource.Success && movieInformation.value.data != null && movieInformation.value.data!!.sponsored
+    }
 
     suspend fun addFavoriteMovie(): Boolean {
         if (movieInformation.value.data != null) {

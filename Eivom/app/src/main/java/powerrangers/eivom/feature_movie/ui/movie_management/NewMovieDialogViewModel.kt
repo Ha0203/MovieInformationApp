@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import powerrangers.eivom.domain.use_case.GoogleAuthClient
 import powerrangers.eivom.domain.use_case.UserPreferencesUseCase
+import powerrangers.eivom.feature_movie.domain.model.MovieItem
 import powerrangers.eivom.feature_movie.domain.use_case.SponsoredMovieFirebaseUseCase
 import powerrangers.eivom.feature_movie.domain.utility.MovieKey
 import powerrangers.eivom.feature_movie.domain.utility.TranslateCode
@@ -45,6 +46,8 @@ class NewMovieDialogViewModel @Inject constructor(
     var videoStateList = mutableStateListOf<VideoState>()
         private set
 
+    private var movieKeyId = mutableStateOf("")
+
     val genreList = TranslateCode.GENRE.toList()
     val languageList = TranslateCode.ISO_639_1.toList()
     val countryList = TranslateCode.ISO_3166_1.toList()
@@ -72,6 +75,75 @@ class NewMovieDialogViewModel @Inject constructor(
                     notificationBeforeDay = userPreferencesUseCase.getNotificationBeforeDay(),
                     notificationOnDate = userPreferencesUseCase.getNotificationOnDate(),
                 )
+        }
+    }
+
+    suspend fun updateSponsoredMovie(movieItem: MovieItem): Boolean {
+        return try {
+            movieKeyId.value =
+                sponsoredMovieFirebaseUseCase.getSponsoredMovieKey(movieItem.id).data!!
+
+            val reversedGenre = TranslateCode.GENRE.entries.associateBy({ it.value }) { it.key }
+            val reversedLanguage =
+                TranslateCode.ISO_639_1.entries.associateBy({ it.value }) { it.key }
+            val reversedCountry =
+                TranslateCode.ISO_3166_1.entries.associateBy({ it.value }) { it.key }
+            newMovieState.value = SponsoredMovieState(
+                adult = movieItem.adult,
+                landscapeImageUrl = movieItem.landscapeImageUrl,
+                budget = movieItem.budget,
+                genres = movieItem.genres.map { genre ->
+                    reversedGenre[genre] ?: 0
+                },
+                homepageUrl = movieItem.homepageUrl,
+                originalLanguage = movieItem.originalLanguage,
+                originalTitle = movieItem.originalTitle,
+                overview = movieItem.overview,
+                posterUrl = movieItem.posterUrl,
+                productionCountries = movieItem.productionCountries.map { country ->
+                    reversedCountry[country] ?: ""
+                },
+                releaseDate = LocalDate.parse(movieItem.regionReleaseDate),
+                revenue = movieItem.revenue,
+                length = movieItem.length,
+                spokenLanguages = movieItem.spokenLanguages.map { language ->
+                    reversedLanguage[language] ?: ""
+                },
+                status = movieItem.status,
+                title = movieItem.title
+            )
+            collectionState.value = CollectionState(
+                name = movieItem.collection.name,
+                posterUrl = movieItem.collection.posterUrl,
+                backdropUrl = movieItem.collection.landscapeImageUrl
+            )
+            companyStateList.addAll(
+                movieItem.productionCompanies.map { company ->
+                    CompanyState(
+                        name = company.name,
+                        logoUrl = company.logoImageUrl,
+                        originCountry = reversedCountry[company.originCountry]
+                    )
+                }
+            )
+            movieLogoUrlList.addAll(movieItem.logoImageUrls)
+            moviePosterUrlList.addAll(movieItem.posterUrls)
+            movieBackdropUrlList.addAll(movieItem.landscapeImageUrls)
+            videoStateList.addAll(
+                movieItem.videos.map { video ->
+                    VideoState(
+                        name = video.name,
+                        url = video.url,
+                        language = reversedLanguage[video.language],
+                        country = reversedCountry[video.country],
+                        site = video.site,
+                        type = video.type
+                    )
+                }
+            )
+            true
+        } catch (e: Exception) {
+            return false
         }
     }
 
@@ -105,6 +177,31 @@ class NewMovieDialogViewModel @Inject constructor(
         }
     }
 
+    fun saveSponsoredMovie(movieId: Int): Boolean {
+        return try {
+            if (!isMovieInformationValid(isMatch = true)) {
+                return false
+            }
+            sponsoredMovieFirebaseUseCase.saveSponsoredMovie(
+                movieKey = movieKey.value!!,
+                movie = newMovieState.value.toSponsoredMovie(
+                    movieId = movieId,
+                    userId = googleAuthClient.getSignedInUser().data!!.userId,
+                    keyId = movieKey.value!!.id,
+                    collectionState = collectionState.value,
+                    companyStateList = companyStateList,
+                    landscapeImageUrls = movieBackdropUrlList,
+                    posterUrls = moviePosterUrlList,
+                    logoUrls = movieLogoUrlList,
+                    videoStateList = videoStateList
+                )
+            )
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     fun clearNewMovieState() {
         movieKeyField.value = ""
         newMovieState.value = SponsoredMovieState()
@@ -118,6 +215,9 @@ class NewMovieDialogViewModel @Inject constructor(
 
     // Validate functions
     fun isMovieKeyValid(): Boolean = movieKey.value?.addEnabled ?: false
+    fun isMovieKeyMatch(): Boolean {
+        return movieKey.value?.id == movieKeyId.value
+    }
 
     private fun isMovieCompanyListValid(): Boolean {
         if (companyStateList.isEmpty()) {
@@ -145,7 +245,12 @@ class NewMovieDialogViewModel @Inject constructor(
         }
     }
 
-    fun isMovieInformationValid(): Boolean = isKeyChecked.value && isMovieKeyValid() && newMovieState.value.isValid() && (collectionState.value?.isValid() ?: true) && isMovieCompanyListValid() && isMovieVideoListValid()
+    fun isMovieInformationValid(isMatch: Boolean = false): Boolean {
+        if (isMatch) {
+            return isKeyChecked.value && isMovieKeyMatch() && newMovieState.value.isValid() && (collectionState.value?.isValid() ?: true) && isMovieCompanyListValid() && isMovieVideoListValid()
+        }
+        return isKeyChecked.value && isMovieKeyValid() && newMovieState.value.isValid() && (collectionState.value?.isValid() ?: true) && isMovieCompanyListValid() && isMovieVideoListValid()
+    }
 
     // Update new movie state functions
     fun updateMovieKeyField(key: String) {

@@ -34,6 +34,7 @@ fun SponsoredMovieState.isValid(): Boolean =
             && releaseDate != null && !title.isNullOrBlank()
 
 fun SponsoredMovieState.toSponsoredMovie(
+    movieId: Int? = null,
     userId: String,
     keyId: String,
     collectionState: CollectionState?,
@@ -45,7 +46,7 @@ fun SponsoredMovieState.toSponsoredMovie(
 ): SponsoredMovie {
     val defaultFormatter = DateTimeFormatter.ofPattern(DefaultValue.DATE_FORMAT)
     return SponsoredMovie(
-        id = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmmss")).toInt(),
+        id = movieId ?: LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmmss")).toInt(),
         keyId = keyId,
         userId = userId,
         adult = this.adult!!,

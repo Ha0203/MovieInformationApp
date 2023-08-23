@@ -95,6 +95,23 @@ class SponsoredMovieFirebaseUseCase {
         }
     }
 
+    suspend fun getSponsoredMovieKey(id: Int): Resource<String> {
+        try {
+            val querySnapshot = sponsoredMoviesCollectionReference
+                .whereEqualTo(FieldPath.documentId(), id.toString())
+                .get()
+                .await()
+            for (document in querySnapshot.documents) {
+                return Resource.Success(
+                    data = document.toObject<SponsoredMovie>()!!.keyId
+                )
+            }
+            return Resource.Error(message = "Not Found")
+        } catch (e: Exception) {
+            return Resource.Error(message = e.message ?: e.toString())
+        }
+    }
+
     fun saveSponsoredMovie(movieKey: MovieKey, movie: SponsoredMovie): Boolean {
         return try {
             sponsoredMoviesCollectionReference.document(movie.id.toString()).set(movie)
