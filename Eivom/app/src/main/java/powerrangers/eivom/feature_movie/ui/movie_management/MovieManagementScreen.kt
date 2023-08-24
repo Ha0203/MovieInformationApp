@@ -165,7 +165,7 @@ fun MovieManagementBody(
 
     if (isAddingMovie) {
         AddMovieDialog(
-            modifier = modifier,
+            modifier = Modifier,
             updateAddingState = {
                 movieManagementViewModel.updateAddingState(
                     isAdding = it
