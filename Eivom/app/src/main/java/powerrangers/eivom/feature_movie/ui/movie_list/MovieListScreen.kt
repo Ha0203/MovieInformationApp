@@ -1098,26 +1098,6 @@ fun MovieListEntry(
                 ,
                 contentScale = ContentScale.Fit,
             )
-//            SubcomposeAsyncImage(
-//                model = ImageRequest.Builder(context = LocalContext.current)
-//                    .data(movie.posterUrl)
-//                    .crossfade(true)
-//                    .build(),
-//                onSuccess = { image ->
-//                    handleMovieDominantColor(image.result.drawable) { color ->
-//                        dominantColor = color
-//                    }
-//                },
-//                contentDescription = movie.title,
-//                contentScale = ContentScale.Fit,
-//                loading = {
-//                    CircularProgressIndicator(
-//                        modifier = modifier
-//                            .fillMaxWidth()
-//                            .scale(0.25f)
-//                    )
-//                }
-//            )
             Text(
                 text = movie.title,
                 textAlign = TextAlign.Center,
@@ -3041,105 +3021,7 @@ fun FilterDialog(
     )
 }
 
-@Composable
-fun NoteDialog(
-    funcToCall: () -> Unit,
-    onDismiss: () -> Unit,
-    viewModel: MovieListViewModel = hiltViewModel()
-) {
-    Dialog(
-        onDismissRequest = {
-            onDismiss()
-        },
-        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = true),
-        content = {
-            Column(
-                modifier = Modifier
-                    .padding(10.dp)
-                    .background(MaterialTheme.colors.primary)
-                    .fillMaxWidth()
-                    .width(300.dp)
-                    .height(200.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .padding(top = 5.dp)
-                        .fillMaxWidth()
-                        .height(50.dp)
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.note),
-                        textAlign = TextAlign.Left,
-                        fontSize = 30.sp,
-                        fontFamily = LobsterRegular,
-                        color = Color.White,
-                        modifier = Modifier
-                            .height(50.dp)
-                            .padding(10.dp)
-                    )
 
-                    Spacer(modifier = Modifier.weight(0.5f))
-
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier
-                                .size(30.dp)
-                                .padding(7.dp)
-                        )
-                    }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .width(300.dp)
-                        .height(200.dp)
-                        .padding(10.dp)
-                        .clip(RoundedCornerShape(20.dp))
-
-                ){
-                    //OutlinedTextField(value = , onValueChange = )
-                    var userNote = ""
-                    OutlinedTextField(
-                        value = userNote,
-                        singleLine = true,
-                        modifier = Modifier
-                            .fillMaxSize()
-                        ,
-                        colors = TextFieldDefaults.textFieldColors(
-                            textColor = Color.Black,
-                            backgroundColor = Color.White
-                        ),
-                        onValueChange = { userNote = it },
-                        placeholder = {
-                            Text(
-                                text = "Note Something",
-                                fontFamily = PoppinsItalic,
-                                fontSize = 12.sp,
-                                color = Color.Black
-                            )
-                        },
-                        textStyle = TextStyle(
-                            fontSize = 12.sp,
-                            fontFamily = Poppins,
-                            textAlign = TextAlign.Start
-                        ),
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                /*To Do*/
-                            }
-                        )
-                    )
-                }
-            }
-        }
-    )
-}
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable

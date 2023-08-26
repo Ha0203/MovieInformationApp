@@ -48,7 +48,7 @@ class MovieDetailViewModel @Inject constructor(
                     topbarBackgroundColor = userPreferencesUseCase.getTopbarBackgroundColor(),
                     sidebarBackgroundColor = userPreferencesUseCase.getSidebarBackgroundColor(),
                     screenBackgroundColor = userPreferencesUseCase.getScreenBackgroundColor(),
-                    movieNoteBackgroundColor = userPreferencesUseCase.getMovieNoteBackgroundColor(),
+                    /**/movieNoteBackgroundColor = userPreferencesUseCase.getMovieNoteBackgroundColor(),
                     dialogBackgroundColor = userPreferencesUseCase.getDialogBackgroundColor(),
                     topbarTextColor = userPreferencesUseCase.getTopbarTextColor(),
                     sidebarTextColor = userPreferencesUseCase.getSidebarTextColor(),

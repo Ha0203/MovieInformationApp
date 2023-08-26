@@ -65,6 +65,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -144,7 +145,16 @@ fun MovieDetailScreen(
         )
     }
 }
+fun isColorLight(color: Color): Boolean {
+    // Calculate the luminance of the color
+    val luminance = color.luminance()
 
+    // You can adjust the threshold value according to your preference
+    val threshold = 0.5
+
+    // Compare the luminance with the threshold to determine if the color is light or dark
+    return luminance > threshold
+}
 @Composable
 fun MovieDetailBody(
     modifier: Modifier = Modifier,
@@ -154,8 +164,8 @@ fun MovieDetailBody(
     val movie by remember { viewModel.movieInformation }
 
     val defaultBackgroundColor = MaterialTheme.colors.background
-    var backgroundColor by remember {
-        mutableStateOf(defaultBackgroundColor)
+    val userPreferences by remember {
+        viewModel.userPreferences
     }
 
     when (movie) {
@@ -164,7 +174,14 @@ fun MovieDetailBody(
         }
         is Resource.Success -> {
 
-            LazyColumn (modifier = Modifier.padding(10.dp)) {
+            LazyColumn (
+                modifier = Modifier
+                    .padding(10.dp)
+                    .background(
+                        if(userPreferences.colorMode) userPreferences.movieNoteBackgroundColor
+                        else Color.White
+                    )
+            ) {
                 //Top Button
                 item{
                     TopButton(navigateToMovieNote = {navigateToMovieNote()})
@@ -253,7 +270,7 @@ fun TopButton(
     val isEditing by remember { viewModel.isEditing }
     val movie by remember { viewModel.movieInformation }
     val isFavorite by remember { viewModel.isFavorite }
-
+    var isWatched = remember { mutableStateOf(false)}
     val coroutineScope = rememberCoroutineScope()
 
     if (isEditing) {
@@ -318,16 +335,20 @@ fun TopButton(
             }
         }
         // Watched
-//        Icon(
-//            painter = painterResource(id = R.drawable.ic_watched),
-//            contentDescription = null,
-//            modifier = Modifier
-//                .size(60.dp)
-//                .scale(-1f, 1f) // Flip horizontally
-//                .padding(5.dp)
-//            ,
-//            tint = Color.Black
-//        )
+        IconButton(onClick = { isWatched.value = !isWatched.value }) {
+            Icon(
+                painter = if (isWatched.value) painterResource(id = R.drawable.ic_visibility) else painterResource(
+                    id = R.drawable.ic_eyedown
+                ),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(60.dp)
+                    .scale(-1f, 1f) // Flip horizontally
+                    .padding(6.dp)
+                ,
+                tint = Color.Black
+            )
+        }
         // Favorite
         FavoriteMovieButton(
             isFavorite = isFavorite,
@@ -373,7 +394,9 @@ fun FavoriteMovieButton(
             } else {
                 stringResource(R.string.unfavorite_movie_description)
             },
-            tint = if (isFavorite) checkedColor else uncheckedColor
+            tint = if (isFavorite) checkedColor else uncheckedColor,
+            modifier = Modifier.size(40.dp)
+
         )
     }
 }

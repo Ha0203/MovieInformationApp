@@ -171,7 +171,7 @@ fun BottomDefaultScreenBar(
 
 
             // Sort
-            IconButton(onClick = { viewModel.reverseIsSort() }) {
+            IconButton(onClick = { if(viewModel.trendingFilter.value == null) viewModel.reverseIsSort() }) {
                 Icon(
                     modifier = modifier.padding(
                         top=7.dp,
@@ -185,7 +185,7 @@ fun BottomDefaultScreenBar(
                 )
             }
             // Sort Dialog
-                if (isSortVisible) {
+                if (isSortVisible ) {
                     SortButton(
                         funcToCall = {
                             viewModel.reverseIsSort()
