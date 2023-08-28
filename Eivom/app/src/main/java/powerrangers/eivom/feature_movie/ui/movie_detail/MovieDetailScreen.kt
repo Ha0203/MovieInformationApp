@@ -105,6 +105,7 @@ import powerrangers.eivom.ui.theme.PoppinsBold
 import powerrangers.eivom.ui.theme.PoppinsItalic
 import powerrangers.eivom.ui.theme.PoppinsMedium
 import powerrangers.eivom.ui.utility.UserPreferences
+import java.lang.StrictMath.round
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -176,9 +177,8 @@ fun MovieDetailBody(
 
             LazyColumn (
                 modifier = Modifier
-                    .padding(10.dp)
                     .background(
-                        if(userPreferences.colorMode) userPreferences.movieNoteBackgroundColor
+                        if (userPreferences.colorMode) userPreferences.movieNoteBackgroundColor
                         else Color.White
                     )
             ) {
@@ -272,6 +272,7 @@ fun TopButton(
     val isFavorite by remember { viewModel.isFavorite }
     var isWatched = remember { mutableStateOf(false)}
     val coroutineScope = rememberCoroutineScope()
+    val userPreferences = remember { viewModel.userPreferences}
 
     if (isEditing) {
         if (movie.data!!.sponsored) {
@@ -303,7 +304,7 @@ fun TopButton(
                     .scale(-1f, 1f) // Flip horizontally
                     .padding(10.dp)
                 ,
-                tint = Color.Black
+                tint = if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) Color.Black else Color.White
             )
         }
         Spacer(modifier = Modifier.weight(1f))
@@ -317,7 +318,7 @@ fun TopButton(
                         .size(60.dp)
                         .scale(-1f, 1f) // Flip horizontally
                         .padding(10.dp),
-                    tint = Color.Black
+                    tint = if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) Color.Black else Color.White
                 )
             }
         }
@@ -330,7 +331,7 @@ fun TopButton(
                         .size(60.dp)
                         .scale(-1f, 1f) // Flip horizontally
                         .padding(10.dp),
-                    tint = Color.Black
+                    tint = if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) Color.Black else Color.White
                 )
             }
         }
@@ -346,7 +347,7 @@ fun TopButton(
                     .scale(-1f, 1f) // Flip horizontally
                     .padding(6.dp)
                 ,
-                tint = Color.Black
+                tint = if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) Color.Black else Color.White
             )
         }
         // Favorite
@@ -364,7 +365,7 @@ fun TopButton(
                 }
             },
             checkedColor = Color.Red,
-            uncheckedColor = MaterialTheme.colors.onSurface
+            uncheckedColor = if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) Color.Black else MaterialTheme.colors.onSurface
         )
     }
 }
@@ -396,7 +397,6 @@ fun FavoriteMovieButton(
             },
             tint = if (isFavorite) checkedColor else uncheckedColor,
             modifier = Modifier.size(40.dp)
-
         )
     }
 }
@@ -419,7 +419,9 @@ fun FilmTitle(
             .data(posterUrl)
             .build()
     )
-
+    val userPreferences = remember {
+        mutableStateOf(viewModel.userPreferences)
+    }
 
     Row(
         horizontalArrangement = Arrangement.Start,
@@ -440,32 +442,6 @@ fun FilmTitle(
                 .clip(CircleShape),
             contentScale = ContentScale.Crop,
         )
-//        SubcomposeAsyncImage(
-//            modifier = modifier
-//                .size(100.dp)
-//                .padding(13.dp)
-//                .clip(CircleShape)
-//            ,
-//            contentScale = ContentScale.Crop,
-//            model = ImageRequest.Builder(LocalContext.current)
-//                .data(posterUrl)
-//                .crossfade(true)
-//                .build()
-//            ,
-//            onSuccess = { image ->
-//                viewModel.handleMovieDominantColor(image.result.drawable) { color ->
-//                    onFocusColor = color
-//                }
-//
-//            },
-//            contentDescription = movie.data!!.title,
-//            loading = {
-//                CircularProgressIndicator(
-//                    modifier = modifier
-//                        .scale(0.25f)
-//                )
-//            }
-//        )
 
         Column(
             modifier = Modifier
@@ -541,7 +517,7 @@ fun Overview(
     viewModel: MovieDetailViewModel = hiltViewModel(),
 ){
     val movie by remember { viewModel.movieInformation }
-
+    val userPreferences = remember { viewModel.userPreferences }
     Column(
         modifier = Modifier.padding(top = 5.dp)
     ) {
@@ -558,7 +534,7 @@ fun Overview(
                 text = "Overview",
                 fontSize = 26.sp,
                 fontFamily = PoppinsBold,
-                color = MaterialTheme.colors.primary,
+                color = if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) MaterialTheme.colors.primary else Color.White,
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -574,10 +550,10 @@ fun Overview(
             )
 
             Text(
-                text = "${movie.data!!.voteAverage}",
+                text = "${round(movie.data!!.voteAverage.toFloat())}",
                 fontSize = 20.sp,
                 fontFamily = PoppinsBold,
-                color = Color.LightGray,
+                color = if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) Color.LightGray else Color.Gray,
                 modifier = Modifier.padding(top = 7.dp)
             )
 
@@ -589,7 +565,11 @@ fun Overview(
             fontSize = 14.sp,
             fontFamily = PoppinsMedium,
             textAlign = TextAlign.Start,
-            color = Color.Black,
+            color = if (userPreferences.value.colorMode) userPreferences.value.movieNoteTextColor
+            else
+            {
+                if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) Color.Black else Color.White
+            },
             modifier = Modifier
                 .padding(
                 start = 18.dp,
@@ -606,7 +586,7 @@ fun GenresList(
     viewModel: MovieDetailViewModel = hiltViewModel(),
 ){
     val movie by remember { viewModel.movieInformation }
-
+    val userPreferences = remember { viewModel.userPreferences }
     Row(
         modifier = Modifier.padding(
             17.dp
@@ -616,7 +596,7 @@ fun GenresList(
             text = "Genres",
             fontSize = 26.sp,
             fontFamily = PoppinsBold,
-            color = MaterialTheme.colors.primary,
+            color = if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) MaterialTheme.colors.primary else Color.White,
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -653,7 +633,7 @@ fun GenreBox(
         backgroundColor = Color.Black,
         modifier = Modifier
             .height(40.dp)
-            .width((genre.length + 60).dp)
+            .width((genre.length + 70).dp)
             .padding(5.dp)
         ,
         shape = RoundedCornerShape(8.dp)
@@ -679,7 +659,7 @@ fun GenreCard(
         backgroundColor = Color.Black,
         modifier = Modifier
             .height(40.dp)
-            .width(80.dp)
+            .width((genre.length + 70).dp)
             .padding(5.dp)
         ,
         shape = RoundedCornerShape(8.dp)
@@ -705,7 +685,7 @@ fun TagLine(
     viewModel: MovieDetailViewModel = hiltViewModel(),
 ){
     val movie by remember { viewModel.movieInformation }
-
+    val userPreferences = remember { viewModel.userPreferences }
     Column(
         modifier = Modifier.padding(
             start = 17.dp,
@@ -717,14 +697,17 @@ fun TagLine(
             text =  "Tagline",
             fontSize = 26.sp,
             fontFamily = PoppinsBold,
-            color = MaterialTheme.colors.primary,
+            color = if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) MaterialTheme.colors.primary else Color.White,
         )
 
         Text(
             text = if (movie.data!!.tagline.length > 0) "${movie.data!!.tagline}" else "Comming Soon",
             fontSize = 15.sp,
             fontFamily = PoppinsMedium,
-            color = Color.Black,
+            color = if (userPreferences.value.colorMode) userPreferences.value.movieNoteTextColor
+                else {
+                if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) Color.Black else Color.White
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(7.dp),
@@ -739,7 +722,7 @@ fun Status(
     viewModel: MovieDetailViewModel = hiltViewModel(),
 ){
     val movie by remember { viewModel.movieInformation }
-
+    val userPreferences = remember {viewModel.userPreferences}
     Row(
         modifier = Modifier.padding(
             start = 17.dp,
@@ -750,13 +733,21 @@ fun Status(
             text = "Status",
             fontSize = 26.sp,
             fontFamily = PoppinsBold,
-            color = MaterialTheme.colors.primary,
+            color = if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) MaterialTheme.colors.primary else Color.White,
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
         Card(
-            backgroundColor = if (movie.data!!.status == "Released") MaterialTheme.colors.primary else Color.LightGray,
+            backgroundColor =
+                if (movie.data!!.status == "Released")
+                {
+                    if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) MaterialTheme.colors.primary
+                    else Color.Red
+                }
+                else {
+                    if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) Color.LightGray else Color.Gray
+                },
             modifier = Modifier
                 .height(40.dp)
                 .width(if (movie.data!!.status.length > 0) (movie.data!!.status.length + 75).dp else 85.dp)
@@ -769,7 +760,13 @@ fun Status(
                 text = if (movie.data!!.status.length > 0) "${movie.data!!.status}" else "Comming Soon",
                 fontSize = if (movie.data!!.status.length > 0) (12 / movie.data!!.status.length + 9).sp else 10.sp,
                 fontFamily = if (movie.data!!.status == "Released") PoppinsMedium else PoppinsItalic,
-                color = if (movie.data!!.status == "Released") Color.White else Color.Gray,
+                color =
+                if (movie.data!!.status == "Released") {
+                    if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) Color.White else Color.Yellow
+                }
+                else {
+                    Color.Gray
+                },
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(
                     top = 7.dp,
@@ -788,7 +785,7 @@ fun Duration(
     viewModel: MovieDetailViewModel = hiltViewModel(),
 ){
     val movie by remember { viewModel.movieInformation }
-
+    val userPreferences = remember {viewModel.userPreferences}
     Row(
         modifier = Modifier.padding(
             start = 17.dp,
@@ -800,7 +797,7 @@ fun Duration(
             text = "Duration",
             fontSize = 26.sp,
             fontFamily = PoppinsBold,
-            color = MaterialTheme.colors.primary,
+            color = if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) MaterialTheme.colors.primary else Color.White,
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -837,7 +834,7 @@ fun ReleaseDate(
     val movie by remember { viewModel.movieInformation }
     val localDate = LocalDate.parse(movie.data!!.regionReleaseDate)
     val formattedDate = localDate.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy"))
-
+    val userPreferences = remember {viewModel.userPreferences}
     Row(
         modifier = Modifier.padding(
             start = 17.dp,
@@ -849,16 +846,20 @@ fun ReleaseDate(
             text = "Release Date",
             fontSize = 26.sp,
             fontFamily = PoppinsBold,
-            color = MaterialTheme.colors.primary,
+            color = if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) MaterialTheme.colors.primary else Color.White,
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
         Card(
-            backgroundColor = if (movie.data!!.regionReleaseDate.length > 0) MaterialTheme.colors.primary else Color.LightGray,
+            backgroundColor =
+                if (movie.data!!.regionReleaseDate.length > 0) {
+                    if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) MaterialTheme.colors.primary
+                    else Color.Black
+                } else Color.LightGray,
             modifier = Modifier
                 .height(if (formattedDate.length <= 12) 40.dp else 50.dp)
-                .width(90.dp)
+                .width(85.dp)
                 .padding(6.dp)
             ,
             shape = RoundedCornerShape(8.dp)
@@ -884,6 +885,7 @@ fun Budget(
     viewModel: MovieDetailViewModel = hiltViewModel(),
 ){
     val movie by remember { viewModel.movieInformation }
+    val userPreferences = remember {viewModel.userPreferences}
     val budget =(movie.data!!.budget.toDouble() / 1000000).toDouble()
     Row(
         modifier = Modifier.padding(
@@ -896,7 +898,7 @@ fun Budget(
             text = "Budget",
             fontSize = 26.sp,
             fontFamily = PoppinsBold,
-            color = MaterialTheme.colors.primary,
+            color = if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) MaterialTheme.colors.primary else Color.White,
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -933,6 +935,7 @@ fun Revenue(
     val movie by remember { viewModel.movieInformation }
     val revenue = if (movie.data!!.revenue < 1000000000) (movie.data!!.revenue.toDouble() / 1000000).toDouble() else (movie.data!!.revenue.toDouble() / 1000000000).toDouble()
     val revenueReformat = formatDoubleDecimalPlacesWithNumberFormat(revenue, 2)
+    val userPreferences = remember {viewModel.userPreferences}
     Row(
         modifier = Modifier.padding(
             start = 17.dp,
@@ -944,7 +947,7 @@ fun Revenue(
             text = "Revenue",
             fontSize = 26.sp,
             fontFamily = PoppinsBold,
-            color = MaterialTheme.colors.primary,
+            color = if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) MaterialTheme.colors.primary else Color.White,
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -961,7 +964,7 @@ fun Revenue(
         ){
             Text(
                 text = if (movie.data!!.revenue < 1000000000) "$${revenueReformat}M" else "$${revenueReformat}B",
-                fontSize = 12.sp,
+                fontSize = 11.sp,
                 fontFamily = PoppinsMedium,
                 color = Color.White,
                 textAlign = TextAlign.Center,
@@ -985,7 +988,7 @@ fun LanguageList(
     viewModel: MovieDetailViewModel = hiltViewModel(),
 ){
     val movie by remember { viewModel.movieInformation }
-
+    val userPreferences = remember {viewModel.userPreferences}
     Row(
         modifier = Modifier.padding(
             top = 17.dp,
@@ -997,7 +1000,7 @@ fun LanguageList(
             text = "Language",
             fontSize = 26.sp,
             fontFamily = PoppinsBold,
-            color = MaterialTheme.colors.primary,
+            color = if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) MaterialTheme.colors.primary else Color.White,
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -1088,7 +1091,7 @@ fun CountryList(
     viewModel: MovieDetailViewModel = hiltViewModel(),
 ){
     val movie by remember { viewModel.movieInformation }
-
+    val userPreferences = remember {viewModel.userPreferences}
     Row(
         modifier = Modifier.padding(
             17.dp
@@ -1098,7 +1101,7 @@ fun CountryList(
             text = "Country",
             fontSize = 26.sp,
             fontFamily = PoppinsBold,
-            color = MaterialTheme.colors.primary,
+            color = if (isColorLight(userPreferences.value.movieNoteBackgroundColor)) MaterialTheme.colors.primary else Color.White,
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -1182,120 +1185,6 @@ fun CountryBox(
 
 }
 
-//Box(modifier = modifier
-//.background(
-//Brush.verticalGradient(
-//listOf(
-//backgroundColor,
-//defaultBackgroundColor
-//)
-//)
-//)
-//.fillMaxSize()
-//) {
-//    Column(
-//        modifier = modifier
-//            .verticalScroll(rememberScrollState()),
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//        SubcomposeAsyncImage(
-//            modifier = modifier.fillMaxWidth(),
-//            model = ImageRequest.Builder(context = LocalContext.current)
-//                .data(movie.data!!.landscapeImageUrl)
-//                .crossfade(true)
-//                .build(),
-//            contentDescription = movie.data!!.title,
-//            contentScale = ContentScale.Fit,
-//            loading = {
-//                CircularProgressIndicator(
-//                    modifier = modifier
-//                        .fillMaxWidth()
-//                        .scale(0.25f)
-//                )
-//            }
-//        )
-//        SubcomposeAsyncImage(
-//            modifier = modifier.fillMaxWidth(),
-//            model = ImageRequest.Builder(context = LocalContext.current)
-//                .data(movie.data!!.posterUrl)
-//                .crossfade(true)
-//                .build(),
-//            onSuccess = { image ->
-//                viewModel.handleMovieDominantColor(image.result.drawable) { color ->
-//                    backgroundColor = color
-//                }
-//            },
-//            contentDescription = movie.data!!.title,
-//            contentScale = ContentScale.Fit,
-//            loading = {
-//                CircularProgressIndicator(
-//                    modifier = modifier
-//                        .fillMaxWidth()
-//                        .scale(0.25f)
-//                )
-//            }
-//        )
-//        Spacer(modifier = Modifier.height(8.dp))
-//        Text(text = "--- Adult: ${movie.data!!.adult} ---")
-//        Spacer(modifier = Modifier.height(8.dp))
-//        Text(text = "--- Budget: ${movie.data!!.budget} ---")
-//        Spacer(modifier = Modifier.height(8.dp))
-//        Text(text = "--- Homepage URL: ${movie.data!!.homepageUrl} ---")
-//        Spacer(modifier = Modifier.height(8.dp))
-//        Text(text = "--- ID: ${movie.data!!.id} ---")
-//        Spacer(modifier = Modifier.height(8.dp))
-//        Text(text = "--- Original Language: ${movie.data!!.originalLanguage} ---")
-//        Spacer(modifier = Modifier.height(8.dp))
-//        Text(text = "--- Original Title: ${movie.data!!.originalTitle} ---")
-//        Spacer(modifier = Modifier.height(8.dp))
-//        Text(text = "--- Overview: ${movie.data!!.overview} ---")
-//        Spacer(modifier = Modifier.height(8.dp))
-//        Text(text = "--- Revenue: ${movie.data!!.revenue} ---")
-//        Spacer(modifier = Modifier.height(8.dp))
-//        Text(text = "--- Length: ${movie.data!!.length} ---")
-//        Spacer(modifier = Modifier.height(8.dp))
-//        Text(text = "--- Status: ${movie.data!!.status} ---")
-//        Spacer(modifier = Modifier.height(8.dp))
-//        Text(text = "--- Tagline: ${movie.data!!.tagline} ---")
-//        Spacer(modifier = Modifier.height(8.dp))
-//        Text(text = "--- Title: ${movie.data!!.title} ---")
-//        Spacer(modifier = Modifier.height(8.dp))
-//        Text(text = "--- Vote Average: ${movie.data!!.voteAverage} ---")
-//        Spacer(modifier = Modifier.height(8.dp))
-//        Text(text = "--- Vote Count: ${movie.data!!.voteCount} ---")
-//        Spacer(modifier = Modifier.height(8.dp))
-//        Text(text = "--- Collection ---")
-//        Text(text = "ID: ${movie.data!!.collection.id}")
-//        Text(text = "Name: ${movie.data!!.collection.name}")
-//        Text(text = "Backdrop path: ${movie.data!!.collection.landscapeImageUrl}")
-//        Text(text = "Poster path: ${movie.data!!.collection.posterUrl}")
-//        Spacer(modifier = Modifier.height(8.dp))
-//        Text(text = "Region release date: ${movie.data!!.regionReleaseDate}")
-//        Spacer(modifier = Modifier.height(8.dp))
-//        Text(text = "--- Genres ---")
-//        for (genre in movie.data!!.genres) {
-//            Text(text = genre)
-//        }
-//        Spacer(modifier = Modifier.height(8.dp))
-//        Text(text = "--- Production Companies ---")
-//        for (company in movie.data!!.productionCompanies) {
-//            Text(text = "ID: ${company.id}")
-//            Text(text = "Name: ${company.name}")
-//            Text(text = "Logo path: ${company.logoImageUrl}")
-//            Text(text = "Origin country: ${company.originCountry}")
-//            Spacer(modifier = Modifier.height(8.dp))
-//        }
-//        Text(text = "--- Production Countries ---")
-//        for (country in movie.data!!.productionCountries) {
-//            Text(text = country)
-//        }
-//        Spacer(modifier = Modifier.height(8.dp))
-//        Text(text = "--- Spoken Languages ---")
-//        for (language in movie.data!!.spokenLanguages) {
-//            Text(text = language)
-//        }
-//    }
-//}
 
 @Composable
 fun AddMovieDialog(

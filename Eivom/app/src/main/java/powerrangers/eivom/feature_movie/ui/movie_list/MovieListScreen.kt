@@ -87,8 +87,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Bottom
+import androidx.compose.ui.Alignment.Companion.BottomCenter
+import androidx.compose.ui.Alignment.Companion.BottomStart
 import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.Alignment.Companion.CenterEnd
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.CenterStart
+import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
@@ -142,8 +148,10 @@ import powerrangers.eivom.ui.theme.LobsterRegular
 import powerrangers.eivom.ui.theme.Poppins
 import powerrangers.eivom.ui.theme.PoppinsBold
 import powerrangers.eivom.ui.theme.PoppinsItalic
+import powerrangers.eivom.ui.theme.PoppinsMedium
 import powerrangers.eivom.ui.theme.VintageKing
 import powerrangers.eivom.ui.utility.UserPreferences
+import java.lang.StrictMath.round
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.Calendar
@@ -322,22 +330,14 @@ fun MovieListBody(
                         stiffness = Spring.StiffnessLow
                     )
                 )
-                .padding(top = 10.dp)
         ) {
             LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                columns = GridCells.Fixed(1),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = modifier
                     .background(MaterialTheme.colors.background)
-                    .fillMaxSize()
-                    .padding(
-                        top = 5.dp,
-                        start = 10.dp,
-                        end = 10.dp
-                    ),
-
-                //horizontalAlignment = CenterHorizontally
+                    .fillMaxSize(),
             ) {
                 itemsIndexed(movieListItems.data!!) { index, movie ->
                     if (index >= movieListItems.data!!.size - 1 && movieListItems is Resource.Success) {
@@ -1055,79 +1055,194 @@ fun MovieListEntry(
     }
 
     Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
-            .shadow(10.dp, RoundedCornerShape(10.dp))
-            .background(
-                Brush.verticalGradient(
-                    listOf(
-                        dominantColor,
-                        defaultDominantColor
-                    )
-                )
-            )
-            .height(350.dp)
-            .width(250.dp)
+        modifier = Modifier
+            .background(Color.Transparent)
+            .height(430.dp)
+            .width(300.dp)
             .clickable {
                 navigateToMovieDetailScreen(movie.id)
             }
     ) {
         val posterUrl = movie.posterUrl
-        val onErrorFallbackImageRes = "https://cdn.pixabay.com/photo/2018/01/04/15/51/404-error-3060993_640.png"
+        val onErrorFallbackImageRes = painterResource(id = R.drawable.error_img)
         val painter = rememberAsyncImagePainter(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(posterUrl)
                 .crossfade(true)
                 .build()
         )
-        Column(
-            modifier = modifier.fillMaxSize(),
-            horizontalAlignment = CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        Row(
+            modifier = modifier
+                .fillMaxHeight()
+                .fillMaxWidth(),
         ) {
-            Image(
-                painter = if (painter.state is AsyncImagePainter.State.Error) rememberAsyncImagePainter(
-                    onErrorFallbackImageRes
-                ) else painter,
-                contentDescription = null,
-                modifier = modifier
-                    .width(180.dp)
-                    .height(190.dp)
-                    .padding(10.dp)
-                    .clip(RoundedCornerShape(30.dp))
-                ,
-                contentScale = ContentScale.Fit,
-            )
-            Text(
-                text = movie.title,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        top = 16.dp
-                    )
-            )
-            FavoriteMovieButton(
-                isFavorite = isFavorite,
-                onFavoriteToggle = { isChecked ->
-                    coroutineScope.launch {
-                        val isSuccess = if (isFavorite) {
-                            errorDescription.value = deleteError
-                            deleteFavoriteMovie(movie)
-                        } else {
-                            errorDescription.value = addError
-                            addFavoriteMovie(movie)
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .weight(1f)){
+                Image(
+                    painter = if (painter.state is AsyncImagePainter.State.Error) onErrorFallbackImageRes else painter,
+                    contentDescription = null,
+                    modifier = modifier
+                        .padding(top = 30.dp, start = 5.dp)
+                        .clip(RoundedCornerShape(30.dp))
+                        .fillMaxHeight()
+                        .width(260.dp)
+                    ,
+                    alignment = Center,
+                    contentScale = ContentScale.Crop,
+                )
+                FavoriteMovieButton(
+                    isFavorite = isFavorite,
+                    onFavoriteToggle = { isChecked ->
+                        coroutineScope.launch {
+                            val isSuccess = if (isFavorite) {
+                                errorDescription.value = deleteError
+                                deleteFavoriteMovie(movie)
+                            } else {
+                                errorDescription.value = addError
+                                addFavoriteMovie(movie)
+                            }
+                            if (isSuccess) {
+                                isFavorite = isChecked
+                            } else {
+                                showErrorDialog.value = true
+                            }
                         }
-                        if (isSuccess) {
-                            isFavorite = isChecked
-                        } else {
-                            showErrorDialog.value = true
+                    },
+                    checkedColor = Color.Red,
+                    uncheckedColor = MaterialTheme.colors.onSurface,
+                    modifier = Modifier
+                        .align(TopEnd)
+                        .padding(top = 30.dp)
+                )
+            }
+
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .weight(1.2f)
+                .padding(top = 20.dp)) {
+                Text(
+                    text = movie.title,
+                    textAlign = if (movie.title.length < 18) TextAlign.Left else TextAlign.Center,
+                    fontSize = if (movie.title.length < 16) 24.sp else 20.sp,
+                    fontFamily = PoppinsBold,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 10.dp, top = 10.dp, bottom = 5.dp)
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 10.dp)
+                ){
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_star),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(45.dp)
+                            .padding(top = 5.dp),
+                        tint = MaterialTheme.colors.secondary
+                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 5.dp)
+                    ) {
+                        Row(Modifier.fillMaxWidth()) {
+                            Text(
+                                text = "${round(movie.voteAverage.toFloat() * 1000).toFloat() / 1000}",
+                                fontSize = 18.sp,
+                                fontFamily = PoppinsBold,
+                                color = MaterialTheme.colors.secondary,
+                                modifier = Modifier.padding(bottom = 1.dp)
+                            )
+                            Text(
+                                text = " /10",
+                                fontSize = 14.sp,
+                                fontFamily = Poppins,
+                                color = Color.LightGray,
+                                modifier = Modifier.padding(top = 5.dp)
+                            )
+                        }
+                        var vote = movie.voteCount.toInt()
+                        if (vote >= 1000 && vote <= 1000000){
+                            vote = vote / 1000
+                            Text(
+                                text = "${vote}K",
+                                fontSize = 16.sp,
+                                fontFamily = PoppinsBold,
+                                color = Color.Gray
+                            )
+                        }
+                        else if ( vote > 1000000){
+                            vote = vote / 1000000
+                            Text(
+                                text = "${vote}M",
+                                fontSize = 16.sp,
+                                fontFamily = PoppinsBold,
+                                color = Color.Gray
+                            )
+                        }
+                        else Text(
+                            text = "${vote}",
+                            fontSize = 16.sp,
+                            fontFamily = PoppinsBold,
+                            color = Color.Gray
+                        )
+                    }
+                }
+                // Genres
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 15.dp)
+                ){
+                    val item = 0
+                    if (!movie.genres.isEmpty()){
+                        if (movie.genres.size < 2) {
+                            Text(
+                                text = "${movie.genres[item]}, ",
+                                fontSize = 14.sp,
+                                fontFamily = PoppinsMedium,
+                                color = Color.Black
+                            )
+                        }
+                        else
+                        if (movie.genres.size < 3) {
+                            Text(
+                                text = "${movie.genres[item]}, ${movie.genres[item+1]}",
+                                fontSize = 14.sp,
+                                fontFamily = PoppinsMedium,
+                                color = Color.Black
+                            )
+                        }
+                        else
+                        if (movie.genres.size < 4) {
+                            Text(
+                                text = "${movie.genres[item]}, ${movie.genres[item+1]}, ${movie.genres[item+2]}",
+                                fontSize = 14.sp,
+                                fontFamily = PoppinsMedium,
+                                color = Color.Black
+                            )
                         }
                     }
-                },
-                checkedColor = Color.Red,
-                uncheckedColor = MaterialTheme.colors.onSurface
-            )
+                }
+                if (!movie.overview.isNullOrBlank())
+                {
+                    val length = if (movie.overview.length < 80) movie.overview.length else 80
+                    var subString = movie.overview
+                    subString = subString.substring(0, length)
+                    Text(
+                        text = "${subString} . . . ",
+                        fontSize = 16.sp,
+                        fontFamily = Poppins,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(start = 15.dp)
+                    )
+                }
+
+            }
+
         }
     }
 }
@@ -2494,9 +2609,8 @@ fun WithoutGenreCard(
             .background(
                 color =
                 if (genre.isSelected.value && !checkExist) MaterialTheme.colors.primary
-                    else if (checkExist) Color.LightGray
-                    else Color.White
-                ,
+                else if (checkExist) Color.LightGray
+                else Color.White,
                 shape = RoundedCornerShape(8.dp)
             )
     ) {
@@ -3272,9 +3386,11 @@ fun VoteSort(
                 Icon(
                     painter = painterResource(R.drawable.ic_ascending),
                     contentDescription = null,
-                    modifier = Modifier.size(40.dp).padding(
-                        end = 15.dp
-                    ),
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(
+                            end = 15.dp
+                        ),
                     tint = Color.White,
                 )
             }
@@ -3282,9 +3398,11 @@ fun VoteSort(
                 Icon(
                     painter = painterResource(R.drawable.ic_decending),
                     contentDescription = null,
-                    modifier = Modifier.size(40.dp).padding(
-                        end = 15.dp
-                    ),
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(
+                            end = 15.dp
+                        ),
                     tint = Color.White,
                 )
             }
@@ -3338,9 +3456,11 @@ fun OriginalTitleSort(
                 Icon(
                     painter = painterResource(R.drawable.ic_threedots),
                     contentDescription = null,
-                    modifier = Modifier.size(40.dp).padding(
-                        end = 15.dp
-                    ),
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(
+                            end = 15.dp
+                        ),
                     tint = Color.White,
                 )
             }
@@ -3348,9 +3468,11 @@ fun OriginalTitleSort(
                 Icon(
                     painter = painterResource(R.drawable.ic_ascending),
                     contentDescription = null,
-                    modifier = Modifier.size(40.dp).padding(
-                        end = 15.dp
-                    ),
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(
+                            end = 15.dp
+                        ),
                     tint = Color.White,
                 )
             }
@@ -3358,9 +3480,11 @@ fun OriginalTitleSort(
                 Icon(
                     painter = painterResource(R.drawable.ic_decending),
                     contentDescription = null,
-                    modifier = Modifier.size(40.dp).padding(
-                        end = 15.dp
-                    ),
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(
+                            end = 15.dp
+                        ),
                     tint = Color.White,
                 )
             }
@@ -3413,9 +3537,11 @@ fun TitleSort(
                 Icon(
                     painter = painterResource(R.drawable.ic_threedots),
                     contentDescription = null,
-                    modifier = Modifier.size(40.dp).padding(
-                        end = 15.dp
-                    ),
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(
+                            end = 15.dp
+                        ),
                     tint = Color.White,
                 )
             }
@@ -3423,9 +3549,11 @@ fun TitleSort(
                 Icon(
                     painter = painterResource(R.drawable.ic_ascending),
                     contentDescription = null,
-                    modifier = Modifier.size(40.dp).padding(
-                        end = 15.dp
-                    ),
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(
+                            end = 15.dp
+                        ),
                     tint = Color.White,
                 )
             }
@@ -3433,9 +3561,11 @@ fun TitleSort(
                 Icon(
                     painter = painterResource(R.drawable.ic_decending),
                     contentDescription = null,
-                    modifier = Modifier.size(40.dp).padding(
-                        end = 15.dp
-                    ),
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(
+                            end = 15.dp
+                        ),
                     tint = Color.White,
                 )
             }
