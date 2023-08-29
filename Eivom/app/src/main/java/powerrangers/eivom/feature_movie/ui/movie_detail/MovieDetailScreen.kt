@@ -1218,7 +1218,7 @@ fun AddMovieDialog(
                 // Dialog title
                 Text(
                     modifier = modifier.fillMaxWidth(),
-                    text = stringResource(id = R.string.add_manual_movie_title),
+                    text = "Edit Favorite Movie",
                     textAlign = TextAlign.Center
                 )
                 Column(
@@ -1815,7 +1815,7 @@ fun AddSponsoredMovieDialog(
                 // Dialog title
                 Text(
                     modifier = modifier.fillMaxWidth(),
-                    text = stringResource(id = R.string.add_sponsored_movie_title),
+                    text = "Edit Sponsored Movie",
                     textAlign = TextAlign.Center
                 )
                 Column(
