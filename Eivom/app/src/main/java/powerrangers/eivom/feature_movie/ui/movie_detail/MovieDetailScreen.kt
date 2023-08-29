@@ -463,7 +463,7 @@ fun FilmTitle(
 
             // Production Name
             Text(
-                text = "by ${movie.data!!.productionCompanies[0].name}",
+                text = "by ${if (movie.data!!.productionCompanies.isNotEmpty()) movie.data!!.productionCompanies[0].name else "Unknown"}",
                 color = Color.LightGray,
                 fontFamily = PoppinsBold,
                 fontSize = 10.sp,
